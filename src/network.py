@@ -30,7 +30,7 @@ build and simulate the network.
 import os
 import numpy as np
 import nest
-import helpers
+from . import helpers
 import warnings
 
 

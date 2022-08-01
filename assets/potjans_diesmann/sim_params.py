@@ -42,7 +42,7 @@ sim_dict = {
     # recorded if an empty list is given.
     'rec_dev': ['spike_recorder'],
     # path to save the output data
-    'data_path': os.path.join(os.getcwd(), 'data/'),
+    'data_path': os.path.join(os.getcwd(), 'potjans_diesmann_data/'),
     # Seed for NEST
     'rng_seed': 55,
     # number of threads per MPI process

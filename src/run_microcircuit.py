@@ -30,10 +30,10 @@ basic plots of the network activity.
 ###############################################################################
 # Import the necessary modules and start the time measurements.
 
-from stimulus_params import stim_dict
-from network_params import net_dict
-from sim_params import sim_dict
-import network
+from assets.potjans_diesmann.stimulus_params import stim_dict
+from assets.potjans_diesmann.network_params import net_dict
+from assets.potjans_diesmann.sim_params import sim_dict
+from . import network
 import nest
 import numpy as np
 import time
