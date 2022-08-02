@@ -1,3 +1,5 @@
+import numpy as np
+
 net_dict = {
     # neuron model
     'neuron_model': 'iaf_psc_alpha',
@@ -6,7 +8,7 @@ net_dict = {
     # number of neurons in the different populations (same order as
     # 'populations')
     'full_num_neurons':
-        np.array([20683, 5834, 21915]),
+        np.array([2000, 1000, 2000]),
     'neuron_params': {
         'smooth_cells': {
             # reset membrane potential of the neurons (in mV)
@@ -40,28 +42,5 @@ net_dict = {
             [-10, 10, 10],
             [-20, 10, 10]
         ])
-
-    # "connections": {
-    #     "smooth_cells": {
-    #         "smooth_cells": -10, # inhibitory connection
-    #         "P23": -10, # inhibitory connection
-    #         "P56": -20, # stronger inhibitory connection
-    #     },
-    #     "P23": {
-    #         "smooth_cells": 10, # excitatory connection
-    #         "P23": 10, # excitatory connection
-    #         "P56": 10, # excitatory connection
-    #     },
-    #     "P56": {
-    #         "smooth_cells": 10, # excitatory connection
-    #         "P23": 10, # excitatory connection
-    #         "P56": 10, # excitatory connection
-    #     },
-    #     "thalamus": {
-    #         "smooth_cells": 10, # excitatory connection
-    #         "P23": 10, # excitatory connection
-    #         "P56": 5, # weak connection
-    #     }
-    # }   
 }
     
