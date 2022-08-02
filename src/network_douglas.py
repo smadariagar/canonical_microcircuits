@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import nest
-import helpers
+from utils import helpers
 import warnings
 
 from network import Network
@@ -13,8 +13,10 @@ class NetworkDouglas(Network):
     Instantiating a Network object derives dependent parameters and already
     initializes the NEST kernel.
 
+    Implementation:
+    ------------
+    RODNEY J. DOUGLAS*t AND KEVAN A. C. MARTIN* 
     A FUNCTIONAL MICROCIRCUIT FOR CAT VISUAL CORTEX
-    RODNEY J. DOUGLAS*t AND KEVAN A. C. MARTIN*
 
     Parameters
     ---------
@@ -39,6 +41,7 @@ class NetworkDouglas(Network):
         self.population_names = self.net_dict["populations"]
         self.num_pops = len(self.population_names)
         self.num_neurons = self.net_dict["full_num_neurons"]
+        self.conn_weights = self.net_dict["conn_weights"]
 
     def __setup_nest(self):
         """ Initializes the NEST kernel.
@@ -106,3 +109,19 @@ class NetworkDouglas(Network):
             self.voltmeters = nest.Create('voltmeter',
                                           n=self.num_pops,
                                           params=vm_dict)
+
+    def __connect_neuronal_populations(self):
+        """ Creates the connections between neuronal populations. """
+        for i, target_pop in enumerate(self.pops):
+            for j, source_pop in enumerate(self.pops):
+                conn_dict_rec = {
+                }
+                syn_dict = {
+                    'synapse_model': 'static_synapse',
+                    'weight': self.conn_weights[i][j],
+                }
+
+                nest.Connect(
+                    source_pop, target_pop,
+                    conn_spec=conn_dict_rec,
+                    syn_spec=syn_dict)
