@@ -30,7 +30,7 @@ build and simulate the network.
 import os
 import numpy as np
 import nest
-from . import helpers
+from utils import helpers
 import warnings
 
 
@@ -230,7 +230,8 @@ class Network:
                     self.net_dict['full_mean_rates'],
                     DC_amp,
                     self.net_dict['poisson_input'],
-                    self.net_dict['bg_rate'], self.net_dict['K_ext'])
+                    self.net_dict['bg_rate'], self.net_dict['K_ext']
+                )
 
         # store final parameters as class attributes
         self.weight_matrix_mean = PSC_matrix_mean
