@@ -115,13 +115,13 @@ class Network:
         """
         self.__connect_neuronal_populations()
 
-        if len(self.sim_dict['rec_dev']) > 0:
+        if len(self.sim_dict.get('rec_dev', [])) > 0:
             self.__connect_recording_devices()
-        if self.net_dict['poisson_input']:
+        if self.net_dict.get('poisson_input', None):
             self.__connect_poisson_bg_input()
-        if self.stim_dict['thalamic_input']:
+        if self.stim_dict.get('thalamic_input', None):
             self.__connect_thalamic_stim_input()
-        if self.stim_dict['dc_input']:
+        if self.stim_dict.get('dc_input', None):
             self.__connect_dc_stim_input()
 
         nest.Prepare()
