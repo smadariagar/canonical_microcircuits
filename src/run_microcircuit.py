@@ -34,8 +34,10 @@ from assets.potjans_diesmann.stimulus_params import stim_dict
 from assets.potjans_diesmann.network_params import net_dict
 from assets.potjans_diesmann.sim_params import sim_dict
 from . import network
+
 import nest
 import numpy as np
+import matplotlib.pyplot as plt
 import time
 time_start = time.time()
 
@@ -107,3 +109,5 @@ print(
     '  Time to evaluate:    {:.3f} s\n'.format(
         time_evaluate -
         time_simulate))
+
+plt.show()
