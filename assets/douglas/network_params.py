@@ -1,6 +1,8 @@
 import numpy as np
 
 net_dict = {
+    # factor to scale the number of neurons
+    'N_scaling': 0.1,
     # neuron model
     'neuron_model': 'iaf_psc_alpha',
     # names of the simulated neuronal populations
