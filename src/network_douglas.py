@@ -32,15 +32,7 @@ class Network(network.Network):
 
     """
     def __init__(self, sim_dict, net_dict, stim_dict=None):
-        self.sim_dict = sim_dict
-        self.net_dict = net_dict
-        self.stim_dict = stim_dict
-
-        # derive parameters based on input dictionaries
-        self.__derive_parameters()
-
-        # initialize the NEST kernel
-        self.__setup_nest()
+        super().__init__(sim_dict, net_dict, stim_dict)
 
     def create(self):
         """ Creates all network nodes.
@@ -105,7 +97,6 @@ class Network(network.Network):
 
         Reset the NEST kernel and pass parameters to it.
         """
-        print(super(), "asdasd\n")
         super().__setup_nest()
 
     def __create_neuronal_populations(self):
@@ -114,6 +105,9 @@ class Network(network.Network):
         Creates the neuronal populations and stores them as class attributes.
 
         """
+        if nest.Rank() == 0:
+            print('Creating neuronal populations.')
+
         self.pops = []
         for i in range(self.num_pops):
             # Get associated neuron params from the specific population
@@ -125,20 +119,34 @@ class Network(network.Network):
             # Store the population
             self.pops.append(population)
 
+        # write node ids to file
+        if nest.Rank() == 0:
+            fn = os.path.join(self.data_path, 'population_nodeids.dat')
+            with open(fn, 'w+') as f:
+                for pop in self.pops:
+                    f.write('{} {}\n'.format(pop[0].global_id,
+                                             pop[-1].global_id))
+
     def __create_recording_devices(self):
         """ Creates one recording device of each kind per population.
 
         Only devices which are given in ``sim_dict['rec_dev']`` are created.
 
         """
+        if nest.Rank() == 0:
+            print('Creating recording devices.')
+
         if 'spike_recorder' in self.sim_dict['rec_dev']:
-            sd_dict = {}
+            sd_dict = {'record_to': 'ascii',
+                       'label': os.path.join(self.data_path, 'spike_recorder')}
             self.spike_recorders = nest.Create('spike_recorder',
                                                n=self.num_pops,
                                                params=sd_dict)
     
         if 'voltmeter' in self.sim_dict['rec_dev']:
-            vm_dict = {'record_from': ['V_m']}
+            vm_dict = {'record_to': 'ascii',
+                       'record_from': ['V_m'],
+                       'label': os.path.join(self.data_path, 'voltmeter')}
             self.voltmeters = nest.Create('voltmeter',
                                           n=self.num_pops,
                                           params=vm_dict)
@@ -182,6 +190,9 @@ class Network(network.Network):
 
     def __connect_neuronal_populations(self):
         """ Creates the connections between neuronal populations. """
+        if nest.Rank() == 0:
+            print('Connecting neuronal populations recurrently.')
+
         for i, target_pop in enumerate(self.pops):
             for j, source_pop in enumerate(self.pops):
                 #conn_dict_rec = {
@@ -207,6 +218,9 @@ class Network(network.Network):
     def __connect_thalamic_stim_input(self):
         """ Connects the thalamic input to the neuronal populations."""
         # connect Poisson input to thalamic population
+        if nest.Rank() == 0:
+            print('Connecting thalamic input.')
+
         nest.Connect(self.poisson_th, self.thalamic_population)
 
         # connect thalamic population to neuronal populations
