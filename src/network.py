@@ -62,17 +62,17 @@ class Network:
 
         # data directory
         self.data_path = sim_dict.get('data_path', None)
-        if self.data_path:
-            if nest.Rank() == 0:
-                if os.path.isdir(self.data_path):
-                    message = '  Directory already existed.'
-                    if self.sim_dict['overwrite_files']:
-                        message += ' Old data will be overwritten.'
-                else:
-                    os.mkdir(self.data_path)
-                    message = '  Directory has been created.'
-                print('Data will be written to: {}\n{}\n'.format(self.data_path,
-                                                                message))
+        
+        if nest.Rank() == 0:
+            if os.path.isdir(self.data_path):
+                message = '  Directory already existed.'
+                if self.sim_dict['overwrite_files']:
+                    message += ' Old data will be overwritten.'
+            else:
+                os.mkdir(self.data_path)
+                message = '  Directory has been created.'
+            print('Data will be written to: {}\n{}\n'.format(self.data_path,
+                                                            message))
 
         # derive parameters based on input dictionaries
         self.__derive_parameters()
@@ -162,22 +162,25 @@ class Network:
             None
 
         """
-        if self.data_path:
-            if nest.Rank() == 0:
-                print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
-                helpers.plot_raster(
-                    self.data_path,
-                    'spike_recorder',
-                    raster_plot_interval[0],
-                    raster_plot_interval[1],
-                    self.net_dict['N_scaling'])
+        if nest.Rank() == 0:
+            print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
+            helpers.plot_raster(
+                self.data_path,
+                'spike_recorder',
+                raster_plot_interval[0],
+                raster_plot_interval[1],
+                self.net_dict['N_scaling'],
+                self.net_dict['populations'],
+            )
 
-                print('Interval to compute firing rates: {} ms'.format(
-                    firing_rates_interval))
-                helpers.firing_rates(
-                    self.data_path, 'spike_recorder',
-                    firing_rates_interval[0], firing_rates_interval[1])
-                helpers.boxplot(self.data_path, self.net_dict['populations'])
+            print('Interval to compute firing rates: {} ms'.format(
+                firing_rates_interval))
+            helpers.firing_rates(
+                self.data_path, 
+                'spike_recorder',
+                firing_rates_interval[0], 
+                firing_rates_interval[1])
+            helpers.boxplot(self.data_path, self.net_dict['populations'])
 
     def __derive_parameters(self):
         """
@@ -527,7 +530,6 @@ class Network:
 
     def __connect_dc_stim_input(self):
         """ Connects the DC generators to the neuronal populations. """
-
         if nest.Rank() == 0:
             print('Connecting DC generators.')
 
