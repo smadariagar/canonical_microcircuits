@@ -222,6 +222,8 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
         Time point (in ms) to stop plotting spikes (included).
     N_scaling
         Scaling factor for number of neurons.
+    populations
+        List of populations names to be plotted.
 
     Returns
     -------
@@ -231,7 +233,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
     fs = 18  # fontsize
     color_list = np.tile(['#595289', '#af143c'], 4)
 
-    sd_names, node_ids, data = __load_spike_times(path, name, begin, end)
+    sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
     last_node_id = node_ids[-1, -1]
     mod_node_ids = np.abs(node_ids - last_node_id) + 1
 
@@ -252,6 +254,44 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
     plt.xticks(fontsize=fs)
     plt.yticks(label_pos, populations, fontsize=fs)
     plt.savefig(os.path.join(path, 'raster_plot.png'), dpi=300)
+
+
+def plot_voltages(path, name, begin, end, populations):
+    """ Computes voltages per population.
+
+    The voltage of each neuron in each population is computed and stored
+    in a .dat file in the directory of the voltmeters.
+
+    Parameters
+    -----------
+    path
+        Path where the spike times are stored.
+    name
+        Name of the spike recorder.
+    begin
+        Time point (in ms) to start calculating the firing rates (included).
+    end
+        Time point (in ms) to stop calculating the firing rates (included).
+    populations
+        List of populations names to be plotted.
+
+    Returns
+    -------
+    None
+
+    """
+    fs = 18  # fontsize
+
+    sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
+    fig, axs = plt.subplots(len(populations), 1, figsize=(8, 6), sharex=True, sharey=True)
+    for i, n in enumerate(sd_names):
+        times, voltage = data[i]['time_ms'], data[i]['voltage']
+        axs[i].plot(times, voltage, label=populations[i], color=f"C{i}")
+        axs[i].grid()
+        axs[i].legend()
+    fig.supxlabel('time [ms]', fontsize=fs)
+    fig.supylabel('voltage [mV]', fontsize=fs)
+    fig.savefig(os.path.join(path, 'voltage_plot.png'), dpi=300)
 
 
 def firing_rates(path, name, begin, end):
@@ -277,7 +317,7 @@ def firing_rates(path, name, begin, end):
     None
 
     """
-    sd_names, node_ids, data = __load_spike_times(path, name, begin, end)
+    sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
     all_mean_rates = []
     all_std_rates = []
     for i, n in enumerate(sd_names):
@@ -394,32 +434,34 @@ def __gather_metadata(path, name):
     node_ids = np.array(node_ids, dtype='i4')
     return sd_files, sd_names, node_ids
 
-
-def __load_spike_times(path, name, begin, end):
-    """ Loads spike times of each spike recorder.
+def __load_meter_data(path, name, begin, end):
+    """ Loads spikes or voltages from recorders.
 
     Parameters
     ----------
     path
-        Path where the files with the spike times are stored.
+        Path where the files with the data are stored.
     name
         Name of the spike recorder.
     begin
-        Time point (in ms) to start loading spike times (included).
+        Time point (in ms) to start loading data (included).
     end
-        Time point (in ms) to stop loading spike times (included).
+        Time point (in ms) to stop loading data (included).
 
     Returns
     -------
     data
-        Dictionary containing spike times in the interval from ``begin``
+        Dictionary containing data in the interval from ``begin``
         to ``end``.
 
     """
     sd_files, sd_names, node_ids = __gather_metadata(path, name)
     data = {}
     dtype = {'names': ('sender', 'time_ms'),  # as in header
-             'formats': ('i4', 'f8')}
+                'formats': ('i4', 'f8')}
+    if any('voltmeter' in sd_name for sd_name in sd_names):
+        dtype['names'] = ('sender', 'time_ms', 'voltage')
+        dtype['formats'] = ('i4', 'f8', 'f8')
     for i, name in enumerate(sd_names):
         data_i_raw = np.array([[]], dtype=dtype)
         for j, f in enumerate(sd_files):

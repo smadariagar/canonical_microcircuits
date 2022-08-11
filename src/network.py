@@ -181,6 +181,13 @@ class Network:
                 firing_rates_interval[0], 
                 firing_rates_interval[1])
             helpers.boxplot(self.data_path, self.net_dict['populations'])
+            helpers.plot_voltages(
+                self.data_path, 
+                'voltmeter', 
+                firing_rates_interval[0], 
+                firing_rates_interval[1], 
+                self.net_dict['populations']
+            )
 
     def __derive_parameters(self):
         """
