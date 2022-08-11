@@ -40,9 +40,9 @@ sim_dict = {
     # list of recording devices, default is 'spike_recorder'. A 'voltmeter' can
     # be added to record membrane voltages of the neurons. Nothing will be
     # recorded if an empty list is given.
-    'rec_dev': ['spike_recorder'],
+    'rec_dev': ['spike_recorder', 'voltmeter'],
     # path to save the output data
-    'data_path': os.path.join(os.getcwd(), 'data/data_pd/'),
+    'data_path': os.path.join(os.getcwd(), 'data/data_potjans_diesmann/'),
     # Seed for NEST
     'rng_seed': 55,
     # number of threads per MPI process

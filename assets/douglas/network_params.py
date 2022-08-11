@@ -43,6 +43,16 @@ net_dict = {
             [-10, 10, 10],
             [-10, 10, 10],
             [-20, 10, 10]
-        ])
+        ]),
+    # turn Poisson input on or off (True or False)
+    # if False: DC input is applied for compensation
+    'poisson_input': False,
+    # indegree of external connections to the different populations (same order
+    # as in 'populations')
+    'K_ext': np.array([1, 1, 1])*2000,
+    # rate of the Poisson generator (in spikes/s)
+    'bg_rate': 8.,
+    # delay from the Poisson generator to the network (in ms)
+    'delay_poisson': 1.5,
 }
     
