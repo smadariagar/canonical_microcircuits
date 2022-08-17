@@ -69,7 +69,7 @@ class Network:
                 if self.sim_dict['overwrite_files']:
                     message += ' Old data will be overwritten.'
             else:
-                os.mkdir(self.data_path)
+                os.makedirs(self.data_path)
                 message = '  Directory has been created.'
             print('Data will be written to: {}\n{}\n'.format(self.data_path,
                                                             message))
@@ -164,30 +164,32 @@ class Network:
         """
         if nest.Rank() == 0:
             print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
-            helpers.plot_raster(
-                self.data_path,
-                'spike_recorder',
-                raster_plot_interval[0],
-                raster_plot_interval[1],
-                self.net_dict['N_scaling'],
-                self.net_dict['populations'],
-            )
-
+            if self.sim_dict["plot_raster"]:
+                helpers.plot_raster(
+                    self.data_path,
+                    'spike_recorder',
+                    raster_plot_interval[0],
+                    raster_plot_interval[1],
+                    self.net_dict['N_scaling'],
+                    self.net_dict['populations'],
+                )
             print('Interval to compute firing rates: {} ms'.format(
                 firing_rates_interval))
-            helpers.firing_rates(
-                self.data_path, 
-                'spike_recorder',
-                firing_rates_interval[0], 
-                firing_rates_interval[1])
-            helpers.boxplot(self.data_path, self.net_dict['populations'])
-            helpers.plot_voltages(
-                self.data_path, 
-                'voltmeter', 
-                firing_rates_interval[0], 
-                firing_rates_interval[1], 
-                self.net_dict['populations']
-            )
+            if self.sim_dict["plot_firing_rates"]:
+                helpers.firing_rates(
+                    self.data_path, 
+                    'spike_recorder',
+                    firing_rates_interval[0], 
+                    firing_rates_interval[1])
+                helpers.boxplot(self.data_path, self.net_dict['populations'])
+            if self.sim_dict["plot_voltages"]:
+                helpers.plot_voltages(
+                    self.data_path, 
+                    'voltmeter', 
+                    firing_rates_interval[0], 
+                    firing_rates_interval[1], 
+                    self.net_dict['populations']
+                )
 
     def __derive_parameters(self):
         """
