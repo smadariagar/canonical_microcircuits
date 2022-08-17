@@ -427,7 +427,7 @@ def __gather_metadata(path, name):
                 sd_names.append(fnsplit)
 
     # load node IDs
-    node_idfile = open(path + 'population_nodeids.dat', 'r')
+    node_idfile = open(os.path.join(path, 'population_nodeids.dat'), 'r')
     node_ids = []
     for node_id in node_idfile:
         node_ids.append(node_id.split())
