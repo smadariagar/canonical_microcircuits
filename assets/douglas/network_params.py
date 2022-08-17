@@ -2,7 +2,7 @@ import numpy as np
 
 net_dict = {
     # factor to scale the number of neurons
-    'N_scaling': 0.1,
+    'N_scaling': 1,
     # neuron model
     'neuron_model': 'iaf_psc_alpha',
     # names of the simulated neuronal populations
@@ -10,7 +10,7 @@ net_dict = {
     # number of neurons in the different populations (same order as
     # 'populations')
     'full_num_neurons':
-        np.array([2000, 1000, 2000]),
+        np.array([1, 1, 1]),
     'neuron_params': {
         'smooth_cells': {
             # reset membrane potential of the neurons (in mV)
@@ -49,7 +49,7 @@ net_dict = {
     'poisson_input': False,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
-    'K_ext': np.array([1, 1, 1])*2000,
+    'K_ext': np.array([1, 1, 1])*1000,
     # rate of the Poisson generator (in spikes/s)
     'bg_rate': 8.,
     # delay from the Poisson generator to the network (in ms)

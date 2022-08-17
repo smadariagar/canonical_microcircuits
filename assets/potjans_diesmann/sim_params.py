@@ -27,6 +27,7 @@ A dictionary with parameters defining the simulation.
 """
 
 import os
+from datetime import datetime
 
 sim_dict = {
     # The full simulation time is the sum of a presimulation time and the main
@@ -42,7 +43,7 @@ sim_dict = {
     # recorded if an empty list is given.
     'rec_dev': ['spike_recorder', 'voltmeter'],
     # path to save the output data
-    'data_path': os.path.join(os.getcwd(), 'data/data_potjans_diesmann/'),
+    'data_path': os.path.join(os.getcwd(), 'results/potjans_diesmann/', datetime.now().strftime('%Y%m%d%H%M%S')),
     # Seed for NEST
     'rng_seed': 55,
     # number of threads per MPI process
@@ -54,4 +55,11 @@ sim_dict = {
     'overwrite_files': True,
     # print the time progress. This should only be used when the simulation
     # is run on a local machine.
-    'print_time': True}
+    'print_time': True,
+    # if True, raster plots will be plotted.
+    'plot_raster': True,
+    # if True, the firing rates will be plotted.
+    'plot_firing_rates': True,
+    # if True, voltage traces will be plotted.
+    'plot_voltages': True,
+}
