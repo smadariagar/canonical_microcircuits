@@ -42,7 +42,7 @@ net_dict = {
     "conn_weights": np.array([
             [-10, 10, 10],
             [-10, 10, 10],
-            [-20, 10, 10]
+            [-10, 10, 10]
         ]),
     # turn Poisson input on or off (True or False)
     # if False: DC input is applied for compensation
