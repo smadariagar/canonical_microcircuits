@@ -29,6 +29,7 @@ build and simulate the network.
 
 import os
 import numpy as np
+import pandas as pd
 import nest
 from utils import helpers
 import warnings
@@ -73,6 +74,9 @@ class Network:
                 message = '  Directory has been created.'
             print('Data will be written to: {}\n{}\n'.format(self.data_path,
                                                             message))
+            pd.Series(self.sim_dict).to_json(os.path.join(self.data_path,'sim_params.json'))
+            pd.Series(self.net_dict).to_json(os.path.join(self.data_path,'net_params.json'))
+            pd.Series(self.stim_dict).to_json(os.path.join(self.data_path,'stim_params.json'))
 
         # derive parameters based on input dictionaries
         self.__derive_parameters()
@@ -430,8 +434,8 @@ class Network:
             print('Creating DC generators for external stimulation.')
 
         dc_dict = {'amplitude': dc_amp_stim,
-                   'start': self.stim_dict['dc_start'],
-                   'stop': self.stim_dict['dc_start'] + self.stim_dict['dc_dur']}
+                    'start': self.stim_dict['dc_start'],
+                    'stop': self.stim_dict['dc_start'] + self.stim_dict['dc_dur']}
         self.dc_stim_input = nest.Create('dc_generator', n=self.num_pops, params=dc_dict)
 
     def __connect_neuronal_populations(self):
