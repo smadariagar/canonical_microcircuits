@@ -133,23 +133,8 @@ class Network(network.Network):
         Only devices which are given in ``sim_dict['rec_dev']`` are created.
 
         """
-        if nest.Rank() == 0:
-            print('Creating recording devices.')
-
-        if 'spike_recorder' in self.sim_dict['rec_dev']:
-            sd_dict = {'record_to': 'ascii',
-                       'label': os.path.join(self.data_path, 'spike_recorder')}
-            self.spike_recorders = nest.Create('spike_recorder',
-                                               n=self.num_pops,
-                                               params=sd_dict)
-    
-        if 'voltmeter' in self.sim_dict['rec_dev']:
-            vm_dict = {'record_to': 'ascii',
-                       'record_from': ['V_m'],
-                       'label': os.path.join(self.data_path, 'voltmeter')}
-            self.voltmeters = nest.Create('voltmeter',
-                                          n=self.num_pops,
-                                          params=vm_dict)
+        super().__create_recording_devices()
+        
     def __create_poisson_bg_input(self):
         """ Creates the Poisson generators for ongoing background input if
         specified in ``network_params.py``.
