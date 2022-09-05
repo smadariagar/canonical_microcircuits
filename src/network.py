@@ -192,8 +192,11 @@ class Network:
                     'voltmeter', 
                     firing_rates_interval[0], 
                     firing_rates_interval[1], 
-                    self.net_dict['populations']
+                    self.net_dict['populations'],
+                    'spike_recorder' if 'spike_recorder' in self.sim_dict["rec_dev"] else None,
+                    self.input_meters.keys()
                 )
+
 
     def __derive_parameters(self):
         """
@@ -355,7 +358,7 @@ class Network:
         """
         if nest.Rank() == 0:
             print('Creating recording devices.')
-
+        # Populations spike recorder
         if 'spike_recorder' in self.sim_dict['rec_dev']:
             if nest.Rank() == 0:
                 print('  Creating spike recorders.')
@@ -364,7 +367,7 @@ class Network:
             self.spike_recorders = nest.Create('spike_recorder',
                                                n=self.num_pops,
                                                params=sd_dict)
-
+        # Populations voltage recorder
         if 'voltmeter' in self.sim_dict['rec_dev']:
             if nest.Rank() == 0:
                 print('  Creating voltmeters.')
@@ -375,6 +378,48 @@ class Network:
             self.voltmeters = nest.Create('voltmeter',
                                           n=self.num_pops,
                                           params=vm_dict)
+        self.__create_input_recording_devices()
+
+    def __create_input_recording_devices(self):
+        # Input meters
+        self.input_meters = {}
+        # Poisson input meter
+        if self.net_dict.get('poisson_input', None):
+            if nest.Rank() == 0:
+                print('  Creating poisson input meters.')
+            pg_dict = {
+                'record_to': 'ascii',
+                'label': os.path.join(self.data_path, 'poisson_sr')}
+            poisson_sr_meters = nest.Create('spike_recorder',
+                                            n=self.num_pops,
+                                            params=pg_dict)
+            self.input_meters["poisson_sr"] = poisson_sr_meters
+        # Thalamic input meter
+        if self.stim_dict.get('thalamic_input', None):
+            if nest.Rank() == 0:
+                print('  Creating thalamic multimeters.')
+            th_dict = {
+                'record_to': 'ascii',
+                'label': os.path.join(self.data_path, 'thalamic_sr')}
+            thalamic_sr_meter = nest.Create('spike_recorder',
+                                            n=self.num_pops,
+                                            #n=self.stim_dict["num_th_neurons"],
+                                            params=th_dict)
+            self.input_meters["thalamic_sr"] = thalamic_sr_meter 
+        # DC input meter
+        if self.stim_dict.get('dc_input', None):
+            if nest.Rank() == 0:
+                print('  Creating DC multimeters.')
+            dc_dict = {
+                'interval': self.sim_dict['rec_V_int'],
+                'record_to': 'ascii',
+                'record_from': ['I'],
+                'label': os.path.join(self.data_path, 'dc_input')}
+            dc_meters = nest.Create('multimeter',
+                            n=self.num_pops,
+                            params=dc_dict
+            )
+            self.input_meters["dc_input"] = dc_meters
 
     def __create_poisson_bg_input(self):
         """ Creates the Poisson generators for ongoing background input if
@@ -489,6 +534,10 @@ class Network:
                 nest.Connect(target_pop, self.spike_recorders[i])
             if 'voltmeter' in self.sim_dict['rec_dev']:
                 nest.Connect(self.voltmeters[i], target_pop)
+        if 'thalamic_sr' in self.input_meters.keys():
+            nest.Connect(self.thalamic_population, self.input_meters['thalamic_sr'])
+        if 'dc_input' in self.input_meters.keys():
+            nest.Connect(self.input_meters['dc_input'], self.dc_stim_input)
 
     def __connect_poisson_bg_input(self):
         """ Connects the Poisson generators to the microcircuit."""
