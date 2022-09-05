@@ -2,19 +2,21 @@ import numpy as np
 
 stim_dict = {
     # turn thalamic input on or off (True or False)
-    'thalamic_input': True,
+    'thalamic_input': False,
     # start of the thalamic input (in ms)
-    'th_start': 700.0,
+    'th_start': 300.0,
     # duration of the thalamic input (in ms)
-    'th_duration': 10.0,
+    'th_duration': 1500.0,
     # rate of the thalamic input (in spikes/s)
-    'th_rate': 120.0,
+    'th_rate': 20.0,
     # number of thalamic neurons
-    'num_th_neurons': 902,
+    'num_th_neurons': 1,
     # connection  of the thalamus to the different populations
     # (same order as in 'populations' in 'net_dict')
+    #'conn_weights_th':
+    #    np.array([10, 10, 5]),
     'conn_weights_th':
-        np.array([10, 10, 5]),
+        np.array([0, 1500, 0]),
     # mean amplitude of the thalamic postsynaptic potential (in mV),
     # standard deviation will be taken from 'net_dict'
     #'PSP_th': 0.15,
@@ -32,5 +34,5 @@ stim_dict = {
     'dc_dur': 100.0,
     # amplitude of the DC input (in pA); final amplitude is population-specific
     # and will be obtained by multiplication with 'K_ext'
-    'dc_amp': 0.3
+    'dc_amp': 400.0
 }

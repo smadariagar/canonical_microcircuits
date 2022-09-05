@@ -7,7 +7,7 @@ sim_dict = {
     # presimulation time (in ms)
     't_presim': 500.0,
     # simulation time (in ms)
-    't_sim': 1000.0,
+    't_sim': 3000.0,
     # resolution of the simulation (in ms)
     'sim_resolution': 0.1,
     # list of recording devices, default is 'spike_recorder'. A 'voltmeter' can
@@ -34,4 +34,6 @@ sim_dict = {
     'plot_firing_rates': False,
     # if True, voltage traces will be plotted.
     'plot_voltages': True,
+    # if True, the input will be plotted.
+    'plot_input': True,
 }
