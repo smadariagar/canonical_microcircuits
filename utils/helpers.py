@@ -31,6 +31,7 @@ from matplotlib.patches import Polygon
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import pandas as pd
 if 'DISPLAY' not in os.environ:
     import matplotlib
     matplotlib.use('Agg')
@@ -256,7 +257,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
     plt.savefig(os.path.join(path, 'raster_plot.png'), dpi=300)
 
 
-def plot_voltages(path, name, begin, end, populations):
+def plot_voltages(path, name, begin, end, populations, firing_rates_name=None, input_names=None):
     """ Computes voltages per population.
 
     The voltage of each neuron in each population is computed and stored
@@ -282,13 +283,38 @@ def plot_voltages(path, name, begin, end, populations):
     """
     fs = 18  # fontsize
 
+    i_axes = 0
     sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
-    fig, axs = plt.subplots(len(populations), 1, figsize=(8, 6), sharex=True, sharey=True)
+    if firing_rates_name:
+        _, _, data_fr = __load_meter_data(path, firing_rates_name, begin, end) 
+    if input_names:
+        i_axes += 1
+        data_input = {}
+        for input_name in input_names:
+            _, _, data_in = __load_meter_data(path, input_name, begin, end)
+            data_input[input_name] = data_in
+
+    fig, axs = plt.subplots(len(populations)+i_axes, 1, figsize=(8, 6), sharex=True, sharey=False)
     for i, n in enumerate(sd_names):
         times, voltage = data[i]['time_ms'], data[i]['voltage']
         axs[i].plot(times, voltage, label=populations[i], color=f"C{i}")
+        if firing_rates_name and len(data_fr[i]) != 0:
+            firing_rates = pd.DataFrame(data_fr[i]).values[:, 1]
+            axs[i].plot(firing_rates, -50*np.ones(len(firing_rates)), f"k.", label=f"FR {populations[i]}")
         axs[i].grid()
         axs[i].legend()
+    if input_names:
+        for j, input_name in enumerate(input_names):
+            for k in range(len(sd_names)):
+                if input_name == "dc_input":
+                    times, variable = data_input[input_name][k]['time_ms'], data_input[input_name][k]['I']
+                    axs[i+1].plot(times, variable, f"C{k}", label=f"{input_name}_{populations[k]}")
+                else:
+                    firing_rates = pd.DataFrame(data_input[input_name][k]).values[:, 1]
+                    print(k, firing_rates)
+                    axs[i+1].plot(firing_rates, -50*np.ones(len(firing_rates)), "k.", label=f"{input_name}_{populations[k]}")
+        axs[i+1].grid()
+        axs[i+1].legend()
     fig.supxlabel('time [ms]', fontsize=fs)
     fig.supylabel('voltage [mV]', fontsize=fs)
     fig.savefig(os.path.join(path, 'voltage_plot.png'), dpi=300)
@@ -461,6 +487,9 @@ def __load_meter_data(path, name, begin, end):
                 'formats': ('i4', 'f8')}
     if any('voltmeter' in sd_name for sd_name in sd_names):
         dtype['names'] = ('sender', 'time_ms', 'voltage')
+        dtype['formats'] = ('i4', 'f8', 'f8')
+    if any('dc_input' in sd_name for sd_name in sd_names):
+        dtype['names'] = ('sender', 'time_ms', 'I')
         dtype['formats'] = ('i4', 'f8', 'f8')
     for i, name in enumerate(sd_names):
         data_i_raw = np.array([[]], dtype=dtype)
