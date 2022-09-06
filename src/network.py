@@ -196,6 +196,14 @@ class Network:
                     'spike_recorder' if 'spike_recorder' in self.sim_dict["rec_dev"] else None,
                     self.input_meters.keys()
                 )
+            if self.sim_dict["plot_network"]:
+                print("ASDAS")
+                helpers.plot_network(
+                    self.data_path,
+                    self.net_dict["populations"], 
+                    self.net_dict["conn_weights"],
+                    self.stim_dict["conn_weights_th"] if self.stim_dict["thalamic_input"] else None,
+                )
 
 
     def __derive_parameters(self):
