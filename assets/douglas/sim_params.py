@@ -36,4 +36,6 @@ sim_dict = {
     'plot_voltages': True,
     # if True, the input will be plotted.
     'plot_input': True,
+    # if True, the network will be plotted.
+    'plot_network': True,
 }

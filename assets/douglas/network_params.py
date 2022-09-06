@@ -39,19 +39,19 @@ net_dict = {
     },
     # connection weights (the first index corresponds to the targets
     # and the second to the sources)
-    # "conn_weights": np.array([
-    #         [-10, 10, 10],
-    #         [-10, 10, 10],
-    #         [-10, 10, 10]
-    #     ]),
-    "conn_weights": [
-            [0, 0, 0],
-            [0, 100, 0],
-            [0, 0, 0]
-        ],
+    "conn_weights": np.array([
+            [-10, 10, 10],
+            [-10, 10, 10],
+            [-10, 10, 10]
+        ]),
+    # "conn_weights": [
+    #         [0, 0, 0],
+    #         [0, 100, 0],
+    #         [0, 0, 0]
+    #     ],
     # turn Poisson input on or off (True or False)
     # if False: DC input is applied for compensation
-    'poisson_input': False,
+    #'poisson_input': False,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
     'K_ext': np.array([0, 1, 0]),

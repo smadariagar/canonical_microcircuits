@@ -2,7 +2,7 @@ import numpy as np
 
 stim_dict = {
     # turn thalamic input on or off (True or False)
-    'thalamic_input': False,
+    'thalamic_input': True,
     # start of the thalamic input (in ms)
     'th_start': 300.0,
     # duration of the thalamic input (in ms)
@@ -16,7 +16,7 @@ stim_dict = {
     #'conn_weights_th':
     #    np.array([10, 10, 5]),
     'conn_weights_th':
-        np.array([0, 1500, 0]),
+        np.array([1000, 1500, 200]),
     # mean amplitude of the thalamic postsynaptic potential (in mV),
     # standard deviation will be taken from 'net_dict'
     #'PSP_th': 0.15,
@@ -27,7 +27,7 @@ stim_dict = {
 
     # optional DC input
     # turn DC input on or off (True or False)
-    'dc_input': True,
+    'dc_input': False,
     # start of the DC input (in ms)
     'dc_start': 900.0,
     # duration of the DC input (in ms)
