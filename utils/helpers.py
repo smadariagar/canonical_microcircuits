@@ -689,7 +689,6 @@ def draw_networkx_edge_labels(
             bbox = dict(boxstyle="round", ec=(1.0, 1.0, 1.0), fc=(1.0, 1.0, 1.0))
         if not isinstance(label, str):
             label = str(label)  # this makes "1" and 1 labeled the same
-        print(n1, n2, label, x, y)
         if n1 == n2:
             y += 0.075
         t = ax.text(
