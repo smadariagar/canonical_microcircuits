@@ -6,13 +6,13 @@ net_dict = {
     # neuron model
     'neuron_model': 'iaf_psc_exp',
     # names of the simulated neuronal populations
-    'populations': ['smooth_cells', "P23", "P56"],
+    'populations': ['SC', "P23", "P56"],
     # number of neurons in the different populations (same order as
     # 'populations')
     'full_num_neurons':
         [1, 1, 1],
     'neuron_params': {
-        'smooth_cells': {
+        'SC': {
             # reset membrane potential of the neurons (in mV)
             'E_L': -65.0,
             # threshold potential of the neurons (in mV)
