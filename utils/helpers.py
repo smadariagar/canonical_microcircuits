@@ -343,26 +343,38 @@ def plot_network(path, populations, conn_weights, conn_weights_th=None):
 
     """
     import networkx as nx 
-
-    fs = 12  # fontsize
-    
+  
     # Generate network graph and params
     G = nx.DiGraph(np.array(conn_weights))
     G = nx.relabel_nodes(G, {i: populations[i] for i in range(len(populations))})
     pos = nx.spring_layout(G, k=len(populations))  # For better example looking
     if conn_weights_th is not None:
-        G.add_node("thalamic")
-        pos = {**pos, "thalamic": (0, 0)}
+        G.add_node("TH")
+        pos = {**pos, "TH": (0, 0)}
         for i, w in enumerate(conn_weights_th):
-            G.add_edge("thalamic", populations[i], weight=w)
+            G.add_edge("TH", populations[i], weight=w)
     labels = nx.get_edge_attributes(G, 'weight')
     # Plot the network
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-    nx.draw(G, pos, with_labels=True, ax=ax)
-    draw_networkx_edge_labels(G, pos, edge_labels=labels, font_size=fs, label_pos=0.3, ax=ax)
-    
+    edge_labels = []
+    for u,v,d in G.edges(data=True):
+        if u == v:
+            edge_labels.append(
+                ((u,v,), f'{d["weight"]}\n\n\n')
+            )
+        elif (labels.get((v,u)) is not None):
+            edge_labels.append(
+                ((u,v,),f'{d["weight"]}\n\n\n{labels[(v,u)]}')
+            )
+        else:
+            edge_labels.append(
+                ((u,v,), d["weight"])
+           )
+    edge_labels = dict(edge_labels)
 
-    ax.set_title('Network structure', fontsize=fs)
+    nx.draw(G, pos, with_labels=True, connectionstyle='arc3, rad = 0.08', arrowsize=15, ax=ax, font_size=9)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=12, ax=ax)
+    ax.set_title('Network structure', fontsize=12)
     fig.savefig(os.path.join(path, 'network_plot.png'), dpi=300)
 
 def firing_rates(path, name, begin, end):
