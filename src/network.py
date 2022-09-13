@@ -197,7 +197,6 @@ class Network:
                     self.input_meters.keys()
                 )
             if self.sim_dict["plot_network"]:
-                print("ASDAS")
                 helpers.plot_network(
                     self.data_path,
                     self.net_dict["populations"], 
