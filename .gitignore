@@ -3,3 +3,6 @@ assets/potjans_diesmann/__pycache__/*
 assets/douglas/__pycache__/*
 utils/__pycache__/*
 .vscode
+results/*
+tests/*
+papers/*
