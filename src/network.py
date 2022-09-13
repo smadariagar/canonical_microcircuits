@@ -168,7 +168,7 @@ class Network:
         """
         if nest.Rank() == 0:
             print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
-            if self.sim_dict["plot_raster"]:
+            if self.sim_dict.get("plot_raster", False):
                 helpers.plot_raster(
                     self.data_path,
                     'spike_recorder',
@@ -179,14 +179,14 @@ class Network:
                 )
             print('Interval to compute firing rates: {} ms'.format(
                 firing_rates_interval))
-            if self.sim_dict["plot_firing_rates"]:
+            if self.sim_dict.get("plot_firing_rates", False):
                 helpers.firing_rates(
                     self.data_path, 
                     'spike_recorder',
                     firing_rates_interval[0], 
                     firing_rates_interval[1])
                 helpers.boxplot(self.data_path, self.net_dict['populations'])
-            if self.sim_dict["plot_voltages"]:
+            if self.sim_dict.get("plot_voltages", False):
                 helpers.plot_voltages(
                     self.data_path, 
                     'voltmeter', 
@@ -196,7 +196,7 @@ class Network:
                     'spike_recorder' if 'spike_recorder' in self.sim_dict["rec_dev"] else None,
                     self.input_meters.keys()
                 )
-            if self.sim_dict["plot_network"]:
+            if self.sim_dict.get("plot_network", False):
                 helpers.plot_network(
                     self.data_path,
                     self.net_dict["populations"], 
