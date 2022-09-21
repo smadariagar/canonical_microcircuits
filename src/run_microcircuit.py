@@ -46,11 +46,11 @@ if __name__ == '__main__':
         from assets.douglas.network_params import net_dict
         from assets.douglas.sim_params import sim_dict  
         from . import network_douglas as network
-    else:
+    elif args.microcircuit == "potjans_diesmann":
         from assets.potjans_diesmann.stimulus_params import stim_dict
         from assets.potjans_diesmann.network_params import net_dict
         from assets.potjans_diesmann.sim_params import sim_dict
-        from . import network
+        from . import network_potjans_diesmann as network
     time_start = time.time()
 
     ###############################################################################
