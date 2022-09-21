@@ -91,6 +91,8 @@ class Network(network.Network):
         self.num_neurons = self.net_dict["full_num_neurons"]
         self.conn_weights = self.net_dict["conn_weights"]
         self.conn_weights_th = self.stim_dict["conn_weights_th"]
+        self.conn_delays = self.net_dict["conn_delays"]
+        self.conn_delays_th = self.stim_dict["conn_delays_th"]
 
     def __setup_nest(self):
         """ Initializes the NEST kernel.
@@ -185,6 +187,7 @@ class Network(network.Network):
                 syn_dict = {
                     'synapse_model': 'static_synapse',
                     'weight': self.conn_weights[i][j],
+                    'delay': self.conn_delays[i][j]
                 }
 
                 nest.Connect(
@@ -213,7 +216,8 @@ class Network(network.Network):
             #conn_dict_th = {   
             #}
             syn_dict_th = {
-                'weight': self.conn_weights_th[i]
+                'weight': self.conn_weights_th[i],
+                'delay': self.conn_delays_th[i]
             }
             nest.Connect(self.thalamic_population, target_pop,
                             #conn_spec=conn_dict_th,

@@ -44,11 +44,13 @@ net_dict = {
             [-10, 10, 10],
             [-10, 10, 10]
         ]),
-    # "conn_weights": [
-    #         [0, 0, 0],
-    #         [0, 100, 0],
-    #         [0, 0, 0]
-    #     ],
+    # connection delays (the first index corresponds to the targets
+    # and the second to the sources)
+    "conn_delays": np.array([
+            [1, 1, 1],  
+            [1, 1, 1],
+            [1, 1, 1]
+        ]),
     # turn Poisson input on or off (True or False)
     # if False: DC input is applied for compensation
     #'poisson_input': False,

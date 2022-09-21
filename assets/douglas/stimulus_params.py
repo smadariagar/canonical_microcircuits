@@ -17,6 +17,9 @@ stim_dict = {
     #    np.array([10, 10, 5]),
     'conn_weights_th':
         np.array([1000, 1500, 200]),
+    # connection delays of the thalamus to the different populations
+    # (same order as in 'populations' in 'net_dict')
+    'conn_delays_th': np.array([1, 50, 1]),
     # mean amplitude of the thalamic postsynaptic potential (in mV),
     # standard deviation will be taken from 'net_dict'
     #'PSP_th': 0.15,
