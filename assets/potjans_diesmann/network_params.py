@@ -105,7 +105,8 @@ net_dict = {
     'poisson_input': True,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
-    'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
+    #'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
+    'K_ext': np.array([0, 0, 2100, 0, 0, 0, 0, 0]),
     # rate of the Poisson generator (in spikes/s)
     'bg_rate': 8.,
     # delay from the Poisson generator to the network (in ms)
