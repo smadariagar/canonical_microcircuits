@@ -232,7 +232,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
 
     """
     fs = 18  # fontsize
-    color_list = np.tile(['#595289', '#af143c'], 4)
+    color_list = np.tile(['#595289', '#af143c'], 5)
 
     sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
     last_node_id = node_ids[-1, -1]
