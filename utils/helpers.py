@@ -342,7 +342,7 @@ def plot_network(path, populations, conn_weights, conn_weights_th=None):
     None
 
     """
-    import networkx as nx 
+    import network as nx 
   
     # Generate network graph and params
     G = nx.DiGraph(np.array(conn_weights))

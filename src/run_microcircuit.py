@@ -46,7 +46,7 @@ if __name__ == '__main__':
         from assets.douglas.network_params import net_dict
         from assets.douglas.sim_params import sim_dict  
         from . import network_douglas as network
-    elif args.microcircuit == "potjans_diesmann":
+    elif args.microcircuit == "pd":
         from assets.potjans_diesmann.stimulus_params import stim_dict
         from assets.potjans_diesmann.network_params import net_dict
         from assets.potjans_diesmann.sim_params import sim_dict
