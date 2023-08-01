@@ -450,8 +450,8 @@ class Network(network.Network):
                     print(source_pop, target_pop)
                     nest.Connect(
                         source_pop, target_pop,
-                        #conn_spec=conn_dict_rec,
-                        #syn_spec=syn_dict)
+                        conn_spec=conn_dict_rec,
+                        syn_spec=syn_dict
                     )
 
 
