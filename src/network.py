@@ -220,7 +220,7 @@ class Network:
 
         Reset the NEST kernel and pass parameters to it.
         """
-        nest.ResetKernel()
+        """nest.ResetKernel()
 
         nest.local_num_threads = self.sim_dict['local_num_threads']
         nest.resolution = self.sim_dict['sim_resolution']
@@ -232,7 +232,8 @@ class Network:
             print('RNG seed: {}'.format(
                 nest.rng_seed))
             print('Total number of virtual processes: {}'.format(
-                nest.total_num_virtual_procs))
+                nest.total_num_virtual_procs))"""
+        pass
 
     def __create_neuronal_populations(self):
         """ Creates the neuronal populations.
