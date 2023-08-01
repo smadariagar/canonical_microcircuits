@@ -87,6 +87,26 @@ class Network(network.Network):
         """
         super().connect()
 
+    def connect_networks(self, net, conn_type):
+        """ Connects the network.
+
+        Recurrent connections among neurons of the neuronal populations are
+        established, and recording and stimulation devices are connected.
+
+        The ``self.__connect_*()`` functions use ``nest.Connect()`` calls which
+        set up the postsynaptic connectivity.
+        Since the introduction of the 5g kernel in NEST 2.16.0 the full
+        connection infrastructure including presynaptic connectivity is set up
+        afterwards in the preparation phase of the simulation.
+        The preparation phase is usually induced by the first
+        ``nest.Simulate()`` call.
+        For including this phase in measurements of the connection time,
+        we induce it here explicitly by calling ``nest.Prepare()``.
+
+        """
+        super().connect_networks(net, conn_type)
+
+
     def simulate(self, t_sim):
         """ Simulates the microcircuit.
 
@@ -167,8 +187,10 @@ class Network(network.Network):
             PSC_matrix_mean, PSC_ext, DC_amp = \
                 helpers.adjust_weights_and_input_to_synapse_scaling(
                     self.net_dict['full_num_neurons'],
-                    full_num_synapses, self.net_dict['K_scaling'],
-                    PSC_matrix_mean, PSC_ext,
+                    full_num_synapses, 
+                    self.net_dict['K_scaling'],
+                    PSC_matrix_mean, 
+                    PSC_ext,
                     self.net_dict['neuron_params']['tau_syn'],
                     self.net_dict['full_mean_rates'],
                     DC_amp,
@@ -356,6 +378,82 @@ class Network(network.Network):
                         source_pop, target_pop,
                         conn_spec=conn_dict_rec,
                         syn_spec=syn_dict)
+
+    def __connect_lateral_neuronal_populations(self, net, conn_type):
+        """ TODO: Creates the recurrent connections between neuronal populations. """
+        if nest.Rank() == 0:
+            print('Connecting neuronal populations recurrently.')
+        num_synapses = np.array([[454998, 223236, 202536,  96709,  32936,      0,  22714,      0],
+                                [174437,  50188,  41053,  16901,  22212,      0,   3535,      0],
+                                [ 35037,   7566, 244828, 174136,   7145,     70, 146244,      0],
+                                [ 81143,    928,  99335,  52233,    878,      0,  88109,      0],
+                                [106136,  18171,  55078,   1519,  20407,  24079,  14390,      0],
+                                [ 12414,   1694,   6077,    129,   3196,   4304,   1324,      0],
+                                [ 46812,   5561,  67276,  13202,  41122,   3050,  83726, 108277],
+                                [ 22608,    172,   2200,     81,   4016,    252,  28884,  13543]])
+        weight_matrix_mean = np.array([[  277.67483746, -1110.69934984,   555.34967492, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
+                                [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
+                                    277.67483746, -1110.69934984,   277.67483746, -1110.69934984]])
+        weight_rel_std = 0.1
+        delay_matrix_mean = np.array([[1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75]])
+        delay_rel_std = 0.5
+        for i, target_pop in enumerate(net.pops):
+            for j, source_pop in enumerate(self.pops):
+                if num_synapses[i][j] >= 0.:
+                    conn_dict_rec = {
+                        'rule': 'fixed_total_number',
+                        'N': num_synapses[i][j]}  
+
+                    if weight_matrix_mean[i][j] < 0:
+                        w_min = np.NINF
+                        w_max = 0.0
+                    else:
+                        w_min = 0.0
+                        w_max = np.Inf
+                
+                    syn_dict = {
+                        'synapse_model': 'static_synapse',
+                        'weight': nest.math.redraw(
+                            nest.random.normal(
+                                mean=weight_matrix_mean[i][j],
+                                std=abs(weight_matrix_mean[i][j] *
+                                        weight_rel_std)),
+                            min=w_min,
+                            max=w_max),
+                        'delay': nest.math.redraw(
+                            nest.random.normal(
+                                mean=delay_matrix_mean[i][j],
+                                std=(delay_matrix_mean[i][j] *
+                                     delay_rel_std)),
+                            min=nest.resolution,
+                            max=np.Inf)}
+                    print(source_pop, target_pop)
+                    nest.Connect(
+                        source_pop, target_pop,
+                        #conn_spec=conn_dict_rec,
+                        #syn_spec=syn_dict)
+                    )
+
 
     def __connect_recording_devices(self):
         """ Connects the recording devices to the microcircuit."""
