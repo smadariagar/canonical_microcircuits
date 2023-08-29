@@ -61,5 +61,5 @@ sim_dict = {
     # if True, the firing rates will be plotted.
     'plot_firing_rates': True,
     # if True, voltage traces will be plotted.
-    'plot_voltages': True,
+    'plot_voltages': False,
 }
