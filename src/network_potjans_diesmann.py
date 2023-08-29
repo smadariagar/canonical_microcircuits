@@ -87,7 +87,7 @@ class Network(network.Network):
         """
         super().connect()
 
-    def connect_networks(self, net, conn_type):
+    def connect_networks(self, net, lateral_dict):
         """ Connects the network.
 
         Recurrent connections among neurons of the neuronal populations are
@@ -104,7 +104,7 @@ class Network(network.Network):
         we induce it here explicitly by calling ``nest.Prepare()``.
 
         """
-        super().connect_networks(net, conn_type)
+        super().connect_networks(net, lateral_dict)
 
 
     def simulate(self, t_sim):
@@ -400,44 +400,30 @@ class Network(network.Network):
         #                         [ 12414,   1694,   6077,    129,   3196,   4304,   1324,      0],
         #                         [ 46812,   5561,  67276,  13202,  41122,   3050,  83726, 108277],
         #                         [ 22608,    172,   2200,     81,   4016,    252,  28884,  13543]])
+        # conversion from PSPs to PSCs
         PSC_over_PSP = helpers.postsynaptic_potential_to_current(
             net.net_dict['neuron_params']['C_m'],
             net.net_dict['neuron_params']['tau_m'],
             net.net_dict['neuron_params']['tau_syn']
         )
-        weight_matrix_mean = net.net_dict['PSP_matrix_mean'] * PSC_over_PSP
+        PSC_matrix_mean = net.net_dict['PSP_matrix_mean'] * PSC_over_PSP
     
         # adjust weights and DC amplitude if the indegree is scaled
-        if self.net_dict['K_scaling'] != 1:
-            weight_matrix_mean /= np.sqrt(net.net_dict['K_scaling'])
+        if net.net_dict['K_scaling'] != 1:
+            PSC_matrix_mean /= np.sqrt(net.net_dict['K_scaling'])
 
-        # weight_matrix_mean = np.array([[  277.67483746, -1110.69934984,   555.34967492, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984],
-        #                         [  277.67483746, -1110.69934984,   277.67483746, -1110.69934984,
-        #                             277.67483746, -1110.69934984,   277.67483746, -1110.69934984]])
+        weight_matrix_mean = PSC_matrix_mean
         #weight_rel_std = 0.1
         
-        delay_matrix_mean = np.array([[1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
-                                    [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75]])
-        delay_rel_std = 0.5
+        # delay_matrix_mean = np.array([[1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75]])
+        #delay_rel_std = 0.5
         for i, target_pop in enumerate(net.pops):
             for j, source_pop in enumerate(self.pops):
                 if num_synapses[i][j] >= 0.:
@@ -463,9 +449,9 @@ class Network(network.Network):
                             max=w_max),
                         'delay': nest.math.redraw(
                             nest.random.normal(
-                                mean=delay_matrix_mean[i][j],
-                                std=(delay_matrix_mean[i][j] *
-                                     delay_rel_std)),
+                                mean=net.net_dict["delay_matrix_mean"][i][j],
+                                std=(net.net_dict["delay_matrix_mean"][i][j] *
+                                     net.net_dict["delay_rel_std"])),
                             min=nest.resolution,
                             max=np.Inf)}
                     print(source_pop, target_pop)

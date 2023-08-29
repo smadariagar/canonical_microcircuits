@@ -128,11 +128,11 @@ class Network:
         if self.stim_dict.get('dc_input', None):
             self.__connect_dc_stim_input()
 
-        nest.Prepare()
-        nest.Cleanup()
+        #nest.Prepare()
+        #nest.Cleanup()
 
-    def connect_networks(self, net):
-        self.__connect_lateral_neuronal_populations(net)
+    def connect_networks(self, net, lateral_dict):
+        self.__connect_lateral_neuronal_populations(net, lateral_dict)
 
     def simulate(self, t_sim):
         """ Simulates the microcircuit.
@@ -388,7 +388,7 @@ class Network:
         """
         raise NotImplementedError
 
-    def __connect_lateral_neuronal_populations(self, net):
+    def __connect_lateral_neuronal_populations(self, net, lateral_dict):
         """ Creates the recurrent connections between neuronal populations. 
 
             It must be implemented in the derived class.
