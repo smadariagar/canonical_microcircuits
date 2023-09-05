@@ -232,7 +232,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
 
     """
     fs = 18  # fontsize
-    color_list = np.tile(['#595289', '#af143c'], 5)
+    color_list = np.tile(['#595289', '#af143c'], 4)
 
     sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
     last_node_id = node_ids[-1, -1]
@@ -342,7 +342,7 @@ def plot_network(path, populations, conn_weights, conn_weights_th=None):
     None
 
     """
-    import network as nx 
+    import networkx as nx 
   
     # Generate network graph and params
     G = nx.DiGraph(np.array(conn_weights))
