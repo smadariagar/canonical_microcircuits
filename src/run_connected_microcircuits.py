@@ -21,14 +21,13 @@ if __name__ == '__main__':
     net_tg.create()
     net_tg.connect()
 
-    #conn = nest.GetConnections().get()
+    nest.Prepare()
+    nest.Cleanup()
 
+    #conn = nest.GetConnections().get()
     #print(conn.get())
 
     net_src.connect_networks(net_tg, lateral_dict)
-
-    #nest.Connect(net_1, net_2, 'all_to_all')
-    #print(net_1.pops)
 
     net_src.simulate(sim_dict['t_sim'])
     time_simulate = time.time()
