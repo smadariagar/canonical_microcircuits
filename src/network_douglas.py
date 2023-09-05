@@ -136,14 +136,6 @@ class Network(network.Network):
 
         """
         super().__create_recording_devices()
-
-    def __create_input_recording_devices(self):
-        """ Creates one recording device of each kind per input population.
-
-        Only devices which are given in ``sim_dict['rec_dev']`` are created.
-
-        """
-        super().__create_input_recording_devices()
         
     def __create_poisson_bg_input(self):
         """ Creates the Poisson generators for ongoing background input if
