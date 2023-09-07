@@ -12,23 +12,40 @@ from . import network_potjans_diesmann as network
 if __name__ == '__main__':
 
     nest.ResetKernel()
+    nest.local_num_threads = sim_dict['local_num_threads']
+    nest.resolution = sim_dict['sim_resolution']
+    nest.rng_seed = sim_dict['rng_seed']
+    nest.overwrite_files = sim_dict['overwrite_files']
+    nest.print_time = sim_dict['print_time']
+    
+    if nest.Rank() == 0:
+        print('RNG seed: {}'.format(
+            nest.rng_seed))
+        print('Total number of virtual processes: {}'.format(
+            nest.total_num_virtual_procs))
 
+    print('---------> Starting simulation...')
+    print("---> Creating SOURCE network...")
     net_src = network.Network(sim_dict, net_dict, stim_dict)
     net_src.create()
+    print("---> Connecting source network...")
     net_src.connect()
 
+    print("---> Creating TARGET network...")
     net_tg = network.Network(sim_dict, net_dict, stim_dict)
     net_tg.create()
+    print("---> Connecting target network...")
     net_tg.connect()
+
+    #conn = nest.GetConnections().get()
+    
+    print("---> Connecting NETWORKS...")
+    #net_src.connect_networks(net_tg, lateral_dict)
 
     nest.Prepare()
     nest.Cleanup()
 
-    #conn = nest.GetConnections().get()
-    #print(conn.get())
-
-    net_src.connect_networks(net_tg, lateral_dict)
-
+    print('---> Simulating...')
     net_src.simulate(sim_dict['t_sim'])
     time_simulate = time.time()
 
@@ -39,7 +56,7 @@ if __name__ == '__main__':
     # stimulus time are plotted here by default.
     # The computation of spike rates discards the presimulation time to exclude
     # initialization artifacts.
-
+    print('---> Evaluating...')
     raster_plot_interval = np.array([stim_dict['th_start'] - 100.0,
                                     stim_dict['th_start'] + 100.0])
     firing_rates_interval = np.array([sim_dict['t_presim'],
