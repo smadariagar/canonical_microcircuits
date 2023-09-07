@@ -279,7 +279,7 @@ class Network(network.Network):
         # write node ids to file
         if nest.Rank() == 0:
             fn = os.path.join(self.data_path, 'population_nodeids.dat')
-            with open(fn, 'w+') as f:
+            with open(fn, 'a') as f:
                 for pop in self.pops:
                     f.write('{} {}\n'.format(pop[0].global_id,
                                              pop[-1].global_id))

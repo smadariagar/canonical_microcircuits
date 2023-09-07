@@ -220,20 +220,20 @@ class Network:
 
         Reset the NEST kernel and pass parameters to it.
         """
-        """nest.ResetKernel()
+        #nest.ResetKernel()
 
-        nest.local_num_threads = self.sim_dict['local_num_threads']
-        nest.resolution = self.sim_dict['sim_resolution']
-        nest.rng_seed = self.sim_dict['rng_seed']
-        nest.overwrite_files = self.sim_dict['overwrite_files']
-        nest.print_time = self.sim_dict['print_time']
+        # nest.local_num_threads = self.sim_dict['local_num_threads']
+        # nest.resolution = self.sim_dict['sim_resolution']
+        # nest.rng_seed = self.sim_dict['rng_seed']
+        # nest.overwrite_files = self.sim_dict['overwrite_files']
+        # nest.print_time = self.sim_dict['print_time']
         
-        if nest.Rank() == 0:
-            print('RNG seed: {}'.format(
-                nest.rng_seed))
-            print('Total number of virtual processes: {}'.format(
-                nest.total_num_virtual_procs))"""
-        pass
+        # if nest.Rank() == 0:
+        #     print('RNG seed: {}'.format(
+        #         nest.rng_seed))
+        #     print('Total number of virtual processes: {}'.format(
+        #         nest.total_num_virtual_procs))
+        #pass
 
     def __create_neuronal_populations(self):
         """ Creates the neuronal populations.
