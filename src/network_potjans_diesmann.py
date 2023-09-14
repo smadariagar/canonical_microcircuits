@@ -175,12 +175,15 @@ class Network(network.Network):
         if self.net_dict['poisson_input']:
             DC_amp = np.zeros(self.num_pops)
         else:
-            if nest.Rank() == 0:
-                warnings.warn('DC input created to compensate missing Poisson input.\n')
-            DC_amp = helpers.dc_input_compensating_poisson(
-                self.net_dict['bg_rate'], self.net_dict['K_ext'],
-                self.net_dict['neuron_params']['tau_syn'],
-                PSC_ext)
+            if not self.net_dict['dc_compensation']:
+                DC_amp = np.zeros(self.num_pops)
+            else:
+                if nest.Rank() == 0:
+                    warnings.warn('DC input created to compensate missing Poisson input.\n')
+                DC_amp = helpers.dc_input_compensating_poisson(
+                    self.net_dict['bg_rate'], self.net_dict['K_ext'],
+                    self.net_dict['neuron_params']['tau_syn'],
+                    PSC_ext)
 
         # adjust weights and DC amplitude if the indegree is scaled
         if self.net_dict['K_scaling'] != 1:
