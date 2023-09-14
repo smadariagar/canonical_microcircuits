@@ -53,6 +53,8 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     matrix[:, 1:num_pops:2] = val_inh
     return matrix
 
+from_pop = 0
+until_pop = 8
 
 net_dict = {
     # factor to scale the number of neurons
@@ -62,18 +64,18 @@ net_dict = {
     # neuron model
     'neuron_model': 'iaf_psc_exp',
     # names of the simulated neuronal populations
-    'populations': ['L23E', 'L23I', 'L4E', 'L4I', 'L5E', 'L5I', 'L6E', 'L6I'],
+    'populations': ['L23E', 'L23I', 'L4E', 'L4I', 'L5E', 'L5I', 'L6E', 'L6I'][from_pop:until_pop],
     # number of neurons in the different populations (same order as
     # 'populations')
     'full_num_neurons':
-        np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948]),
+        np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])[from_pop:until_pop],
     # mean rates of the different populations in the non-scaled version of the
     # microcircuit (in spikes/s; same order as in 'populations');
     # necessary for the scaling of the network.
     # The values were optained by running this PyNEST microcircuit with 12 MPI
     # processes and both 'N_scaling' and 'K_scaling' set to 1.
     'full_mean_rates':
-        np.array([0.943, 3.026, 4.368, 5.882, 7.733, 8.664, 1.096, 7.851]),
+        np.array([0.943, 3.026, 4.368, 5.882, 7.733, 8.664, 1.096, 7.851])[from_pop:until_pop],
     # connection probabilities (the first index corresponds to the targets
     # and the second to the sources)
     'conn_probs':
@@ -85,7 +87,7 @@ net_dict = {
              [0.1004, 0.0622, 0.0505, 0.0057, 0.0831, 0.3726, 0.0204, 0.],
              [0.0548, 0.0269, 0.0257, 0.0022, 0.06, 0.3158, 0.0086, 0.],
              [0.0156, 0.0066, 0.0211, 0.0166, 0.0572, 0.0197, 0.0396, 0.2252],
-             [0.0364, 0.001, 0.0034, 0.0005, 0.0277, 0.008, 0.0658, 0.1443]]),
+             [0.0364, 0.001, 0.0034, 0.0005, 0.0277, 0.008, 0.0658, 0.1443]])[from_pop:until_pop, from_pop:until_pop],
     # mean amplitude of excitatory postsynaptic potential (in mV)
     'PSP_exc_mean': 0.15,
     # relative standard deviation of the weight
@@ -102,10 +104,11 @@ net_dict = {
 
     # turn Poisson input on or off (True or False)
     # if False: DC input is applied for compensation
-    'poisson_input': True,
+    'poisson_input': False,
+    'dc_compensation': True,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
-    'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
+    'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])[from_pop:until_pop],
     # rate of the Poisson generator (in spikes/s)
     'bg_rate': 8.,
     # delay from the Poisson generator to the network (in ms)
@@ -123,11 +126,11 @@ net_dict = {
         # membrane potential average for the neurons (in mV)
         'V0_mean': {'original': -58.0,
                     'optimized': [-68.28, -63.16, -63.33, -63.45,
-                                  -63.11, -61.66, -66.72, -61.43]},
+                                  -63.11, -61.66, -66.72, -61.43][from_pop:until_pop]},
         # standard deviation of the average membrane potential (in mV)
         'V0_std': {'original': 10.0,
                    'optimized': [5.36, 4.57, 4.74, 4.94,
-                                 4.94, 4.55, 5.46, 4.48]},
+                                 4.94, 4.55, 5.46, 4.48][from_pop:until_pop]},
         # reset membrane potential of the neurons (in mV)
         'E_L': -65.0,
         # threshold potential of the neurons (in mV)

@@ -29,6 +29,8 @@ Thalamic input and DC input can be switched on individually.
 
 import numpy as np
 
+from .network_params import from_pop, until_pop
+
 stim_dict = {
     # optional thalamic input
     # turn thalamic input on or off (True or False)
@@ -44,7 +46,7 @@ stim_dict = {
     # connection probabilities of the thalamus to the different populations
     # (same order as in 'populations' in 'net_dict')
     'conn_probs_th':
-        np.array([0.0, 0.0, 0.0983, 0.0619, 0.0, 0.0, 0.0512, 0.0196]),
+        np.array([0.0, 0.0, 0.0983, 0.0619, 0.0, 0.0, 0.0512, 0.0196])[from_pop:until_pop],
     # mean amplitude of the thalamic postsynaptic potential (in mV),
     # standard deviation will be taken from 'net_dict'
     'PSP_th': 0.15,
@@ -62,4 +64,5 @@ stim_dict = {
     'dc_dur': 100.0,
     # amplitude of the DC input (in pA); final amplitude is population-specific
     # and will be obtained by multiplication with 'K_ext'
-    'dc_amp': 0.3}
+    'dc_amp': 0.3
+}
