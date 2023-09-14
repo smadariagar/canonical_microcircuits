@@ -91,13 +91,14 @@ class Network:
 
         """
         self.__create_neuronal_populations()
+
         if len(self.sim_dict.get('rec_dev', [])) > 0:
             self.__create_recording_devices()
-        if self.net_dict.get('poisson_input', None):
+        if self.net_dict.get('poisson_input', False):
             self.__create_poisson_bg_input()
-        if self.stim_dict.get('thalamic_input', None):
+        if self.stim_dict.get('thalamic_input', False):
             self.__create_thalamic_stim_input()
-        if self.stim_dict.get('dc_input', None):
+        if self.stim_dict.get('dc_input', False):
             self.__create_dc_stim_input()
 
     def connect(self):
@@ -121,11 +122,11 @@ class Network:
 
         if len(self.sim_dict.get('rec_dev', [])) > 0:
             self.__connect_recording_devices()
-        if self.net_dict.get('poisson_input', None):
+        if self.net_dict.get('poisson_input', False):
             self.__connect_poisson_bg_input()
-        if self.stim_dict.get('thalamic_input', None):
+        if self.stim_dict.get('thalamic_input', False):
             self.__connect_thalamic_stim_input()
-        if self.stim_dict.get('dc_input', None):
+        if self.stim_dict.get('dc_input', False):
             self.__connect_dc_stim_input()
 
         #nest.Prepare()
