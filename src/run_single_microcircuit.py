@@ -91,7 +91,7 @@ if __name__ == '__main__':
     nest.Prepare()
     nest.Cleanup()
 
-    net.simulate(sim_dict['t_presim'])
+    #net.simulate(sim_dict['t_presim'])
     time_presimulate = time.time()
 
     net.simulate(sim_dict['t_sim'])

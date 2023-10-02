@@ -254,6 +254,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
     plt.xlabel('time [ms]', fontsize=fs)
     plt.xticks(fontsize=fs)
     plt.yticks(label_pos, populations, fontsize=fs)
+    plt.tight_layout()
     plt.savefig(os.path.join(path, 'raster_plot.png'), dpi=300)
 
 
