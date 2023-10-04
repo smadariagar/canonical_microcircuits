@@ -57,7 +57,7 @@ class Network(network.Network):
 
     """
 
-    def __init__(self, sim_dict, net_dict, stim_dict=None):
+    def __init__(self, sim_dict, net_dict, stim_dict={}):
         super().__init__(sim_dict, net_dict, stim_dict)
 
     def create(self):
@@ -207,7 +207,7 @@ class Network(network.Network):
         self.DC_amp = DC_amp
 
         # thalamic input
-        if self.stim_dict['thalamic_input']:
+        if self.stim_dict.get('thalamic_input', False):
             num_th_synapses = helpers.num_synapses_from_conn_probs(
                 self.stim_dict['conn_probs_th'],
                 self.stim_dict['num_th_neurons'],
