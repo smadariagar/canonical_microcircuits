@@ -298,7 +298,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
                 
 
     
-id_result = '20230925001958'
+id_result = '20230713131858'
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
