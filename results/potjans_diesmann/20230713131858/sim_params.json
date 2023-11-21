@@ -1,0 +1,1 @@
+{"t_presim":500.0,"t_sim":1000.0,"sim_resolution":0.1,"rec_dev":["spike_recorder","voltmeter"],"data_path":"\/home\/catamurua\/canonical_microcircuits\/results\/potjans_diesmann\/20230713131858","rng_seed":55,"local_num_threads":1,"rec_V_int":1.0,"overwrite_files":true,"print_time":true,"plot_raster":true,"plot_firing_rates":true,"plot_voltages":true}
