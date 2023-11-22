@@ -282,9 +282,40 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[0].plot(inh_micro_2["time"] - t_presim_value, inh_micro_2["cellid"], ".", color='red', label='Inh Microcircuit 2')
 
 
-        axes[1].plot(lfp_time, lfp_capa)
-        axes[1].set_xlabel("time, ms")
+        Nstp = 1  # step cell to draw
+        tick_size = 5
+
+        fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+        fs = 18  # fontsize
+        max = cell_layer['cellid'].max()
+        exc_cells["cellid"] = (exc_cells["cellid"]-max)
+        inh_cells["cellid"] = (inh_cells["cellid"]-max)
+        exc_cells["cellid"] = exc_cells["cellid"].abs()+1
+        inh_cells["cellid"] = inh_cells["cellid"].abs()+1
+        
+
+        
+        axes[0].plot(exc_micro_1[::Nstp]["time"] - t_presim_value, exc_micro_1[::Nstp]["cellid"], ".", color='#595289', label='Exc Microcircuit 1')
+        axes[0].plot(exc_micro_2[::Nstp]["time"] - t_presim_value, exc_micro_2[::Nstp]["cellid"], ".", color='#595289', label='Exc Microcircuit 2')
+
+        # Inhibitorias
+        axes[0].plot(inh_micro_1[::Nstp]["time"] - t_presim_value, inh_micro_1[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 1')
+        axes[0].plot(inh_micro_2[::Nstp]["time"] - t_presim_value, inh_micro_2[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 2')
+
+        y_labels = [500, 1700, 3000, 4500]
+        y_tick_labels = ['L4I', 'L4E', 'L2/3I', 'L2/3E']
+        axes[0].set_yticks(y_labels)
+        axes[0].set_yticklabels(y_tick_labels, fontsize=fs)
+
+        axes[1].plot(lfp_time, lfp_capa,color='black', linewidth=2.0)
+        axes[1].set_xlabel('time [ms]', fontsize=fs)
+        axes[1].set_ylabel('Voltage [µV]', fontsize=fs)
+        axes[1].tick_params(axis='x', labelsize=fs) 
+        axes[1].tick_params(axis='y', labelsize=fs) 
         axes[1].set_xlim(0, t_sim_value)
+        fig.tight_layout()
+        plt.xlim(100,500)
+
 
         # prettify graph
         axes[0].spines["top"].set_visible(False)
@@ -331,7 +362,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         n = n + 1
         
  
-id_result = '20231121001141' # Modelo de 2 microcircuitos
+id_result = '20231122163538' # Modelo de 2 microcircuitos
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 

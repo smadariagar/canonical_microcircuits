@@ -202,6 +202,8 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files,height, r
     return info_total,times_simulation
 
 
+
+
 def apliccation_metrics(folder_path, archivos_spike_recorder):
     
     height = 0.2 #diferencia de altura entre capas en mm
@@ -237,18 +239,34 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         lfp_capa, lfp_time,npts = metrics(t_presim_value ,t_sim_value, 
                            inh_cells, exc_cells, Ne, Ni)
         
-        Nstp = 5  # step cell to draw
+        Nstp = 1  # step cell to draw
         tick_size = 5
 
         fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+        fs = 18  # fontsize
+        max = cell_layer['cellid'].max()
+        exc_cells["cellid"] = (exc_cells["cellid"]-max)
+        inh_cells["cellid"] = (inh_cells["cellid"]-max)
+        exc_cells["cellid"] = exc_cells["cellid"].abs()+1
+        inh_cells["cellid"] = inh_cells["cellid"].abs()+1
+        
 
-        axes[0].plot(exc_cells[::Nstp]["time"]-t_presim_value, exc_cells[::Nstp]["cellid"], ".", ms=tick_size)
-        axes[0].plot(inh_cells[::Nstp]["time"]-t_presim_value, inh_cells[::Nstp]["cellid"], ".", ms=tick_size)
+        axes[0].plot(exc_cells[::Nstp]["time"]-t_presim_value, exc_cells[::Nstp]["cellid"], ".", ms=tick_size,color ='#595289')
+        axes[0].plot(inh_cells[::Nstp]["time"]-t_presim_value, inh_cells[::Nstp]["cellid"], ".", ms=tick_size, color='#af143c' )
+        y_labels = [500, 1700, 3000, 4500]
+        y_tick_labels = ['L4I', 'L4E', 'L2/3I', 'L2/3E']
+        axes[0].set_yticks(y_labels)
+        axes[0].set_yticklabels(y_tick_labels, fontsize=fs)
 
-
-        axes[1].plot(lfp_time, lfp_capa)
-        axes[1].set_xlabel("time, ms")
+        axes[1].plot(lfp_time, lfp_capa,color='black', linewidth=2.0)
+        axes[1].set_xlabel('time [ms]', fontsize=fs)
+        axes[1].set_ylabel('Voltage [µV]', fontsize=fs)
+        axes[1].tick_params(axis='x', labelsize=fs) 
+        axes[1].tick_params(axis='y', labelsize=fs) 
         axes[1].set_xlim(0, t_sim_value)
+        fig.tight_layout()
+        plt.xlim(100,500)
+
 
         # prettify graph
         axes[0].spines["top"].set_visible(False)
@@ -298,7 +316,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
                 
 
     
-id_result = '20230713131858' # Modelo d eun microcircuito
+id_result = '20231122162315' # Modelo d eun microcircuito
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
