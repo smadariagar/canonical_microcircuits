@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from assets.potjans_diesmann.stimulus_params import stim_dict
+from assets.potjans_diesmann.stimulus_params2 import stim_dict as stim_dict2
 from assets.potjans_diesmann.network_params import net_dict
 from assets.potjans_diesmann.sim_params import sim_dict
 from assets.potjans_diesmann.lateral_params import lateral_dict
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     time_connect_src = time.time()
     # Create network
     print("---> Creating TARGET network...")
-    net_tg = network.Network(sim_dict, net_dict, stim_dict)
+    net_tg = network.Network(sim_dict, net_dict, stim_dict2)
     time_network_tg = time.time()
     # Create all nodes
     net_tg.create()
@@ -56,6 +57,8 @@ if __name__ == '__main__':
     
     print("---> Connecting NETWORKS...")
     net_src.connect_networks(net_tg, lateral_dict)
+    net_tg.connect_networks(net_src, lateral_dict)
+
 
     nest.Prepare()
     nest.Cleanup()
@@ -72,14 +75,15 @@ if __name__ == '__main__':
     # The computation of spike rates discards the presimulation time to exclude
     # initialization artifacts.
     print('---> Evaluating...')
-    raster_plot_interval = np.array([stim_dict['th_start'] - 300.0,
-                                    stim_dict['th_start'] + 300.0])
+    raster_plot_interval = np.array([stim_dict['th_start'] - 100.0,
+                                    stim_dict['th_start'] + 100.0 + sim_dict["t_sim"]])
     firing_rates_interval = np.array([sim_dict['t_presim'],
                                     sim_dict['t_presim'] + sim_dict['t_sim']])
 
     all_pops = list(map(lambda pop: f"{pop}_src", net_dict['populations'])) + list(map(lambda pop: f"{pop}_tg", net_dict['populations']))
     print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
     if sim_dict.get("plot_raster", False):
+        id_sim = sim_dict["data_path"].split("/")[-1]
         helpers.plot_raster(
             sim_dict["data_path"],
             'spike_recorder',
@@ -87,6 +91,7 @@ if __name__ == '__main__':
             raster_plot_interval[1],
             net_dict['N_scaling'],
             all_pops,
+            id_sim
         )
     print('Interval to compute firing rates: {} ms'.format(
         firing_rates_interval))

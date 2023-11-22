@@ -56,7 +56,7 @@ class Network:
 
     """
 
-    def __init__(self, sim_dict, net_dict, stim_dict=None):
+    def __init__(self, sim_dict, net_dict, stim_dict={}):
         self.sim_dict = sim_dict
         self.net_dict = net_dict
         self.stim_dict = stim_dict

@@ -16,7 +16,9 @@ from utils import helpers
 
 if __name__ == '__main__':
 
-    data_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/', "20231017152519")
+    id_sim = "20231017152519"   
+
+    data_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/', id_sim)
 
     ###############################################################################
     # Plot a spike raster of the simulated neurons and a box plot of the firing
@@ -41,6 +43,7 @@ if __name__ == '__main__':
             raster_plot_interval[1],
             net_dict['N_scaling'],
             all_pops,
+            id_sim
         )
     print('Interval to compute firing rates: {} ms'.format(
         firing_rates_interval))
