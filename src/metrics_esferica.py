@@ -210,7 +210,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
     info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder,height,radius)
-
+    name_capa = ['2-3','4','5','6']
     for n,i in enumerate(info_total['Layer'].unique()):
         center_x = center_y = 0
         center_z = (height/2)+(n*height)
@@ -255,7 +255,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[0].spines["right"].set_visible(False)
         axes[1].spines["top"].set_visible(False)
         axes[1].spines["right"].set_visible(False)
-        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa"+str(n+1)+".pdf")
+        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.pdf")
         
         
                 
@@ -275,8 +275,8 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         plt.xlabel('Frecuencia (Hz)')
         plt.ylabel('Amplitud')
         plt.title('Espectro de Frecuencia')
-        plt.xlim(0,120)
-        plt.savefig(folder_path+'Espectro_esferica'+str(n+1)+'.png')
+        plt.xlim(1,120)
+        plt.savefig(folder_path+'Espectro_esferica'+name_capa[n]+'.png')
 
 
 
@@ -287,9 +287,9 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         plt.xlim(0,500)
         plt.title('Espectro de Frecuencia esférica(Escala Logarítmica en x y y)')
         plt.grid()
-        plt.savefig(folder_path+'Espectro_log_esferica'+str(n+1)+'.png')
+        plt.savefig(folder_path+'Espectro_log_esferica_'+name_capa[n]+'_microcircuitos.png')
                
-        print('LFP capa '+str(n+1))            
+        print('LFP capa '+name_capa[n])          
         n = n + 1
         
         
@@ -298,7 +298,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
                 
 
     
-id_result = '20230713131858'
+id_result = '20230713131858' # Modelo d eun microcircuito
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
