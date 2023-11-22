@@ -190,21 +190,9 @@ def process_files_in_pairs_positions_multiple(folder_path, diccionario_micro,hei
             inh_cells = pd.DataFrame({'cellid': inh_cellids, 'time': times})
             inh_cells['type'] = 'inh'
             Ni = (inh[1][i+1][1] - inh[1][i+1][0]) + 1
-
-            
-            #if k == 0:
-            #    ini_cell_inh = inh_cellids
-            #    ini_cell_exc = exc_cellids
-            #elif k==1:
-            #    inh_cells['cellid'] = inh_cells['cellid'] + np.max(ini_cell_inh)
-            #exc_cells['cellid'] = exc_cells['cellid'] + np.max(ini_cell_exc)
-
                 
             cell_info = pd.concat([inh_cells,exc_cells],axis=0)
-
-                
-                
-            
+      
             # Se asigna posiciones
             exc_cell_ids = exc_cells['cellid'].unique().tolist()
             inh_cell_ids = inh_cells['cellid'].unique().tolist()
@@ -230,10 +218,22 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
     sphere_radius = 0.3
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
+    # Se divide la lista de archivos en 2 microcircuitos
+    # Función lambda para obtener el valor numérico de cada elemento
+    get_valor = lambda x: int(x.split('-')[1])
+    # Ordenar la lista por el valor numérico
+    archivos_spike_recorder_ordenados = sorted(archivos_spike_recorder, key=get_valor)
+    # Calcular la mitad de la longitud de la lista
+    mitad_longitud = len(archivos_spike_recorder_ordenados) // 2
+    # Dividir la lista en dos partes de igual longitud
+    primer_microcircuito = archivos_spike_recorder_ordenados[:mitad_longitud]
+    segundo_microcircuito = archivos_spike_recorder_ordenados[mitad_longitud:]
+    
     # Generar el diccionario con sublistas
-    diccionario_spike = {0: archivos_spike_recorder , 1: archivos_spike_recorder }
+    diccionario_spike = {0: primer_microcircuito , 1: segundo_microcircuito }
     
     info_total,times = process_files_in_pairs_positions_multiple(folder_path, diccionario_spike,height,radius)
+    name_capa = ['2-3','4','5','6']
     for n,i in enumerate(info_total['Layer'].unique()):
         # Desde el microcircuito 1 al 2
         center_x = center_y = 0
@@ -258,19 +258,21 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         Ni = len(inh_cells['new_cellid'].unique())
         Ne = len(exc_cells['new_cellid'].unique())
 
-    
+
         lfp_capa, lfp_time,npts = metrics(t_presim_value ,t_sim_value, 
                            inh_cells, exc_cells, Ne, Ni)
-       
-
+        
+      
         fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
 
         # Filtrar las celdas según las condiciones dadas
         exc_micro_1 = exc_cells[(exc_cells['type'] == 'exc') & (exc_cells['Microcircuito'] == 1)]
         exc_micro_2 = exc_cells[(exc_cells['type'] == 'exc') & (exc_cells['Microcircuito'] == 2)]
+
+        
         inh_micro_1 = inh_cells[(inh_cells['type'] == 'inh') & (inh_cells['Microcircuito'] == 1)]
         inh_micro_2 = inh_cells[(inh_cells['type'] == 'inh') & (inh_cells['Microcircuito'] == 2)]
-
+        
         # Excitatorias
         axes[0].plot(exc_micro_1["time"] - t_presim_value, exc_micro_1["cellid"], ".", color='blue', label='Exc Microcircuit 1')
         axes[0].plot(exc_micro_2["time"] - t_presim_value, exc_micro_2["cellid"], ".", color='cyan', label='Exc Microcircuit 2')
@@ -290,7 +292,8 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[1].spines["top"].set_visible(False)
         axes[1].spines["right"].set_visible(False)
         plt.legend()
-        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa"+str(n+1)+"_microcircuitos.pdf")
+        plt.xlim(100,350)
+        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.pdf")
         
         
                 
@@ -310,8 +313,8 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         plt.xlabel('Frecuencia (Hz)')
         plt.ylabel('Amplitud')
         plt.title('Espectro de Frecuencia')
-        plt.xlim(0,120)
-        plt.savefig(folder_path+'Espectro_esferica'+str(n+1)+'_microcircuitos.png')
+        plt.xlim(2,120)
+        plt.savefig(folder_path+'Espectro_esferica__'+name_capa[n]+'_microcircuitos.png')
 
 
 
@@ -322,18 +325,13 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         plt.xlim(0,500)
         plt.title('Espectro de Frecuencia esférica(Escala Logarítmica en x y y)')
         plt.grid()
-        plt.savefig(folder_path+'Espectro_log_esferica'+str(n+1)+'_microcircuitos.png')
+        plt.savefig(folder_path+'Espectro_log_esferica_'+name_capa[n]+'_microcircuitos.png')
                
-        print('LFP capa '+str(n+1))            
+        print('LFP capa '+name_capa[n])            
         n = n + 1
         
-        
-        
-
-                
-
-    
-id_result = '20230713131858'
+ 
+id_result = '20231121001141' # Modelo de 2 microcircuitos
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
