@@ -272,15 +272,6 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         
         inh_micro_1 = inh_cells[(inh_cells['type'] == 'inh') & (inh_cells['Microcircuito'] == 1)]
         inh_micro_2 = inh_cells[(inh_cells['type'] == 'inh') & (inh_cells['Microcircuito'] == 2)]
-        
-        # Excitatorias
-        axes[0].plot(exc_micro_1["time"] - t_presim_value, exc_micro_1["cellid"], ".", color='blue', label='Exc Microcircuit 1')
-        axes[0].plot(exc_micro_2["time"] - t_presim_value, exc_micro_2["cellid"], ".", color='cyan', label='Exc Microcircuit 2')
-
-        # Inhibitorias
-        axes[0].plot(inh_micro_1["time"] - t_presim_value, inh_micro_1["cellid"], ".", color='orange', label='Inh Microcircuit 1')
-        axes[0].plot(inh_micro_2["time"] - t_presim_value, inh_micro_2["cellid"], ".", color='red', label='Inh Microcircuit 2')
-
 
         Nstp = 1  # step cell to draw
         tick_size = 5
@@ -288,10 +279,15 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
         fs = 18  # fontsize
         max = cell_layer['cellid'].max()
-        exc_cells["cellid"] = (exc_cells["cellid"]-max)
-        inh_cells["cellid"] = (inh_cells["cellid"]-max)
-        exc_cells["cellid"] = exc_cells["cellid"].abs()+1
-        inh_cells["cellid"] = inh_cells["cellid"].abs()+1
+        exc_micro_1["cellid"] = (exc_micro_1["cellid"]-max)
+        exc_micro_2["cellid"] = (exc_micro_2["cellid"]-max)
+        inh_micro_1["cellid"] = (inh_micro_1["cellid"]-max)
+        inh_micro_2["cellid"] = (inh_micro_2["cellid"]-max)
+        exc_micro_1["cellid"] = exc_micro_1["cellid"].abs()+1
+        exc_micro_2["cellid"] = exc_micro_2["cellid"].abs()+1
+        inh_micro_1["cellid"] = inh_micro_1["cellid"].abs()+1
+        inh_micro_2["cellid"] = inh_micro_2["cellid"].abs()+1
+   
         
 
         
@@ -302,8 +298,8 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[0].plot(inh_micro_1[::Nstp]["time"] - t_presim_value, inh_micro_1[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 1')
         axes[0].plot(inh_micro_2[::Nstp]["time"] - t_presim_value, inh_micro_2[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 2')
 
-        y_labels = [500, 1700, 3000, 4500]
-        y_tick_labels = ['L4I', 'L4E', 'L2/3I', 'L2/3E']
+        y_labels = [300,1600,3000, 4200,8900,10100, 11700, 13500]
+        y_tick_labels = ['L4I_tg', 'L4E_tg', 'L2/3I_tg', 'L2/3E_tg','L4I_src', 'L4E_src', 'L2/3I_src', 'L2/3E_src']
         axes[0].set_yticks(y_labels)
         axes[0].set_yticklabels(y_tick_labels, fontsize=fs)
 
@@ -323,7 +319,6 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[1].spines["top"].set_visible(False)
         axes[1].spines["right"].set_visible(False)
         plt.legend()
-        plt.xlim(100,350)
         plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.pdf")
         
         
