@@ -357,7 +357,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         n = n + 1
         
  
-id_result = '20231122163538' # Modelo de 2 microcircuitos
+id_result = '20231121001141' # Modelo de 2 microcircuitos
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
