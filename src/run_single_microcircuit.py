@@ -53,6 +53,7 @@ if __name__ == '__main__':
         from . import network_potjans_diesmann as network
     time_start = time.time()
 
+
     ###############################################################################
     # Initialize the network with simulation, network and stimulation parameters,
     # then create and connect all nodes, and finally simulate.
@@ -63,6 +64,21 @@ if __name__ == '__main__':
     # statistical measures of the spike activity should only be computed after the
     # transient has passed.
 
+    # Setup nest
+    nest.ResetKernel()
+    nest.local_num_threads = sim_dict['local_num_threads']
+    nest.resolution = sim_dict['sim_resolution']
+    nest.rng_seed = sim_dict['rng_seed']
+    nest.overwrite_files = sim_dict['overwrite_files']
+    nest.print_time = sim_dict['print_time']
+    
+    if nest.Rank() == 0:
+        print('RNG seed: {}'.format(
+            nest.rng_seed))
+        print('Total number of virtual processes: {}'.format(
+            nest.total_num_virtual_procs))
+
+    # Create network
     net = network.Network(sim_dict, net_dict, stim_dict)
     time_network = time.time()
 
@@ -72,7 +88,10 @@ if __name__ == '__main__':
     net.connect()
     time_connect = time.time()
 
-    net.simulate(sim_dict['t_presim'])
+    nest.Prepare()
+    nest.Cleanup()
+
+    #net.simulate(sim_dict['t_presim'])
     time_presimulate = time.time()
 
     net.simulate(sim_dict['t_sim'])
@@ -87,7 +106,7 @@ if __name__ == '__main__':
     # initialization artifacts.
 
     raster_plot_interval = np.array([stim_dict['th_start'] - 100.0,
-                                    stim_dict['th_start'] + 100.0])
+                                    stim_dict['th_start'] + 100.0 + sim_dict["t_sim"]])
     firing_rates_interval = np.array([sim_dict['t_presim'],
                                     sim_dict['t_presim'] + sim_dict['t_sim']])
     net.evaluate(raster_plot_interval, firing_rates_interval)

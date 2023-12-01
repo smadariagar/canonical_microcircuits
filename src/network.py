@@ -56,7 +56,7 @@ class Network:
 
     """
 
-    def __init__(self, sim_dict, net_dict, stim_dict=None):
+    def __init__(self, sim_dict, net_dict, stim_dict={}):
         self.sim_dict = sim_dict
         self.net_dict = net_dict
         self.stim_dict = stim_dict
@@ -91,13 +91,14 @@ class Network:
 
         """
         self.__create_neuronal_populations()
+
         if len(self.sim_dict.get('rec_dev', [])) > 0:
             self.__create_recording_devices()
-        if self.net_dict.get('poisson_input', None):
+        if self.net_dict.get('poisson_input', False):
             self.__create_poisson_bg_input()
-        if self.stim_dict.get('thalamic_input', None):
+        if self.stim_dict.get('thalamic_input', False):
             self.__create_thalamic_stim_input()
-        if self.stim_dict.get('dc_input', None):
+        if self.stim_dict.get('dc_input', False):
             self.__create_dc_stim_input()
 
     def connect(self):
@@ -121,15 +122,18 @@ class Network:
 
         if len(self.sim_dict.get('rec_dev', [])) > 0:
             self.__connect_recording_devices()
-        if self.net_dict.get('poisson_input', None):
+        if self.net_dict.get('poisson_input', False):
             self.__connect_poisson_bg_input()
-        if self.stim_dict.get('thalamic_input', None):
+        if self.stim_dict.get('thalamic_input', False):
             self.__connect_thalamic_stim_input()
-        if self.stim_dict.get('dc_input', None):
+        if self.stim_dict.get('dc_input', False):
             self.__connect_dc_stim_input()
 
-        nest.Prepare()
-        nest.Cleanup()
+        #nest.Prepare()
+        #nest.Cleanup()
+
+    def connect_networks(self, net, lateral_dict):
+        self.__connect_lateral_neuronal_populations(net, lateral_dict)
 
     def simulate(self, t_sim):
         """ Simulates the microcircuit.
@@ -217,19 +221,20 @@ class Network:
 
         Reset the NEST kernel and pass parameters to it.
         """
-        nest.ResetKernel()
+        #nest.ResetKernel()
 
-        nest.local_num_threads = self.sim_dict['local_num_threads']
-        nest.resolution = self.sim_dict['sim_resolution']
-        nest.rng_seed = self.sim_dict['rng_seed']
-        nest.overwrite_files = self.sim_dict['overwrite_files']
-        nest.print_time = self.sim_dict['print_time']
+        # nest.local_num_threads = self.sim_dict['local_num_threads']
+        # nest.resolution = self.sim_dict['sim_resolution']
+        # nest.rng_seed = self.sim_dict['rng_seed']
+        # nest.overwrite_files = self.sim_dict['overwrite_files']
+        # nest.print_time = self.sim_dict['print_time']
         
-        if nest.Rank() == 0:
-            print('RNG seed: {}'.format(
-                nest.rng_seed))
-            print('Total number of virtual processes: {}'.format(
-                nest.total_num_virtual_procs))
+        # if nest.Rank() == 0:
+        #     print('RNG seed: {}'.format(
+        #         nest.rng_seed))
+        #     print('Total number of virtual processes: {}'.format(
+        #         nest.total_num_virtual_procs))
+        #pass
 
     def __create_neuronal_populations(self):
         """ Creates the neuronal populations.
@@ -378,6 +383,13 @@ class Network:
         self.dc_stim_input = nest.Create('dc_generator', n=self.num_pops, params=dc_dict)
 
     def __connect_neuronal_populations(self):
+        """ Creates the recurrent connections between neuronal populations. 
+
+            It must be implemented in the derived class.
+        """
+        raise NotImplementedError
+
+    def __connect_lateral_neuronal_populations(self, net, lateral_dict):
         """ Creates the recurrent connections between neuronal populations. 
 
             It must be implemented in the derived class.

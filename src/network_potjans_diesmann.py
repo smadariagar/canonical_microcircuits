@@ -57,7 +57,7 @@ class Network(network.Network):
 
     """
 
-    def __init__(self, sim_dict, net_dict, stim_dict=None):
+    def __init__(self, sim_dict, net_dict, stim_dict={}):
         super().__init__(sim_dict, net_dict, stim_dict)
 
     def create(self):
@@ -86,6 +86,26 @@ class Network(network.Network):
 
         """
         super().connect()
+
+    def connect_networks(self, net, lateral_dict):
+        """ Connects the network.
+
+        Recurrent connections among neurons of the neuronal populations are
+        established, and recording and stimulation devices are connected.
+
+        The ``self.__connect_*()`` functions use ``nest.Connect()`` calls which
+        set up the postsynaptic connectivity.
+        Since the introduction of the 5g kernel in NEST 2.16.0 the full
+        connection infrastructure including presynaptic connectivity is set up
+        afterwards in the preparation phase of the simulation.
+        The preparation phase is usually induced by the first
+        ``nest.Simulate()`` call.
+        For including this phase in measurements of the connection time,
+        we induce it here explicitly by calling ``nest.Prepare()``.
+
+        """
+        super().connect_networks(net, lateral_dict)
+
 
     def simulate(self, t_sim):
         """ Simulates the microcircuit.
@@ -155,20 +175,25 @@ class Network(network.Network):
         if self.net_dict['poisson_input']:
             DC_amp = np.zeros(self.num_pops)
         else:
-            if nest.Rank() == 0:
-                warnings.warn('DC input created to compensate missing Poisson input.\n')
-            DC_amp = helpers.dc_input_compensating_poisson(
-                self.net_dict['bg_rate'], self.net_dict['K_ext'],
-                self.net_dict['neuron_params']['tau_syn'],
-                PSC_ext)
+            if not self.net_dict['dc_compensation']:
+                DC_amp = np.zeros(self.num_pops)
+            else:
+                if nest.Rank() == 0:
+                    warnings.warn('DC input created to compensate missing Poisson input.\n')
+                DC_amp = helpers.dc_input_compensating_poisson(
+                    self.net_dict['bg_rate'], self.net_dict['K_ext'],
+                    self.net_dict['neuron_params']['tau_syn'],
+                    PSC_ext)
 
         # adjust weights and DC amplitude if the indegree is scaled
         if self.net_dict['K_scaling'] != 1:
             PSC_matrix_mean, PSC_ext, DC_amp = \
                 helpers.adjust_weights_and_input_to_synapse_scaling(
                     self.net_dict['full_num_neurons'],
-                    full_num_synapses, self.net_dict['K_scaling'],
-                    PSC_matrix_mean, PSC_ext,
+                    full_num_synapses, 
+                    self.net_dict['K_scaling'],
+                    PSC_matrix_mean, 
+                    PSC_ext,
                     self.net_dict['neuron_params']['tau_syn'],
                     self.net_dict['full_mean_rates'],
                     DC_amp,
@@ -182,7 +207,7 @@ class Network(network.Network):
         self.DC_amp = DC_amp
 
         # thalamic input
-        if self.stim_dict['thalamic_input']:
+        if self.stim_dict.get('thalamic_input', False):
             num_th_synapses = helpers.num_synapses_from_conn_probs(
                 self.stim_dict['conn_probs_th'],
                 self.stim_dict['num_th_neurons'],
@@ -257,7 +282,7 @@ class Network(network.Network):
         # write node ids to file
         if nest.Rank() == 0:
             fn = os.path.join(self.data_path, 'population_nodeids.dat')
-            with open(fn, 'w+') as f:
+            with open(fn, 'a') as f:
                 for pop in self.pops:
                     f.write('{} {}\n'.format(pop[0].global_id,
                                              pop[-1].global_id))
@@ -356,6 +381,89 @@ class Network(network.Network):
                         source_pop, target_pop,
                         conn_spec=conn_dict_rec,
                         syn_spec=syn_dict)
+
+    def __connect_lateral_neuronal_populations(self, net, lateral_dict):
+        """ TODO: Creates the recurrent connections between neuronal populations. """
+        if nest.Rank() == 0:
+            print('Connecting neuronal populations recurrently.')
+
+        full_num_synapses = helpers.num_synapses_from_conn_probs(
+            lateral_dict["conn_probs"],
+            self.net_dict['full_num_neurons'],
+            net.net_dict['full_num_neurons']
+        )
+        num_synapses = np.round((full_num_synapses *
+                                  lateral_dict['N_scaling'] *
+                                  lateral_dict['K_scaling'])).astype(int)
+        # num_synapses = np.array([[454998, 223236, 202536,  96709,  32936,      0,  22714,      0],
+        #                         [174437,  50188,  41053,  16901,  22212,      0,   3535,      0],
+        #                         [ 35037,   7566, 244828, 174136,   7145,     70, 146244,      0],
+        #                         [ 81143,    928,  99335,  52233,    878,      0,  88109,      0],
+        #                         [106136,  18171,  55078,   1519,  20407,  24079,  14390,      0],
+        #                         [ 12414,   1694,   6077,    129,   3196,   4304,   1324,      0],
+        #                         [ 46812,   5561,  67276,  13202,  41122,   3050,  83726, 108277],
+        #                         [ 22608,    172,   2200,     81,   4016,    252,  28884,  13543]])
+        # conversion from PSPs to PSCs
+        PSC_over_PSP = helpers.postsynaptic_potential_to_current(
+            net.net_dict['neuron_params']['C_m'],
+            net.net_dict['neuron_params']['tau_m'],
+            net.net_dict['neuron_params']['tau_syn']
+        )
+        PSC_matrix_mean = net.net_dict['PSP_matrix_mean'] * PSC_over_PSP
+    
+        # adjust weights and DC amplitude if the indegree is scaled
+        if net.net_dict['K_scaling'] != 1:
+            PSC_matrix_mean /= np.sqrt(net.net_dict['K_scaling'])
+
+        weight_matrix_mean = PSC_matrix_mean
+        #weight_rel_std = 0.1
+        
+        # delay_matrix_mean = np.array([[1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
+        #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75]])
+        #delay_rel_std = 0.5
+        for i, target_pop in enumerate(net.pops):
+            for j, source_pop in enumerate(self.pops):
+                if num_synapses[i][j] >= 0.:
+                    conn_dict_rec = {
+                        'rule': 'fixed_total_number',
+                        'N': num_synapses[i][j]}  
+
+                    if weight_matrix_mean[i][j] < 0:
+                        w_min = np.NINF
+                        w_max = 0.0
+                    else:
+                        w_min = 0.0
+                        w_max = np.Inf
+                
+                    syn_dict = {
+                        'synapse_model': 'static_synapse',
+                        'weight': nest.math.redraw(
+                            nest.random.normal(
+                                mean=weight_matrix_mean[i][j],
+                                std=abs(weight_matrix_mean[i][j] *
+                                        net.net_dict["weight_rel_std"])),
+                            min=w_min,
+                            max=w_max),
+                        'delay': nest.math.redraw(
+                            nest.random.normal(
+                                mean=net.net_dict["delay_matrix_mean"][i][j],
+                                std=(net.net_dict["delay_matrix_mean"][i][j] *
+                                     net.net_dict["delay_rel_std"])),
+                            min=nest.resolution,
+                            max=np.Inf)}
+                    print(source_pop, target_pop)
+                    nest.Connect(
+                        source_pop, target_pop,
+                        conn_spec=conn_dict_rec,
+                        syn_spec=syn_dict
+                    )
+
 
     def __connect_recording_devices(self):
         """ Connects the recording devices to the microcircuit."""

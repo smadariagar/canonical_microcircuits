@@ -208,7 +208,7 @@ def adjust_weights_and_input_to_synapse_scaling(
     return PSC_matrix_new, PSC_ext_new, DC_amp_new
 
 
-def plot_raster(path, name, begin, end, N_scaling, populations):
+def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
     """ Creates a spike raster plot of the network activity.
 
     Parameters
@@ -231,10 +231,16 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
     None
 
     """
+    #import math
     fs = 18  # fontsize
-    color_list = np.tile(['#595289', '#af143c'], 4)
 
     sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
+
+    #n_networks = len(sd_names) // 8
+    #n_conections = int((math.factorial(n_networks) / (math.factorial(2) * math.factorial(n_networks - 2))) * 2)
+
+    color_list = np.tile(['#595289', '#af143c'], len(sd_names)//2)
+
     last_node_id = node_ids[-1, -1]
     mod_node_ids = np.abs(node_ids - last_node_id) + 1
 
@@ -254,6 +260,11 @@ def plot_raster(path, name, begin, end, N_scaling, populations):
     plt.xlabel('time [ms]', fontsize=fs)
     plt.xticks(fontsize=fs)
     plt.yticks(label_pos, populations, fontsize=fs)
+    if id_sim:
+        plt.title(f"ID: {id_sim}", fontsize=fs)
+    else:
+        plt.title(f"ID: {name}", fontsize=fs)
+    plt.tight_layout()
     plt.savefig(os.path.join(path, 'raster_plot.png'), dpi=300)
 
 
