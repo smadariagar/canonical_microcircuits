@@ -36,13 +36,13 @@ stim_dict = {
     # turn thalamic input on or off (True or False)
     'thalamic_input': True,
     # start of the thalamic input (in ms)
-    'th_start': 800.0,
+    'th_start': 500.0,
     # duration of the thalamic input (in ms)
-    'th_duration': 300.0,
+    'th_duration': 2000.0,
     # rate of the thalamic input (in spikes/s)
-    'th_rate': 120.0,
+    'th_rate': 15.0,
     # number of thalamic neurons
-    'num_th_neurons': 902,
+    'num_th_neurons': 180, #902
     # connection probabilities of the thalamus to the different populations
     # (same order as in 'populations' in 'net_dict')
     'conn_probs_th':

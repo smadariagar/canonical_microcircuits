@@ -33,7 +33,7 @@ sim_dict = {
     # The full simulation time is the sum of a presimulation time and the main
     # simulation time.
     # presimulation time (in ms)
-    't_presim': 500.0,
+    't_presim': 1000.0,
     # simulation time (in ms)
     't_sim': 2000.0,
     # resolution of the simulation (in ms)
@@ -41,11 +41,11 @@ sim_dict = {
     # list of recording devices, default is 'spike_recorder'. A 'voltmeter' can
     # be added to record membrane voltages of the neurons. Nothing will be
     # recorded if an empty list is given.
-    'rec_dev': ['spike_recorder', 'voltmeter'],
+    'rec_dev': ['spike_recorder'], #, 'voltmeter'],
     # path to save the output data
     'data_path': os.path.join(os.getcwd(), 'results/potjans_diesmann/', datetime.now().strftime('%Y%m%d%H%M%S')),
     # Seed for NEST
-    'rng_seed': 55,
+    'rng_seed': 66,
     # number of threads per MPI process
     'local_num_threads': 1,
     # recording interval of the membrane potential (in ms)
