@@ -390,11 +390,12 @@ class Network(network.Network):
         full_num_synapses = helpers.num_synapses_from_conn_probs(
             lateral_dict["conn_probs"],
             self.net_dict['full_num_neurons'],
-            net.net_dict['full_num_neurons']
-        )
+            net.net_dict['full_num_neurons'])
+        
         num_synapses = np.round((full_num_synapses *
                                   lateral_dict['N_scaling'] *
                                   lateral_dict['K_scaling'])).astype(int)
+        
         # num_synapses = np.array([[454998, 223236, 202536,  96709,  32936,      0,  22714,      0],
         #                         [174437,  50188,  41053,  16901,  22212,      0,   3535,      0],
         #                         [ 35037,   7566, 244828, 174136,   7145,     70, 146244,      0],
@@ -403,6 +404,7 @@ class Network(network.Network):
         #                         [ 12414,   1694,   6077,    129,   3196,   4304,   1324,      0],
         #                         [ 46812,   5561,  67276,  13202,  41122,   3050,  83726, 108277],
         #                         [ 22608,    172,   2200,     81,   4016,    252,  28884,  13543]])
+        
         # conversion from PSPs to PSCs
         PSC_over_PSP = helpers.postsynaptic_potential_to_current(
             net.net_dict['neuron_params']['C_m'],
@@ -426,7 +428,9 @@ class Network(network.Network):
         #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
         #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75],
         #                             [1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75, 1.5 , 0.75]])
+        
         #delay_rel_std = 0.5
+        
         for i, target_pop in enumerate(net.pops):
             for j, source_pop in enumerate(self.pops):
                 if num_synapses[i][j] >= 0.:
@@ -446,18 +450,17 @@ class Network(network.Network):
                         'weight': nest.math.redraw(
                             nest.random.normal(
                                 mean=weight_matrix_mean[i][j],
-                                std=abs(weight_matrix_mean[i][j] *
-                                        net.net_dict["weight_rel_std"])),
-                            min=w_min,
-                            max=w_max),
+                                std=abs(weight_matrix_mean[i][j] * net.net_dict["weight_rel_std"])),
+                                min=w_min,
+                                max=w_max),
                         'delay': nest.math.redraw(
                             nest.random.normal(
                                 mean=net.net_dict["delay_matrix_mean"][i][j],
-                                std=(net.net_dict["delay_matrix_mean"][i][j] *
-                                     net.net_dict["delay_rel_std"])),
-                            min=nest.resolution,
-                            max=np.Inf)}
-                    print(source_pop, target_pop)
+                                std=(net.net_dict["delay_matrix_mean"][i][j] * net.net_dict["delay_rel_std"])),
+                                min=nest.resolution,
+                                max=np.Inf)}
+
+                    #print(source_pop, target_pop)
                     nest.Connect(
                         source_pop, target_pop,
                         conn_spec=conn_dict_rec,
