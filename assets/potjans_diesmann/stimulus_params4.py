@@ -34,13 +34,13 @@ from .network_params import from_pop, until_pop
 stim_dict = {
     # optional thalamic input
     # turn thalamic input on or off (True or False)
-    'thalamic_input': True,
+    'thalamic_input': False,
     # start of the thalamic input (in ms)
-    'th_start': 500.0,
+    'th_start': 2000.0,
     # duration of the thalamic input (in ms)
-    'th_duration': 2000.0,
+    'th_duration': 500.0,
     # rate of the thalamic input (in spikes/s)
-    'th_rate': 8.0,
+    'th_rate': 25.0,
     # number of thalamic neurons
     'num_th_neurons': 180, #902
     # connection probabilities of the thalamus to the different populations

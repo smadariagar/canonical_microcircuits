@@ -174,6 +174,7 @@ def process_files_in_pairs_positions_multiple(folder_path, diccionario_micro,hei
             file1 = spike_recorder_files[i]
             file2 = spike_recorder_files[i + 1]
             t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
+            t_presim_value = 0
             times_simulation.append([t_presim_value, t_sim_value])
             
             # Lectura excitatoria
@@ -274,8 +275,6 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         inh_micro_2 = inh_cells[(inh_cells['type'] == 'inh') & (inh_cells['Microcircuito'] == 2)]
 
         Nstp = 1  # step cell to draw
-        tick_size = 5
-
         fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
         fs = 18  # fontsize
         max = cell_layer['cellid'].max()
@@ -289,28 +288,46 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         inh_micro_2["cellid"] = inh_micro_2["cellid"].abs()+1
    
         
-
-        
-        axes[0].plot(exc_micro_1[::Nstp]["time"] - t_presim_value, exc_micro_1[::Nstp]["cellid"], ".", color='#595289', label='Exc Microcircuit 1')
-        axes[0].plot(exc_micro_2[::Nstp]["time"] - t_presim_value, exc_micro_2[::Nstp]["cellid"], ".", color='#595289', label='Exc Microcircuit 2')
+        axes[0].plot(exc_micro_1[::Nstp]["time"], exc_micro_1[::Nstp]["cellid"], ".", color='#595289', label='Exc Microcircuit 1')
+        axes[0].plot(exc_micro_2[::Nstp]["time"], exc_micro_2[::Nstp]["cellid"], ".", color='#595289', label='Exc Microcircuit 2')
 
         # Inhibitorias
-        axes[0].plot(inh_micro_1[::Nstp]["time"] - t_presim_value, inh_micro_1[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 1')
-        axes[0].plot(inh_micro_2[::Nstp]["time"] - t_presim_value, inh_micro_2[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 2')
+        axes[0].plot(inh_micro_1[::Nstp]["time"], inh_micro_1[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 1')
+        axes[0].plot(inh_micro_2[::Nstp]["time"], inh_micro_2[::Nstp]["cellid"], ".", color='#af143c', label='Inh Microcircuit 2')
+        
+        #Promedios cellid por capa
+        prom_inh_1 = inh_micro_1.groupby(['type','Microcircuito','Layer'])['cellid'].mean().reset_index()
+        prom_inh_2 = inh_micro_2.groupby(['type','Microcircuito','Layer'])['cellid'].mean().reset_index()
+        prom_exc_1 = exc_micro_1.groupby(['type','Microcircuito','Layer'])['cellid'].mean().reset_index()
+        prom_exc_2 = exc_micro_2.groupby(['type','Microcircuito','Layer'])['cellid'].mean().reset_index()
+        cellid_prom = pd.concat([prom_inh_1,prom_inh_2,prom_exc_1,prom_exc_2], ignore_index=True)
 
-        y_labels = [300,1600,3000, 4200,8900,10100, 11700, 13500]
-        y_tick_labels = ['L4I_tg', 'L4E_tg', 'L2/3I_tg', 'L2/3E_tg','L4I_src', 'L4E_src', 'L2/3I_src', 'L2/3E_src']
+        names_capas = {
+            'type': ['inh', 'inh', 'inh', 'inh', 'exc', 'exc', 'exc', 'exc', 'inh', 'inh', 'inh', 'inh',  'exc', 'exc', 'exc', 'exc'],
+            'Microcircuito': [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+            'Layer': [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+            'name': ['L2/3I_src', 'L4I_src', 'L5I_src', 'L6I_src', 'L2/3E_src', 'L4E_src', 'L5E_src', 'L6E_src', 'L2/3I_tg', 'L4I_tg', 'L5I_tg', 'L6I_tg', 'L2/3E_tg', 'L4E_tg', 'L5E_tg', 'L6E_tg']
+        }
+
+        capas = pd.DataFrame(names_capas)
+        ticks = capas.merge(cellid_prom,on=['type','Microcircuito','Layer'])
+        ticks = ticks.sort_values(by='cellid',ascending=False)
+                
+        y_labels = list(ticks['cellid'])
+        y_tick_labels = list(ticks['name'])
         axes[0].set_yticks(y_labels)
         axes[0].set_yticklabels(y_tick_labels, fontsize=fs)
 
+        minimo = np.partition(list(inh_cells["time"]), 4)[4]
         axes[1].plot(lfp_time, lfp_capa,color='black', linewidth=2.0)
         axes[1].set_xlabel('time [ms]', fontsize=fs)
         axes[1].set_ylabel('Voltage [µV]', fontsize=fs)
         axes[1].tick_params(axis='x', labelsize=fs) 
         axes[1].tick_params(axis='y', labelsize=fs) 
-        axes[1].set_xlim(0, t_sim_value)
+        axes[1].set_xlim(minimo-20, np.max(exc_cells[::Nstp]["time"])+20)
+        
         fig.tight_layout()
-        plt.xlim(100,500)
+        #plt.xlim(100,500)
 
 
         # prettify graph
@@ -357,7 +374,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         n = n + 1
         
  
-id_result = '20231121001141' # Modelo de 2 microcircuitos
+id_result = '20240405045551' # Modelo de 2 microcircuitos
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 

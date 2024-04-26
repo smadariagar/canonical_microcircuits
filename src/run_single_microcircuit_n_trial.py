@@ -34,6 +34,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import argparse
+import shutil
+import os
 from random import randint
 
 args = argparse.ArgumentParser()
@@ -89,16 +91,25 @@ if __name__ == '__main__':
     net.connect()
     time_connect = time.time()
 
-    nest.Prepare()
-    nest.Cleanup()
+    for i in range(10):
 
-    #nest.rng_seed = randint(1, 100)
-    #print('New RNG seed: {}'.format(nest.rng_seed))
-    #net.simulate(sim_dict['t_presim'])
-    time_presimulate = time.time()
+        nest.Prepare()
+        nest.Cleanup()
+    
+        nest.rng_seed = randint(1, 1000)
+        print('New RNG seed: {}'.format(nest.rng_seed))
+        print(stim_dict['th_start'])
 
-    net.simulate(sim_dict['t_sim'])
-    time_simulate = time.time()
+        #net.simulate(sim_dict['t_presim'])
+        time_presimulate = time.time()
+
+        net.poisson_th.set(
+            rate=stim_dict['th_rate'],
+            start=stim_dict['th_start'],
+            stop=(stim_dict['th_start'] + stim_dict['th_duration']))
+        
+        net.simulate(sim_dict['t_sim'])
+        time_simulate = time.time()
 
 
     ###############################################################################
@@ -111,10 +122,10 @@ if __name__ == '__main__':
 
     #raster_plot_interval = np.array([stim_dict['th_start'] - 100.0,
     #                                stim_dict['th_start'] + 100.0 + sim_dict["t_sim"]])
-    raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    net.evaluate(raster_plot_interval, firing_rates_interval)
-    time_evaluate = time.time()
+        raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict['t_presim'] + sim_dict["t_sim"]])
+        firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict['t_presim'] + sim_dict["t_sim"]])
+        net.evaluate(raster_plot_interval, firing_rates_interval)
+        time_evaluate = time.time()
 
 
     ###############################################################################
@@ -130,29 +141,48 @@ if __name__ == '__main__':
     # Summarize time measurements. Rank 0 usually takes longest because of the
     # data evaluation and print calls.
 
-    print(
-        '\nTimes of Rank {}:\n'.format(
-            nest.Rank()) +
-        '  Total time:          {:.3f} s\n'.format(
-            time_evaluate -
-            time_start) +
-        '  Time to initialize:  {:.3f} s\n'.format(
-            time_network -
-            time_start) +
-        '  Time to create:      {:.3f} s\n'.format(
-            time_create -
-            time_network) +
-        '  Time to connect:     {:.3f} s\n'.format(
-            time_connect -
-            time_create) +
-        '  Time to presimulate: {:.3f} s\n'.format(
-            time_presimulate -
-            time_connect) +
-        '  Time to simulate:    {:.3f} s\n'.format(
-            time_simulate -
-            time_presimulate) +
-        '  Time to evaluate:    {:.3f} s\n'.format(
-            time_evaluate -
-            time_simulate))
+        print(
+            '\nTimes of Rank {}:\n'.format(
+                nest.Rank()) +
+            '  Total time:          {:.3f} s\n'.format(
+                time_evaluate -
+                time_start) +
+            '  Time to initialize:  {:.3f} s\n'.format(
+                time_network -
+                time_start) +
+            '  Time to create:      {:.3f} s\n'.format(
+                time_create -
+                time_network) +
+            '  Time to connect:     {:.3f} s\n'.format(
+                time_connect -
+                time_create) +
+            '  Time to presimulate: {:.3f} s\n'.format(
+                time_presimulate -
+                time_connect) +
+            '  Time to simulate:    {:.3f} s\n'.format(
+                time_simulate -
+                time_presimulate) +
+            '  Time to evaluate:    {:.3f} s\n'.format(
+                time_evaluate -
+                time_simulate))
 
-    plt.show()
+        path = os.path.join(sim_dict['data_path'], str(i))
+        print(path)
+        os.mkdir(path) 
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3859-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3860-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3861-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3862-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3863-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3864-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3865-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'spike_recorder-3866-0.dat'), path)
+        shutil.copy(os.path.join(sim_dict['data_path'],'population_nodeids.dat'), path)
+
+        #plt.show()
+
+        stim_dict['th_start'] = stim_dict['th_start']+1000
+        sim_dict['t_presim'] = sim_dict['t_presim']+1000
+
+
+

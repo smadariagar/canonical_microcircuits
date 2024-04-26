@@ -170,9 +170,11 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files,height, r
         # Lectura de parámetros de simulacion
         file1 = spike_recorder_files[i]
         file2 = spike_recorder_files[i + 1]
-        t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
-        times_simulation.append([t_presim_value, t_sim_value])
         
+        t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
+        t_presim_value = 0
+        times_simulation.append([t_presim_value, t_sim_value])
+
         # Lectura excitatoria
         exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
         cellids, times = zip(*exc[2][0])
@@ -238,9 +240,9 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
     
         lfp_capa, lfp_time,npts = metrics(t_presim_value ,t_sim_value, 
                            inh_cells, exc_cells, Ne, Ni)
+       
         
         Nstp = 1  # step cell to draw
-        tick_size = 5
 
         fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
         fs = 18  # fontsize
@@ -249,23 +251,42 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         inh_cells["cellid"] = (inh_cells["cellid"]-max)
         exc_cells["cellid"] = exc_cells["cellid"].abs()+1
         inh_cells["cellid"] = inh_cells["cellid"].abs()+1
-        
+        #print(exc_cells)
+        #print(t_presim_value)
 
-        axes[0].plot(exc_cells[::Nstp]["time"]-t_presim_value, exc_cells[::Nstp]["cellid"], ".", ms=tick_size,color ='#595289')
-        axes[0].plot(inh_cells[::Nstp]["time"]-t_presim_value, inh_cells[::Nstp]["cellid"], ".", ms=tick_size, color='#af143c' )
-        y_labels = [500, 1700, 3000, 4500]
-        y_tick_labels = ['L4I', 'L4E', 'L2/3I', 'L2/3E']
+        axes[0].plot(exc_cells[::Nstp]["time"], exc_cells[::Nstp]["cellid"], ".", color ='#595289')
+        axes[0].plot(inh_cells[::Nstp]["time"], inh_cells[::Nstp]["cellid"], ".",  color='#af143c' )
+        
+         #Promedios cellid por capa
+        prom_inh = inh_cells.groupby(['type','Layer'])['cellid'].mean().reset_index()
+        prom_exc = exc_cells.groupby(['type','Layer'])['cellid'].mean().reset_index()
+        cellid_prom = pd.concat([prom_inh,prom_exc], ignore_index=True)
+
+        names_capas = {
+            'type': ['inh', 'inh', 'inh', 'inh', 'exc', 'exc', 'exc', 'exc'],
+            'Layer': [1, 2, 3, 4, 1, 2, 3, 4],
+            'name': ['L2/3I', 'L4I', 'L5I', 'L6I', 'L2/3E', 'L4E', 'L5E', 'L6E']
+        }
+
+        capas = pd.DataFrame(names_capas)
+        ticks = capas.merge(cellid_prom,on=['type','Layer'])
+        ticks = ticks.sort_values(by='cellid',ascending=False)
+                
+        y_labels = list(ticks['cellid'])
+        y_tick_labels = list(ticks['name'])
+        
+        
+        minimo = np.partition(list(inh_cells["time"]), 4)[4]
         axes[0].set_yticks(y_labels)
         axes[0].set_yticklabels(y_tick_labels, fontsize=fs)
-
         axes[1].plot(lfp_time, lfp_capa,color='black', linewidth=2.0)
         axes[1].set_xlabel('time [ms]', fontsize=fs)
         axes[1].set_ylabel('Voltage [µV]', fontsize=fs)
         axes[1].tick_params(axis='x', labelsize=fs) 
         axes[1].tick_params(axis='y', labelsize=fs) 
-        axes[1].set_xlim(0, t_sim_value)
+        axes[1].set_xlim(minimo-20, np.max(exc_cells[::Nstp]["time"])+20)
         fig.tight_layout()
-        plt.xlim(100,500)
+
 
 
         # prettify graph
@@ -273,39 +294,39 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[0].spines["right"].set_visible(False)
         axes[1].spines["top"].set_visible(False)
         axes[1].spines["right"].set_visible(False)
-        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.pdf")
+        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.png")
         
         
                 
         # Configuración de la señal
-        fs = npts  # Frecuencia de muestreo en Hz
+        #fs = npts  # Frecuencia de muestreo en Hz
 
 
         # Calcular la transformada de Fourier de la señal
-        spectrum = fft(lfp_capa)
+        #spectrum = fft(lfp_capa)
 
         # Calcular las frecuencias correspondientes al espectro
-        frequencies = np.fft.fftfreq(len(lfp_capa), 1/fs)
+        #frequencies = np.fft.fftfreq(len(lfp_capa), 1/fs)
 
         # Graficar el espectro de frecuencia
-        plt.figure(figsize=(10, 6))
-        plt.plot(frequencies, np.abs(spectrum))
-        plt.xlabel('Frecuencia (Hz)')
-        plt.ylabel('Amplitud')
-        plt.title('Espectro de Frecuencia')
-        plt.xlim(1,120)
-        plt.savefig(folder_path+'Espectro_esferica'+name_capa[n]+'.png')
+        #plt.figure(figsize=(10, 6))
+        #plt.plot(frequencies, np.abs(spectrum))
+        #plt.xlabel('Frecuencia (Hz)')
+        #plt.ylabel('Amplitud')
+        #plt.title('Espectro de Frecuencia')
+        #plt.xlim(1,120)
+        #plt.savefig(folder_path+'Espectro_esferica'+name_capa[n]+'.png')
 
 
 
-        plt.figure(figsize=(10, 6))
-        plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
-        plt.xlabel('Frecuencia (Hz)')
-        plt.ylabel('Amplitud (dB)')
-        plt.xlim(0,500)
-        plt.title('Espectro de Frecuencia esférica(Escala Logarítmica en x y y)')
-        plt.grid()
-        plt.savefig(folder_path+'Espectro_log_esferica_'+name_capa[n]+'_microcircuitos.png')
+        #plt.figure(figsize=(10, 6))
+        #plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
+        #plt.xlabel('Frecuencia (Hz)')
+        #plt.ylabel('Amplitud (dB)')
+        #plt.xlim(0,500)
+        #plt.title('Espectro de Frecuencia esférica(Escala Logarítmica en x y y)')
+        #plt.grid()
+        #plt.savefig(folder_path+'Espectro_log_esferica_'+name_capa[n]+'_microcircuitos.png')
                
         print('LFP capa '+name_capa[n])          
         n = n + 1
@@ -316,7 +337,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
                 
 
     
-id_result = '20230713131858' # Modelo d eun microcircuito
+id_result = '20240405054939' # Modelo de un microcircuito
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
