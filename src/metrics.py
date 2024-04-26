@@ -73,9 +73,7 @@ def metrics(tmin ,tmax, inh_cells,exc_cells,Ne,Ni,correc_id):
     inh_cells["time"] = inh_cells["time"] - tmin
     exc_cells["time"] = exc_cells["time"] - tmin
 
-
     # 3. distribute cells in a 2D grid
-
     xmax = 0.2  # size of the array (in mm)
     ymax = 0.2
 
@@ -133,7 +131,6 @@ def metrics(tmin ,tmax, inh_cells,exc_cells,Ne,Ni,correc_id):
     lfp_exc = calc_lfp(exc_cells, s_e, lfp_time, delay, amp)
     total_lfp = lfp_inh + lfp_exc
 
-    
     return total_lfp ,inh_cells, exc_cells, lfp_time,npts
 
 
@@ -196,34 +193,34 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         
                 
         # Configuración de la señal
-        fs = npts  # Frecuencia de muestreo en Hz
+        #fs = npts  # Frecuencia de muestreo en Hz
 
 
         # Calcular la transformada de Fourier de la señal
-        spectrum = fft(lfp_capa)
+        #spectrum = fft(lfp_capa)
 
         # Calcular las frecuencias correspondientes al espectro
-        frequencies = np.fft.fftfreq(len(lfp_capa), 1/fs)
+        #frequencies = np.fft.fftfreq(len(lfp_capa), 1/fs)
 
         # Graficar el espectro de frecuencia
-        plt.figure(figsize=(10, 6))
-        plt.plot(frequencies, np.abs(spectrum))
-        plt.xlabel('Frecuencia (Hz)')
-        plt.ylabel('Amplitud')
-        plt.title('Espectro de Frecuencia')
-        plt.xlim(0,120)
-        plt.savefig(folder_path+'Espectro'+str(n+1)+'.png')
+        #plt.figure(figsize=(10, 6))
+        #plt.plot(frequencies, np.abs(spectrum))
+        #plt.xlabel('Frecuencia (Hz)')
+        #plt.ylabel('Amplitud')
+        #plt.title('Espectro de Frecuencia')
+        #plt.xlim(0,120)
+        #plt.savefig(folder_path+'Espectro'+str(n+1)+'.png')
 
 
 
-        plt.figure(figsize=(10, 6))
-        plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
-        plt.xlabel('Frecuencia (Hz)')
-        plt.ylabel('Amplitud (dB)')
-        plt.xlim(0,500)
-        plt.title('Espectro de Frecuencia (Escala Logarítmica en x y y)')
-        plt.grid()
-        plt.savefig(folder_path+'Espectro_log'+str(n+1)+'.png')
+        #plt.figure(figsize=(10, 6))
+        #plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
+        #plt.xlabel('Frecuencia (Hz)')
+        #plt.ylabel('Amplitud (dB)')
+        #plt.xlim(0,500)
+        #plt.title('Espectro de Frecuencia (Escala Logarítmica en x y y)')
+        #plt.grid()
+        #plt.savefig(folder_path+'Espectro_log'+str(n+1)+'.png')
                
         print('LFP capa '+str(n+1))            
         n = n + 1
@@ -235,7 +232,7 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
 # Con poisson 20230925001958 rate poisson 8
 # Con poisson 20230925002657 rate poisson 20
 
-id_result = '20230925001958'
+id_result = '20240405045551'
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 

@@ -1,5 +1,4 @@
 
-from utils.helpers import __load_meter_data
 import os
 import json
 import random
@@ -8,9 +7,13 @@ import pandas as pd
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
-from scipy.fft import fft
-warnings.filterwarnings("ignore")
 
+from scipy.fft import fft
+from utils.helpers import __load_meter_data
+from assets.potjans_diesmann.sim_params import sim_dict 
+from assets.potjans_diesmann.network_params import net_dict 
+
+warnings.filterwarnings("ignore")
 
 
 def select_spike_recorder_files(path):
@@ -26,6 +29,7 @@ def select_spike_recorder_files(path):
     file_names = os.listdir(path)
     spike_recorder_files = [file for file in file_names if file.startswith('spike_recorder')]
     return spike_recorder_files
+
 
 def extract_time_info(file_path):
     """
@@ -48,8 +52,6 @@ def extract_time_info(file_path):
         return None, None
     
 
-
-
 def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     """
     Process files in pairs and perform operations using extracted information.
@@ -71,8 +73,10 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
         file1 = spike_recorder_files[i]
         file2 = spike_recorder_files[i + 1]
         
-        t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
-        t_presim_value = 0
+        #t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
+        #t_presim_value = 0
+        t_presim_value = int(sim_dict["t_presim"])
+        t_sim_value = int(sim_dict["t_sim"])
         times_simulation.append([t_presim_value, t_sim_value])
 
         # Lectura excitatoria
@@ -81,7 +85,6 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
         exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
         exc_cells['type'] = 'exc'
         exc_cells['Layer'] = n+1
-        
         
         # Lectura inhibitoria
         inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
@@ -97,11 +100,8 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     return info_total,times_simulation
 
 
-
-
 def apliccation_metrics(folder_path, archivos_spike_recorder):
     
-
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
     info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
@@ -116,12 +116,13 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
     # Número de combinaciones únicas
     num_combinations = len(unique_combinations)
 
-        # Configurar el diseño de subplots
+    # Configurar el diseño de subplots
     num_rows = num_combinations
     num_cols = 1
+    fs = 18  # fontsize
 
     # Crear subplots
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(8, 4*num_rows))
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(8, 2*num_rows))
 
     # Iterar sobre cada combinación única
     for i, row in enumerate(unique_combinations.itertuples(), 1):
@@ -137,31 +138,30 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         color = '#595289' if row.type == 'exc' else '#af143c'
         
         # Crear el histograma en la subfigura actual con colores personalizados
-        ax.hist(subset['time'], bins=range(int(subset['time'].min()), int(subset['time'].max()) + 11, 5), alpha=0.7, label=f"{row.type}, Layer {row.Layer}", color=color)
+        #ax.hist(subset['time'], bins=range(int(subset['time'].min()), int(subset['time'].max()) + 11, 5), alpha=1.0, label=f"{row.type}, Layer {row.Layer}", color=color)
+        n, bins, rects = ax.hist(subset['time'], bins=range(0, int(sim_dict["t_sim"]), 2), alpha=1.0, label=f"{row.type}, Layer {row.Layer}", color=color)
 
-       
         # Configurar etiquetas y título
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Frequency')
-        ax.set_title(f'Histogram - {row.type}, Layer {row.Layer}')
+        ax.set_xlabel('Time', fontsize=fs)
+        ax.set_ylabel('Frequency', fontsize=fs)
+        ax.set_title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=fs)
+        #ax.set_ylim([0.0, 1500.0])20240405025743
         ax.legend()
 
         # Ajustar el espaciado entre subplots para evitar superposiciones
         plt.tight_layout()
 
         # Guardar la figura en un archivo
-    plt.savefig(folder_path + "/spike_time_histogram.png")
+    plt.savefig(folder_path + "/spike_time_histogram.png", dpi=300)
 
                 
-
-    
-id_result = '20231206222524' # Modelo de un microcircuito
-path_result = 'results/potjans_diesmann/'+id_result+'/'
-
+# data directory
+#id_result = '20240405054939' # Modelo de un microcircuito
+#path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
-archivos_spike_recorder = select_spike_recorder_files(path_result)
-apliccation_metrics(path_result, archivos_spike_recorder)
+#archivos_spike_recorder = select_spike_recorder_files(path_result)
+#apliccation_metrics(path_result, archivos_spike_recorder)
 
 
 

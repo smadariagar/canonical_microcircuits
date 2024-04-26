@@ -30,6 +30,7 @@ microcircuit.
 from matplotlib.patches import Polygon
 import matplotlib.pyplot as plt
 import os
+import nest
 import numpy as np
 import pandas as pd
 if 'DISPLAY' not in os.environ:
@@ -232,14 +233,14 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
 
     """
     #import math
-    fs = 18  # fontsize
+    fs = 16  # fontsize
 
     sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
 
     #n_networks = len(sd_names) // 8
     #n_conections = int((math.factorial(n_networks) / (math.factorial(2) * math.factorial(n_networks - 2))) * 2)
 
-    color_list = np.tile(['#595289', '#af143c'], len(sd_names)//2)
+    color_list = np.tile(['#0063B2', '#b015b6'], len(sd_names)//2)
 
     last_node_id = node_ids[-1, -1]
     mod_node_ids = np.abs(node_ids - last_node_id) + 1
@@ -252,7 +253,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
         stp = int(10. * N_scaling)
         print('  Only spikes of neurons in steps of {} are shown.'.format(stp))
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(6, 16))
     for i, n in enumerate(sd_names):
         times = data[i]['time_ms']
         neurons = np.abs(data[i]['sender'] - last_node_id) + 1
@@ -260,12 +261,13 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
     plt.xlabel('time [ms]', fontsize=fs)
     plt.xticks(fontsize=fs)
     plt.yticks(label_pos, populations, fontsize=fs)
-    if id_sim:
-        plt.title(f"ID: {id_sim}", fontsize=fs)
-    else:
-        plt.title(f"ID: {name}", fontsize=fs)
+    plt.title('Spike raster plot', fontsize=22)
+    #if id_sim:
+    #    plt.title(f"ID: {id_sim}", fontsize=fs)
+    #else:
+    #    plt.title(f"ID: {name}", fontsize=fs)
     plt.tight_layout()
-    plt.savefig(os.path.join(path, 'raster_plot.png'), dpi=300)
+    plt.savefig(os.path.join(path, 'raster_plot_'+format(nest.rng_seed)+'.png'), dpi=300)
 
 
 def plot_voltages(path, name, begin, end, populations, firing_rates_name=None, input_names=None):
@@ -448,10 +450,10 @@ def boxplot(path, populations):
     None
 
     """
-    fs = 18
+    fs = 16
     pop_names = [string.replace('23', '2/3') for string in populations]
     label_pos = list(range(len(populations), 0, -1))
-    color_list = ['#af143c', '#595289']
+    color_list = ['#b015b6','#0063B2']
     medianprops = dict(linestyle='-', linewidth=2.5, color='black')
     meanprops = dict(linestyle='--', linewidth=2.5, color='lightgray')
 
@@ -460,12 +462,13 @@ def boxplot(path, populations):
         rates_per_neuron_rev.append(
             np.loadtxt(os.path.join(path, ('rate' + str(i) + '.dat'))))
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(6, 4))
     bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
                      meanprops=meanprops, meanline=True, showmeans=True)
-    plt.setp(bp['boxes'], color='black')
-    plt.setp(bp['whiskers'], color='black')
-    plt.setp(bp['fliers'], color='red', marker='+')
+    plt.setp(bp['boxes'], color='black', linewidth=2)
+    plt.setp(bp['whiskers'], color='black', linewidth=2.5)
+    plt.setp(bp['caps'], color='black', linewidth=2)
+    plt.setp(bp['fliers'], color='red', marker='*')
 
     # boxcolors
     for i in np.arange(len(populations)):
@@ -482,6 +485,8 @@ def boxplot(path, populations):
     plt.xlabel('firing rate [spikes/s]', fontsize=fs)
     plt.yticks(label_pos, pop_names, fontsize=fs)
     plt.xticks(fontsize=fs)
+    plt.title('Firing rates', fontsize=22)
+    plt.tight_layout()
     plt.savefig(os.path.join(path, 'box_plot.png'), dpi=300)
 
 

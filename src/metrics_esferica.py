@@ -294,39 +294,39 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         axes[0].spines["right"].set_visible(False)
         axes[1].spines["top"].set_visible(False)
         axes[1].spines["right"].set_visible(False)
-        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.pdf")
+        plt.savefig(folder_path+"/demo_lfp_kernel_esferica_capa_"+name_capa[n]+"_microcircuitos.png")
         
         
                 
         # Configuración de la señal
-        fs = npts  # Frecuencia de muestreo en Hz
+        #fs = npts  # Frecuencia de muestreo en Hz
 
 
         # Calcular la transformada de Fourier de la señal
-        spectrum = fft(lfp_capa)
+        #spectrum = fft(lfp_capa)
 
         # Calcular las frecuencias correspondientes al espectro
-        frequencies = np.fft.fftfreq(len(lfp_capa), 1/fs)
+        #frequencies = np.fft.fftfreq(len(lfp_capa), 1/fs)
 
         # Graficar el espectro de frecuencia
-        plt.figure(figsize=(10, 6))
-        plt.plot(frequencies, np.abs(spectrum))
-        plt.xlabel('Frecuencia (Hz)')
-        plt.ylabel('Amplitud')
-        plt.title('Espectro de Frecuencia')
-        plt.xlim(1,120)
-        plt.savefig(folder_path+'Espectro_esferica'+name_capa[n]+'.png')
+        #plt.figure(figsize=(10, 6))
+        #plt.plot(frequencies, np.abs(spectrum))
+        #plt.xlabel('Frecuencia (Hz)')
+        #plt.ylabel('Amplitud')
+        #plt.title('Espectro de Frecuencia')
+        #plt.xlim(1,120)
+        #plt.savefig(folder_path+'Espectro_esferica'+name_capa[n]+'.png')
 
 
 
-        plt.figure(figsize=(10, 6))
-        plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
-        plt.xlabel('Frecuencia (Hz)')
-        plt.ylabel('Amplitud (dB)')
-        plt.xlim(0,500)
-        plt.title('Espectro de Frecuencia esférica(Escala Logarítmica en x y y)')
-        plt.grid()
-        plt.savefig(folder_path+'Espectro_log_esferica_'+name_capa[n]+'_microcircuitos.png')
+        #plt.figure(figsize=(10, 6))
+        #plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
+        #plt.xlabel('Frecuencia (Hz)')
+        #plt.ylabel('Amplitud (dB)')
+        #plt.xlim(0,500)
+        #plt.title('Espectro de Frecuencia esférica(Escala Logarítmica en x y y)')
+        #plt.grid()
+        #plt.savefig(folder_path+'Espectro_log_esferica_'+name_capa[n]+'_microcircuitos.png')
                
         print('LFP capa '+name_capa[n])          
         n = n + 1
@@ -337,7 +337,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
                 
 
     
-id_result = '20231206222524' # Modelo de un microcircuito
+id_result = '20240405054939' # Modelo de un microcircuito
 path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 
