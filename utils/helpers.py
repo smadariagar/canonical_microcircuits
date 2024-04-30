@@ -253,7 +253,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
         stp = int(10. * N_scaling)
         print('  Only spikes of neurons in steps of {} are shown.'.format(stp))
 
-    plt.figure(figsize=(6, 16))
+    plt.figure(figsize=(6, 4))
     for i, n in enumerate(sd_names):
         times = data[i]['time_ms']
         neurons = np.abs(data[i]['sender'] - last_node_id) + 1

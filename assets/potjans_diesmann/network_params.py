@@ -58,9 +58,9 @@ until_pop = 8
 
 net_dict = {
     # factor to scale the number of neurons
-    'N_scaling': 0.2,
+    'N_scaling': 0.1,
     # factor to scale the indegrees
-    'K_scaling': 0.2,
+    'K_scaling': 0.1,
     # neuron model
     'neuron_model': 'iaf_psc_exp',
     # names of the simulated neuronal populations
