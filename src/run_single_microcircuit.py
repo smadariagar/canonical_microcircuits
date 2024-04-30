@@ -52,12 +52,17 @@ if __name__ == '__main__':
         from assets.potjans_diesmann.network_params import net_dict
         from assets.potjans_diesmann.sim_params import sim_dict
         from . import network_potjans_diesmann as network
+    elif args.microcircuit == "wagatsuma":
+        from assets.wagatsuma.stimulus_params import stim_dict
+        from assets.wagatsuma.network_params import net_dict
+        from assets.wagatsuma.sim_params import sim_dict
+        from . import network_potjans_diesmann as network
     time_start = time.time()
 
 
     ###############################################################################
     # Initialize the network with simulation, network and stimulation parameters,
-    # then create and connect all nodes, and finally simulate.
+    # then create and connect all nodes, and finally simulate. 
     # The times for a presimulation and the main simulation are taken
     # independently. A presimulation is useful because the spike activity typically
     # exhibits a startup transient. In benchmark simulations, this transient should
