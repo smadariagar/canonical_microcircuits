@@ -1,17 +1,15 @@
-
+"""Hace el histograma
+summary_
+"""
 import os
 import json
-import random
-import math
-import pandas as pd
-import numpy as np
 import warnings
+import pandas as pd
+
 import matplotlib.pyplot as plt
 
-from scipy.fft import fft
 from utils.helpers import __load_meter_data
-from assets.potjans_diesmann.sim_params import sim_dict 
-from assets.potjans_diesmann.network_params import net_dict 
+from assets.potjans_diesmann.sim_params import sim_dict
 
 warnings.filterwarnings("ignore")
 
@@ -50,7 +48,6 @@ def extract_time_info(file_path):
     except FileNotFoundError:
         print(f"File not found at the specified path: {file_path}")
         return None, None
-    
 
 def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     """
@@ -63,16 +60,14 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     if len(spike_recorder_files) % 2 != 0:
         print("Number of files is not even.")
         return
-    
 
     info = []
     times_simulation = []
     for n,i in enumerate(range(0,  len(spike_recorder_files), 2)):
-        
         # Lectura de parámetros de simulacion
         file1 = spike_recorder_files[i]
         file2 = spike_recorder_files[i + 1]
-        
+
         #t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
         #t_presim_value = 0
         t_presim_value = int(sim_dict["t_presim"])
@@ -85,7 +80,7 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
         exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
         exc_cells['type'] = 'exc'
         exc_cells['Layer'] = n+1
-        
+
         # Lectura inhibitoria
         inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
         cellids, times = zip(*inh[2][0])
@@ -93,23 +88,27 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
         inh_cells['type'] = 'inh'
         inh_cells['Layer'] = n+1
         cell_info = pd.concat([inh_cells,exc_cells],axis=0)
-        
+
         info.append(cell_info)
-        
+
     info_total = pd.concat(info,axis=0)
-    return info_total,times_simulation
+    return info_total, times_simulation
 
 
-def apliccation_metrics(folder_path, archivos_spike_recorder):
-    
+def apliccation_metrics_old(folder_path):
+    """_summary_
+
+    Args:
+        folder_path (_type_): _description_
+    """
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
     info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
-    
+
     # Mapear las capas a los nuevos nombres
     layer_mapping = {1: '2/3', 2: '4', 3: '5', 4: '6'}
     info_total['Layer'] = info_total['Layer'].map(layer_mapping)
-    
+
     # Crear un histograma por cada combinación de type y Layer
     unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
 
@@ -136,7 +135,7 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
 
         # Asignar colores según el tipo
         color = '#595289' if row.type == 'exc' else '#af143c'
-        
+
         # Crear el histograma en la subfigura actual con colores personalizados
         #ax.hist(subset['time'], bins=range(int(subset['time'].min()), int(subset['time'].max()) + 11, 5), alpha=1.0, label=f"{row.type}, Layer {row.Layer}", color=color)
         n, bins, rects = ax.hist(subset['time'], bins=range(0, int(sim_dict["t_sim"]), 2), alpha=1.0, label=f"{row.type}, Layer {row.Layer}", color=color)
@@ -154,16 +153,64 @@ def apliccation_metrics(folder_path, archivos_spike_recorder):
         # Guardar la figura en un archivo
     plt.savefig(folder_path + "/spike_time_histogram.png", dpi=300)
 
-                
+
+def apliccation_metrics(folder_path):
+    """_summary_
+
+    Args:
+        folder_path (_type_): _description_
+    """
+    # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
+    archivos_spike_recorder = select_spike_recorder_files(folder_path)
+    info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
+
+    # Mapear las capas a los nuevos nombres
+    layer_mapping = {1: '2/3', 2: '4', 3: '5', 4: '6'}
+    info_total['Layer'] = info_total['Layer'].map(layer_mapping)
+
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
+
+    # Número de combinaciones únicas
+    num_combinations = len(unique_combinations)
+
+    # Configurar el diseño de plots
+    fs = 16  # fontsize
+
+    # Iterar sobre cada combinación única
+    for i, row in enumerate(unique_combinations.itertuples(), 1):
+        # Crea plots
+        fig = plt.figure(figsize=(6, 4))
+
+        subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
+
+        # Asignar colores según el tipo
+        color = '#0063B2' if row.type == 'exc' else '#b015b6'
+
+        # Crear el histograma en la subfigura actual con colores personalizados
+        n, bins, rects = plt.hist(
+            subset['time'], bins=range(0, int(sim_dict["t_sim"]), 40), label=f"{row.type}, Layer{row.Layer}",
+            color=color, edgecolor='black', linewidth=1.2)
+
+        # Configurar etiquetas y título
+        plt.xlabel('time [ms]', fontsize=fs)
+        plt.xticks(fontsize=fs)
+        plt.ylabel('frequency', fontsize=fs)
+        plt.yticks(fontsize=fs)
+        plt.title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=22)
+        #ax.set_ylim([0.0, 1500.0])20240405025743
+        plt.legend()
+
+        # Ajustar el espaciado entre subplots para evitar superposiciones
+        plt.tight_layout()
+
+        # Guardar la figura en un archivo
+        plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
+
 # data directory
-#id_result = '20240405054939' # Modelo de un microcircuito
+#id_result = '20240430191512' # Modelo de un microcircuito
 #path_result = 'results/potjans_diesmann/'+id_result+'/'
 
 # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
 #archivos_spike_recorder = select_spike_recorder_files(path_result)
 #apliccation_metrics(path_result, archivos_spike_recorder)
-
-
-
-
-

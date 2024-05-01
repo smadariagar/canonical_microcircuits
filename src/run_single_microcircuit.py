@@ -29,12 +29,11 @@ basic plots of the network activity.
 
 ###############################################################################
 # Import the necessary modules and start the time measurements.
+import time
+import argparse
 import nest
 import numpy as np
 import matplotlib.pyplot as plt
-import time
-import argparse
-from random import randint
 
 args = argparse.ArgumentParser()
 args.add_argument('--microcircuit', type=str, default=None)
@@ -45,7 +44,7 @@ if __name__ == '__main__':
     if args.microcircuit == "douglas":
         from assets.douglas.stimulus_params import stim_dict
         from assets.douglas.network_params import net_dict
-        from assets.douglas.sim_params import sim_dict  
+        from assets.douglas.sim_params import sim_dict
         from . import network_douglas as network
     elif args.microcircuit == "potjans_diesmann":
         from assets.potjans_diesmann.stimulus_params import stim_dict
@@ -62,7 +61,7 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Initialize the network with simulation, network and stimulation parameters,
-    # then create and connect all nodes, and finally simulate. 
+    # then create and connect all nodes, and finally simulate.
     # The times for a presimulation and the main simulation are taken
     # independently. A presimulation is useful because the spike activity typically
     # exhibits a startup transient. In benchmark simulations, this transient should
@@ -77,13 +76,17 @@ if __name__ == '__main__':
     nest.rng_seed = sim_dict['rng_seed']
     nest.overwrite_files = sim_dict['overwrite_files']
     nest.print_time = sim_dict['print_time']
-    
+
     if nest.Rank() == 0:
         print('RNG seed: {}'.format(
             nest.rng_seed))
         print('Total number of virtual processes: {}'.format(
             nest.total_num_virtual_procs))
 
+    # Scaling thalamic neurons
+    #stim_dict['num_th_neurons'] = np.round((stim_dict['num_th_neurons'] *
+    #                                 net_dict['N_scaling'])).astype(int)
+   
     # Create network
     net = network.Network(sim_dict, net_dict, stim_dict)
     time_network = time.time()
@@ -119,16 +122,16 @@ if __name__ == '__main__':
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
     firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
     net.evaluate(raster_plot_interval, firing_rates_interval)
+
     time_evaluate = time.time()
 
 
     ###############################################################################
     # Histogramas de spikes
 
-    #import src.histogram_single_microcircuit as hist_spikes
-    #data_path = sim_dict.get('data_path', None)
-    #archivos_spike_recorder = hist_spikes.select_spike_recorder_files(data_path)
-    #hist_spikes.apliccation_metrics(data_path, archivos_spike_recorder)
+    import tools.histogram_single_microcircuit as hist_spikes
+    data_path = sim_dict.get('data_path', None)
+    hist_spikes.apliccation_metrics(data_path)
  
 
     ###############################################################################
@@ -160,4 +163,4 @@ if __name__ == '__main__':
             time_evaluate -
             time_simulate))
 
-    plt.show()
+    #plt.show()
