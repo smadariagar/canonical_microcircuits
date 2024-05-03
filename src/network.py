@@ -63,17 +63,16 @@ class Network:
 
         # data directory
         self.data_path = sim_dict.get('data_path', None)
-        
+
         if nest.Rank() == 0:
             if os.path.isdir(self.data_path):
                 message = '  Directory already existed.'
                 if self.sim_dict['overwrite_files']:
                     message += ' Old data will be overwritten.'
             else:
-                os.makedirs(self.data_path)
+                os.mkdir(self.data_path)
                 message = '  Directory has been created.'
-            print('Data will be written to: {}\n{}\n'.format(self.data_path,
-                                                            message))
+            print('Data will be written to: {}\n{}\n'.format(self.data_path, message))
             pd.Series(self.sim_dict).to_json(os.path.join(self.data_path,'sim_params.json'))
             pd.Series(self.net_dict).to_json(os.path.join(self.data_path,'net_params.json'))
             pd.Series(self.stim_dict).to_json(os.path.join(self.data_path,'stim_params.json'))
@@ -135,6 +134,9 @@ class Network:
     def connect_networks(self, net, lateral_dict):
         self.__connect_lateral_neuronal_populations(net, lateral_dict)
 
+    def connect_other_input(self, stim_dict):
+        self.__connect_other_th_input(stim_dict)
+
     def simulate(self, t_sim):
         """ Simulates the microcircuit.
 
@@ -181,29 +183,32 @@ class Network:
                     self.net_dict['N_scaling'],
                     self.net_dict['populations'],
                 )
-            print('Interval to compute firing rates: {} ms'.format(
-                firing_rates_interval))
+            print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
             if self.sim_dict.get("plot_firing_rates", False):
                 helpers.firing_rates(
-                    self.data_path, 
+                    self.data_path,
                     'spike_recorder',
-                    firing_rates_interval[0], 
-                    firing_rates_interval[1])
-                helpers.boxplot(self.data_path, self.net_dict['populations'])
+                    firing_rates_interval[0],
+                    firing_rates_interval[1],
+                )
+                helpers.boxplot(
+                    self.data_path,
+                    self.net_dict['populations'],
+                )
             if self.sim_dict.get("plot_voltages", False):
                 helpers.plot_voltages(
-                    self.data_path, 
+                    self.data_path,
                     'voltmeter', 
-                    firing_rates_interval[0], 
-                    firing_rates_interval[1], 
+                    firing_rates_interval[0],
+                    firing_rates_interval[1],
                     self.net_dict['populations'],
                     'spike_recorder' if 'spike_recorder' in self.sim_dict["rec_dev"] else None,
-                    self.input_meters.keys()
+                    self.input_meters.keys(),
                 )
             if self.sim_dict.get("plot_network", False):
                 helpers.plot_network(
                     self.data_path,
-                    self.net_dict["populations"], 
+                    self.net_dict["populations"],
                     self.net_dict["conn_weights"],
                     self.stim_dict["conn_weights_th"] if self.stim_dict["thalamic_input"] else None,
                 )
@@ -257,54 +262,53 @@ class Network:
         """
         if nest.Rank() == 0:
             print('Creating recording devices.')
+
         # Populations spike recorder
         if 'spike_recorder' in self.sim_dict['rec_dev']:
             if nest.Rank() == 0:
                 print('  Creating spike recorders.')
-            sd_dict = {'record_to': 'ascii',
-                       'label': os.path.join(self.data_path, 'spike_recorder')}
-            self.spike_recorders = nest.Create('spike_recorder',
-                                               n=self.num_pops,
-                                               params=sd_dict)
+            sd_dict = {'record_to': 'ascii', 'label': os.path.join(self.data_path, 'spike_recorder')}
+            self.spike_recorders = nest.Create('spike_recorder', n=self.num_pops, params=sd_dict)
+
         # Populations voltage recorder
         if 'voltmeter' in self.sim_dict['rec_dev']:
             if nest.Rank() == 0:
                 print('  Creating voltmeters.')
-            vm_dict = {'interval': self.sim_dict['rec_V_int'],
-                       'record_to': 'ascii',
-                       'record_from': ['V_m'],
-                       'label': os.path.join(self.data_path, 'voltmeter')}
-            self.voltmeters = nest.Create('voltmeter',
-                                          n=self.num_pops,
-                                          params=vm_dict)
+            vm_dict = {
+                'interval': self.sim_dict['rec_V_int'],
+                'record_to': 'ascii',
+                'record_from': ['V_m'],
+                'label': os.path.join(self.data_path, 'voltmeter'),
+            }
+            self.voltmeters = nest.Create('voltmeter', n=self.num_pops, params=vm_dict)
         self.__create_input_recording_devices()
 
     def __create_input_recording_devices(self):
         # Input meters
         self.input_meters = {}
-        # Poisson input meter
-        if self.net_dict.get('poisson_input', None):
-            if nest.Rank() == 0:
-                print('  Creating poisson input meters.')
-            pg_dict = {
-                'record_to': 'ascii',
-                'label': os.path.join(self.data_path, 'poisson_sr')}
-            poisson_sr_meters = nest.Create('spike_recorder',
-                                            n=self.num_pops,
-                                            params=pg_dict)
-            self.input_meters["poisson_sr"] = poisson_sr_meters
+        
+        # Poisson bg input meter
+        #if self.net_dict.get('poisson_input', None):
+        #    if nest.Rank() == 0:
+        #        print('  Creating poisson input meters.')
+        #    pg_dict = {
+        #        'record_to': 'ascii',
+        #        'label': os.path.join(self.data_path, 'poisson_sr'),
+        #    }
+        #    poisson_sr_meters = nest.Create('spike_recorder', n=self.num_pops, params=pg_dict)
+        #    self.input_meters["poisson_sr"] = poisson_sr_meters
+
         # Thalamic input meter
         if self.stim_dict.get('thalamic_input', None):
             if nest.Rank() == 0:
                 print('  Creating thalamic multimeters.')
             th_dict = {
                 'record_to': 'ascii',
-                'label': os.path.join(self.data_path, 'thalamic_sr')}
-            thalamic_sr_meter = nest.Create('spike_recorder',
-                                            n=self.num_pops,
-                                            #n=self.stim_dict["num_th_neurons"],
-                                            params=th_dict)
-            self.input_meters["thalamic_sr"] = thalamic_sr_meter 
+                'label': os.path.join(self.data_path, 'thalamic_sr'),
+            }
+            thalamic_sr_meter = nest.Create('spike_recorder', n=1, params=th_dict)
+            self.input_meters["thalamic_sr"] = thalamic_sr_meter
+
         # DC input meter
         if self.stim_dict.get('dc_input', None):
             if nest.Rank() == 0:
@@ -331,10 +335,8 @@ class Network:
         if nest.Rank() == 0:
             print('Creating Poisson generators for background input.')
 
-        self.poisson_bg_input = nest.Create('poisson_generator',
-                                            n=self.num_pops)
-        self.poisson_bg_input.rate = \
-            self.net_dict['bg_rate'] * self.ext_indegrees
+        self.poisson_bg_input = nest.Create('poisson_generator', n=self.num_pops)
+        self.poisson_bg_input.rate = self.net_dict['bg_rate'] * self.ext_indegrees
 
     def __create_thalamic_stim_input(self):
         """ Creates the thalamic neuronal population if specified in
@@ -356,14 +358,14 @@ class Network:
         if nest.Rank() == 0:
             print('Creating thalamic input for external stimulation.')
 
-        self.thalamic_population = nest.Create(
-            'parrot_neuron', n=self.stim_dict['num_th_neurons'])
+        self.thalamic_population = nest.Create('parrot_neuron', n=self.stim_dict['num_th_neurons'])
 
         self.poisson_th = nest.Create('poisson_generator')
         self.poisson_th.set(
             rate=self.stim_dict['th_rate'],
             start=self.stim_dict['th_start'],
-            stop=(self.stim_dict['th_start'] + self.stim_dict['th_duration']))
+            stop=(self.stim_dict['th_start'] + self.stim_dict['th_duration']),
+        )
 
     def __create_dc_stim_input(self):
         """ Creates DC generators for external stimulation if specified
@@ -406,8 +408,11 @@ class Network:
                 nest.Connect(target_pop, self.spike_recorders[i])
             if 'voltmeter' in self.sim_dict['rec_dev']:
                 nest.Connect(self.voltmeters[i], target_pop)
+
         if 'thalamic_sr' in self.input_meters.keys():
             nest.Connect(self.thalamic_population, self.input_meters['thalamic_sr'])
+        if 'poisson_sr' in self.input_meters.keys():
+            nest.Connect(self.poisson_bg_input, self.input_meters['poisson_sr'])
         if 'dc_input' in self.input_meters.keys():
             nest.Connect(self.input_meters['dc_input'], self.dc_stim_input)
 
@@ -425,9 +430,11 @@ class Network:
                 'delay': self.net_dict['delay_poisson']}
 
             nest.Connect(
-                self.poisson_bg_input[i], target_pop,
+                self.poisson_bg_input[i],
+                target_pop,
                 conn_spec=conn_dict_poisson,
-                syn_spec=syn_dict_poisson)
+                syn_spec=syn_dict_poisson,
+            )
 
     def __connect_thalamic_stim_input(self):
         """ Connects the thalamic input to the neuronal populations.
@@ -443,3 +450,11 @@ class Network:
 
         for i, target_pop in enumerate(self.pops):
             nest.Connect(self.dc_stim_input[i], target_pop)
+
+    def __connect_other_th_input(self, stim_dict):
+        """ Connects the thalamic input to the neuronal populations.
+
+            It must be implemented in the derived class.
+        """
+        raise NotImplementedError
+

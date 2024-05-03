@@ -195,17 +195,14 @@ def adjust_weights_and_input_to_synapse_scaling(
     PSC_ext_new = PSC_ext / np.sqrt(K_scaling)
 
     # recurrent input of full network
-    indegree_matrix = \
-        full_num_synapses / full_num_neurons[:, np.newaxis]
-    input_rec = np.sum(mean_PSC_matrix * indegree_matrix * full_mean_rates,
-                       axis=1)
+    indegree_matrix = full_num_synapses / full_num_neurons[:, np.newaxis]
+    input_rec = np.sum(mean_PSC_matrix * indegree_matrix * full_mean_rates, axis=1)
 
-    DC_amp_new = DC_amp \
-        + 0.001 * tau_syn * (1. - np.sqrt(K_scaling)) * input_rec
+    DC_amp_new = DC_amp + 0.001 * tau_syn * (1.0 - np.sqrt(K_scaling)) * input_rec
 
     if poisson_input:
         input_ext = PSC_ext * K_ext * bg_rate
-        DC_amp_new += 0.001 * tau_syn * (1. - np.sqrt(K_scaling)) * input_ext
+        DC_amp_new += 0.001 * tau_syn * (1.0 - np.sqrt(K_scaling)) * input_ext
     return PSC_matrix_new, PSC_ext_new, DC_amp_new
 
 
@@ -253,7 +250,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
         stp = int(10. * N_scaling)
         print('  Only spikes of neurons in steps of {} are shown.'.format(stp))
 
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(9, 6))
     for i, n in enumerate(sd_names):
         times = data[i]['time_ms']
         neurons = np.abs(data[i]['sender'] - last_node_id) + 1
@@ -414,10 +411,13 @@ def firing_rates(path, name, begin, end):
 
     """
     sd_names, node_ids, data = __load_meter_data(path, name, begin, end)
+
     all_mean_rates = []
     all_std_rates = []
+
     for i, n in enumerate(sd_names):
         senders = data[i]['sender']
+
         # 1 more bin than node ids per population
         bins = np.arange(node_ids[i, 0], node_ids[i, 1] + 2)
         spike_count_per_neuron, _ = np.histogram(senders, bins=bins)
@@ -462,7 +462,7 @@ def boxplot(path, populations):
         rates_per_neuron_rev.append(
             np.loadtxt(os.path.join(path, ('rate' + str(i) + '.dat'))))
 
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(5, 10))
     bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
                      meanprops=meanprops, meanline=True, showmeans=True)
     plt.setp(bp['boxes'], color='black', linewidth=2)
@@ -517,7 +517,7 @@ def __gather_metadata(path, name):
     # load filenames
     sd_files = []
     sd_names = []
-    for fn in sorted(os.listdir(path)):
+    for fn in os.listdir(path):
         if fn.startswith(name):
             sd_files.append(fn)
             # spike recorder name and its ID

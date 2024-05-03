@@ -33,7 +33,6 @@ import time
 import argparse
 import nest
 import numpy as np
-import matplotlib.pyplot as plt
 
 args = argparse.ArgumentParser()
 args.add_argument('--microcircuit', type=str, default=None)
@@ -78,15 +77,23 @@ if __name__ == '__main__':
     nest.print_time = sim_dict['print_time']
 
     if nest.Rank() == 0:
-        print('RNG seed: {}'.format(
-            nest.rng_seed))
-        print('Total number of virtual processes: {}'.format(
-            nest.total_num_virtual_procs))
+        print('RNG seed: {}'.format(nest.rng_seed))
+        print('Total number of virtual processes: {}'.format(nest.total_num_virtual_procs))
 
     # Scaling thalamic neurons
-    #stim_dict['num_th_neurons'] = np.round((stim_dict['num_th_neurons'] *
-    #                                 net_dict['N_scaling'])).astype(int)
-   
+    stim_dict['num_th_neurons'] = np.round((stim_dict['num_th_neurons'] *
+                                     net_dict['N_scaling'])).astype(int)
+
+    # toy example
+    ct_value = True
+    if ct_value:
+        stim_dict.update({'thalamic_input': False})
+        sim_dict.update({'t_sim': 500.0})
+        stim_dict.update({'th_start': 0.0})
+        stim_dict.update({'th_duration': 500.0})
+        stim_dict.update({'th_rate': 5.0})
+    
+
     # Create network
     net = network.Network(sim_dict, net_dict, stim_dict)
     time_network = time.time()
@@ -97,17 +104,17 @@ if __name__ == '__main__':
     net.connect()
     time_connect = time.time()
 
-    nest.Prepare()
-    nest.Cleanup()
+    #nest.Prepare()
+    #nest.Cleanup()
 
     #nest.rng_seed = randint(1, 100)
     #print('New RNG seed: {}'.format(nest.rng_seed))
-    #net.simulate(sim_dict['t_presim'])
+
+    net.simulate(sim_dict['t_presim'])
     time_presimulate = time.time()
 
     net.simulate(sim_dict['t_sim'])
     time_simulate = time.time()
-
 
     ###############################################################################
     # Plot a spike raster of the simulated neurons and a box plot of the firing
@@ -122,9 +129,7 @@ if __name__ == '__main__':
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
     firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
     net.evaluate(raster_plot_interval, firing_rates_interval)
-
     time_evaluate = time.time()
-
 
     ###############################################################################
     # Histogramas de spikes
@@ -132,35 +137,19 @@ if __name__ == '__main__':
     import tools.histogram_single_microcircuit as hist_spikes
     data_path = sim_dict.get('data_path', None)
     hist_spikes.apliccation_metrics(data_path)
- 
 
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the
     # data evaluation and print calls.
 
     print(
-        '\nTimes of Rank {}:\n'.format(
-            nest.Rank()) +
-        '  Total time:          {:.3f} s\n'.format(
-            time_evaluate -
-            time_start) +
-        '  Time to initialize:  {:.3f} s\n'.format(
-            time_network -
-            time_start) +
-        '  Time to create:      {:.3f} s\n'.format(
-            time_create -
-            time_network) +
-        '  Time to connect:     {:.3f} s\n'.format(
-            time_connect -
-            time_create) +
-        '  Time to presimulate: {:.3f} s\n'.format(
-            time_presimulate -
-            time_connect) +
-        '  Time to simulate:    {:.3f} s\n'.format(
-            time_simulate -
-            time_presimulate) +
-        '  Time to evaluate:    {:.3f} s\n'.format(
-            time_evaluate -
-            time_simulate))
-
+        "\nTimes of Rank {}:\n".format(nest.Rank())
+        + "  Total time:          {:.3f} s\n".format(time_evaluate - time_start)
+        + "  Time to initialize:  {:.3f} s\n".format(time_network - time_start)
+        + "  Time to create:      {:.3f} s\n".format(time_create - time_network)
+        + "  Time to connect:     {:.3f} s\n".format(time_connect - time_create)
+        + "  Time to presimulate: {:.3f} s\n".format(time_presimulate - time_connect)
+        + "  Time to simulate:    {:.3f} s\n".format(time_simulate - time_presimulate)
+        + "  Time to evaluate:    {:.3f} s\n".format(time_evaluate - time_simulate)
+    )
     #plt.show()

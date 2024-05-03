@@ -154,15 +154,17 @@ def apliccation_metrics_old(folder_path):
     plt.savefig(folder_path + "/spike_time_histogram.png", dpi=300)
 
 
-def apliccation_metrics(folder_path):
+def apliccation_metrics(path, folder):
     """_summary_
 
     Args:
         folder_path (_type_): _description_
     """
+    folder_path = os.path.join(path, folder)
+
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
-    info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
+    info_total, times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
 
     # Mapear las capas a los nuevos nombres
     layer_mapping = {1: '2/3', 2: '4', 3: '5', 4: '6'}
@@ -171,14 +173,15 @@ def apliccation_metrics(folder_path):
     # Crear un histograma por cada combinación de type y Layer
     unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
 
-    # Número de combinaciones únicas
-    num_combinations = len(unique_combinations)
-
     # Configurar el diseño de plots
     fs = 16  # fontsize
-
+    
+    data = []
     # Iterar sobre cada combinación única
     for i, row in enumerate(unique_combinations.itertuples(), 1):
+        if i == 9:
+            break
+
         # Crea plots
         fig = plt.figure(figsize=(6, 4))
 
@@ -188,9 +191,12 @@ def apliccation_metrics(folder_path):
         color = '#0063B2' if row.type == 'exc' else '#b015b6'
 
         # Crear el histograma en la subfigura actual con colores personalizados
+        l_bin = 20
         n, bins, rects = plt.hist(
-            subset['time'], bins=range(0, int(sim_dict["t_sim"]), 40), label=f"{row.type}, Layer{row.Layer}",
+            subset['time'], bins=range(0, int(sim_dict["t_sim"])+l_bin, l_bin), label=f"{row.type}, Layer{row.Layer}",
             color=color, edgecolor='black', linewidth=1.2)
+
+        data.append(n.tolist())
 
         # Configurar etiquetas y título
         plt.xlabel('time [ms]', fontsize=fs)
@@ -206,6 +212,8 @@ def apliccation_metrics(folder_path):
 
         # Guardar la figura en un archivo
         plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
+
+    return data, bins[0:-1]
 
 # data directory
 #id_result = '20240430191512' # Modelo de un microcircuito

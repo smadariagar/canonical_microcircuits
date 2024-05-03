@@ -106,6 +106,8 @@ class Network(network.Network):
         """
         super().connect_networks(net, lateral_dict)
 
+    def connect_other_input(self, stim_dict):
+        super().connect_other_input(stim_dict)
 
     def simulate(self, t_sim):
         """ Simulates the microcircuit.
@@ -152,7 +154,8 @@ class Network(network.Network):
         full_num_synapses = helpers.num_synapses_from_conn_probs(
             self.net_dict['conn_probs'],
             self.net_dict['full_num_neurons'],
-            self.net_dict['full_num_neurons'])
+            self.net_dict['full_num_neurons'],
+        )
 
         # scaled numbers of neurons and synapses
         self.num_neurons = np.round((self.net_dict['full_num_neurons'] *
@@ -167,7 +170,8 @@ class Network(network.Network):
         PSC_over_PSP = helpers.postsynaptic_potential_to_current(
             self.net_dict['neuron_params']['C_m'],
             self.net_dict['neuron_params']['tau_m'],
-            self.net_dict['neuron_params']['tau_syn'])
+            self.net_dict['neuron_params']['tau_syn'],
+        )
         PSC_matrix_mean = self.net_dict['PSP_matrix_mean'] * PSC_over_PSP
         PSC_ext = self.net_dict['PSP_exc_mean'] * PSC_over_PSP
 
@@ -183,23 +187,24 @@ class Network(network.Network):
                 DC_amp = helpers.dc_input_compensating_poisson(
                     self.net_dict['bg_rate'], self.net_dict['K_ext'],
                     self.net_dict['neuron_params']['tau_syn'],
-                    PSC_ext)
+                    PSC_ext,
+                )
 
         # adjust weights and DC amplitude if the indegree is scaled
         if self.net_dict['K_scaling'] != 1:
-            PSC_matrix_mean, PSC_ext, DC_amp = \
-                helpers.adjust_weights_and_input_to_synapse_scaling(
-                    self.net_dict['full_num_neurons'],
-                    full_num_synapses, 
-                    self.net_dict['K_scaling'],
-                    PSC_matrix_mean, 
-                    PSC_ext,
-                    self.net_dict['neuron_params']['tau_syn'],
-                    self.net_dict['full_mean_rates'],
-                    DC_amp,
-                    self.net_dict['poisson_input'],
-                    self.net_dict['bg_rate'], self.net_dict['K_ext']
-                )
+            PSC_matrix_mean, PSC_ext, DC_amp = helpers.adjust_weights_and_input_to_synapse_scaling(
+                self.net_dict['full_num_neurons'],
+                full_num_synapses,
+                self.net_dict['K_scaling'],
+                PSC_matrix_mean,
+                PSC_ext,
+                self.net_dict['neuron_params']['tau_syn'],
+                self.net_dict['full_mean_rates'],
+                DC_amp,
+                self.net_dict['poisson_input'],
+                self.net_dict['bg_rate'],
+                self.net_dict['K_ext'],
+            )
 
         # store final parameters as class attributes
         self.weight_matrix_mean = PSC_matrix_mean
@@ -221,13 +226,9 @@ class Network(network.Network):
         if nest.Rank() == 0:
             message = ''
             if self.net_dict['N_scaling'] != 1:
-                message += \
-                    'Neuron numbers are scaled by a factor of {:.3f}.\n'.format(
-                        self.net_dict['N_scaling'])
+                message += 'Neuron numbers are scaled by a factor of {:.3f}.\n'.format(self.net_dict['N_scaling'])
             if self.net_dict['K_scaling'] != 1:
-                message += \
-                    'Indegrees are scaled by a factor of {:.3f}.'.format(
-                        self.net_dict['K_scaling'])
+                message += 'Indegrees are scaled by a factor of {:.3f}.'.format(self.net_dict['K_scaling'])
                 message += '\n  Weights and DC input are adjusted to compensate.\n'
             print(message)
 
@@ -252,8 +253,10 @@ class Network(network.Network):
 
         self.pops = []
         for i in np.arange(self.num_pops):
-            population = nest.Create(self.net_dict['neuron_model'],
-                                     self.num_neurons[i])
+            population = nest.Create(
+                self.net_dict['neuron_model'],
+                self.num_neurons[i],
+            )
 
             population.set(
                 tau_syn_ex=self.net_dict['neuron_params']['tau_syn'],
@@ -262,20 +265,25 @@ class Network(network.Network):
                 V_th=self.net_dict['neuron_params']['V_th'],
                 V_reset=self.net_dict['neuron_params']['V_reset'],
                 t_ref=self.net_dict['neuron_params']['t_ref'],
-                I_e=self.DC_amp[i])
+                I_e=self.DC_amp[i],
+            )
 
             if self.net_dict['V0_type'] == 'optimized':
-                population.set(V_m=nest.random.normal(
-                    self.net_dict['neuron_params']['V0_mean']['optimized'][i],
-                    self.net_dict['neuron_params']['V0_std']['optimized'][i]))
+                population.set(
+                    V_m=nest.random.normal(
+                        self.net_dict['neuron_params']['V0_mean']['optimized'][i],
+                        self.net_dict['neuron_params']['V0_std']['optimized'][i],
+                    )
+                )
             elif self.net_dict['V0_type'] == 'original':
-                population.set(V_m=nest.random.normal(
-                    self.net_dict['neuron_params']['V0_mean']['original'],
-                    self.net_dict['neuron_params']['V0_std']['original']))
+                population.set(
+                    V_m=nest.random.normal(
+                        self.net_dict['neuron_params']['V0_mean']['original'],
+                        self.net_dict['neuron_params']['V0_std']['original'],
+                    )
+                )
             else:
-                raise ValueError(
-                    'V0_type is incorrect. ' +
-                    'Valid options are "optimized" and "original".')
+                raise ValueError('V0_type is incorrect. ' + 'Valid options are "optimized" and "original".')
 
             self.pops.append(population)
 
@@ -284,8 +292,7 @@ class Network(network.Network):
             fn = os.path.join(self.data_path, 'population_nodeids.dat')
             with open(fn, 'a') as f:
                 for pop in self.pops:
-                    f.write('{} {}\n'.format(pop[0].global_id,
-                                             pop[-1].global_id))
+                    f.write('{} {}\n'.format(pop[0].global_id, pop[-1].global_id))
 
     def __create_recording_devices(self):
         """ Creates one recording device of each kind per population.
@@ -351,7 +358,8 @@ class Network(network.Network):
                 if self.num_synapses[i][j] >= 0.:
                     conn_dict_rec = {
                         'rule': 'fixed_total_number',
-                        'N': self.num_synapses[i][j]}
+                        'N': self.num_synapses[i][j],
+                    }
 
                     if self.weight_matrix_mean[i][j] < 0:
                         w_min = np.NINF
@@ -365,22 +373,29 @@ class Network(network.Network):
                         'weight': nest.math.redraw(
                             nest.random.normal(
                                 mean=self.weight_matrix_mean[i][j],
-                                std=abs(self.weight_matrix_mean[i][j] *
-                                        self.net_dict['weight_rel_std'])),
+                                std=abs(self.weight_matrix_mean[i][j] * self.net_dict['weight_rel_std']),
+                            ),
                             min=w_min,
-                            max=w_max),
+                            max=w_max,
+                        ),
                         'delay': nest.math.redraw(
                             nest.random.normal(
                                 mean=self.net_dict['delay_matrix_mean'][i][j],
-                                std=(self.net_dict['delay_matrix_mean'][i][j] *
-                                     self.net_dict['delay_rel_std'])),
-                            min=nest.resolution,
-                            max=np.Inf)}
+                                std=(self.net_dict['delay_matrix_mean'][i][j] * self.net_dict['delay_rel_std']),
+                            ),
+                            # resulting minimum delay is equal to resolution, see:
+                            # https://nest-simulator.readthedocs.io/en/latest/nest_behavior
+                            # /random_numbers.html#rounding-effects-when-randomizing-delays
+                            min=nest.resolution - 0.5 * nest.resolution,
+                            max=np.Inf,
+                        ),
+                    }
 
                     nest.Connect(
                         source_pop, target_pop,
                         conn_spec=conn_dict_rec,
-                        syn_spec=syn_dict)
+                        syn_spec=syn_dict,
+                    )
 
     def __connect_lateral_neuronal_populations(self, net, lateral_dict):
         """ TODO: Creates the recurrent connections between neuronal populations. """
@@ -488,7 +503,8 @@ class Network(network.Network):
         for i, target_pop in enumerate(self.pops):
             conn_dict_th = {
                 'rule': 'fixed_total_number',
-                'N': self.num_th_synapses[i]}
+                'N': self.num_th_synapses[i],
+            }
 
             syn_dict_th = {
                 'weight': nest.math.redraw(
@@ -496,19 +512,81 @@ class Network(network.Network):
                         mean=self.weight_th,
                         std=self.weight_th * self.net_dict['weight_rel_std']),
                     min=0.0,
-                    max=np.Inf),
+                    max=np.Inf,
+                ),
                 'delay': nest.math.redraw(
                     nest.random.normal(
                         mean=self.stim_dict['delay_th_mean'],
-                        std=(self.stim_dict['delay_th_mean'] *
-                             self.stim_dict['delay_th_rel_std'])),
-                    min=nest.resolution,
-                    max=np.Inf)}
+                        std=(self.stim_dict['delay_th_mean'] * self.stim_dict['delay_th_rel_std']),
+                    ),
+                    # resulting minimum delay is equal to resolution, see:
+                    # https://nest-simulator.readthedocs.io/en/latest/nest_behavior
+                    # /random_numbers.html#rounding-effects-when-randomizing-delays
+                    min=nest.resolution - 0.5 * nest.resolution,
+                    max=np.Inf,
+                ),
+            }
 
             nest.Connect(
-                self.thalamic_population, target_pop,
-                conn_spec=conn_dict_th, syn_spec=syn_dict_th)
+                self.thalamic_population,
+                target_pop,
+                conn_spec=conn_dict_th,
+                syn_spec=syn_dict_th,
+            )
 
     def __connect_dc_stim_input(self):
         """ Connects the DC generators to the neuronal populations. """
         super().__connect_dc_stim_input()
+
+
+    def __connect_other_th_input(self, stim_dict):
+        """ Connects the thalamic input to the neuronal populations."""
+        if nest.Rank() == 0:
+            print('Connecting thalamic input.')
+
+        thalamic_population = nest.Create('parrot_neuron', n=self.stim_dict['num_th_neurons'])
+
+        poisson_th = nest.Create('poisson_generator')
+        poisson_th.set(
+            rate=stim_dict['th_rate'],
+            start=stim_dict['th_start'],
+            stop=(stim_dict['th_start'] + stim_dict['th_duration']),
+        )
+
+        # connect Poisson input to thalamic population
+        nest.Connect(poisson_th, thalamic_population)
+
+        # connect thalamic population to neuronal populations
+        for i, target_pop in enumerate(self.pops):
+            conn_dict_th = {
+                'rule': 'fixed_total_number',
+                'N': self.num_th_synapses[i],
+            }
+
+            syn_dict_th = {
+                'weight': nest.math.redraw(
+                    nest.random.normal(
+                        mean=self.weight_th,
+                        std=self.weight_th * self.net_dict['weight_rel_std']),
+                    min=0.0,
+                    max=np.Inf,
+                ),
+                'delay': nest.math.redraw(
+                    nest.random.normal(
+                        mean=stim_dict['delay_th_mean'],
+                        std=(stim_dict['delay_th_mean'] * stim_dict['delay_th_rel_std']),
+                    ),
+                    # resulting minimum delay is equal to resolution, see:
+                    # https://nest-simulator.readthedocs.io/en/latest/nest_behavior
+                    # /random_numbers.html#rounding-effects-when-randomizing-delays
+                    min=nest.resolution - 0.5 * nest.resolution,
+                    max=np.Inf,
+                ),
+            }
+
+            nest.Connect(
+                thalamic_population,
+                target_pop,
+                conn_spec=conn_dict_th,
+                syn_spec=syn_dict_th,
+            )

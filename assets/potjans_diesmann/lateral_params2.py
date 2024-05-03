@@ -2,9 +2,9 @@ import numpy as np
 
 lateral_dict = {
     # factor to scale the number of neurons
-    'N_scaling': 0.2,
+    'N_scaling': 0.1,
     # factor to scale the indegrees
-    'K_scaling': 0.2,
+    'K_scaling': 0.1,
     # names of the simulated neuronal populations
     #'populations': ['L23E', 'L23I', 'L4E', 'L4I', 'L5E', 'L5I', 'L6E', 'L6I'],
     # connection probabilities (the first index corresponds to the targets
@@ -18,7 +18,7 @@ lateral_dict = {
     'conn_probs': # segun wagatsuma 2013
         np.array(
             [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23E
-             [0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23I
+             [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23I
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L4E
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L4I
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L5E

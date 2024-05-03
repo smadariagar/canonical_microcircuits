@@ -74,14 +74,6 @@ if __name__ == '__main__':
     net_C = network.Network(sim_dict, net_dict, stim_dict3)
     time_network_C = time.time()
     # Create all nodes
-    net_C.create()
-    time_create_C = time.time()
-    # Connect all nodes
-    print("---> Connecting target network...")
-    net_C.connect()
-    time_connect_C = time.time()
-
-    # MCC D
     # Create network
     print("---> Creating D network...")
     sim_dict.update({'rng_seed': 69})

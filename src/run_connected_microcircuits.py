@@ -1,15 +1,12 @@
 import nest
 import time
 import numpy as np
-import matplotlib.pyplot as plt
-import argparse
-from random import randint
 
 from assets.potjans_diesmann.stimulus_params import stim_dict
 from assets.potjans_diesmann.stimulus_params2 import stim_dict as stim_dict2
 from assets.potjans_diesmann.network_params import net_dict
 from assets.potjans_diesmann.sim_params import sim_dict
-from assets.potjans_diesmann.lateral_params import lateral_dict
+from assets.potjans_diesmann.lateral_params2 import lateral_dict
 from . import network_potjans_diesmann as network
 
 from utils import helpers
@@ -33,6 +30,27 @@ if __name__ == '__main__':
     
     print('---------> Starting simulation...')
     
+    # Scaling thalamic neurons
+    stim_dict['num_th_neurons'] = np.round((stim_dict['num_th_neurons'] *
+                                     net_dict['N_scaling'])).astype(int)
+    stim_dict2['num_th_neurons'] = np.round((stim_dict2['num_th_neurons'] *
+                                     net_dict['N_scaling'])).astype(int)
+
+    # toy example
+    if True:
+        sim_dict.update({'t_sim': 1500.0})
+                
+        stim_dict.update({'thalamic_input': True})
+        stim_dict.update({'th_start': 700.0})
+        stim_dict.update({'th_duration': 500.0})
+        stim_dict.update({'th_rate': 20.0})
+
+        stim_dict2.update({'thalamic_input': True})
+        stim_dict2.update({'th_start': 700.0})
+        stim_dict2.update({'th_duration': 500.0})
+        stim_dict2.update({'th_rate': 5.0})
+
+
     # SOURCE
     # Create network
     print("---> Creating SOURCE network...")
@@ -46,12 +64,13 @@ if __name__ == '__main__':
     # Connect all nodes
     print("---> Connecting source network...")
     net_src.connect()
+    net_src.connect_other_input(stim_dict2)
     time_connect_src = time.time()
     
     # TARGET
     # Create network
     print("---> Creating TARGET network...")
-    sim_dict.update({'rng_seed': 56})
+    sim_dict.update({'rng_seed': 78})
     net_tg = network.Network(sim_dict, net_dict, stim_dict2)
     time_network_tg = time.time()
 
@@ -62,6 +81,7 @@ if __name__ == '__main__':
     # Connect all nodes
     print("---> Connecting target network...")
     net_tg.connect()
+    net_tg.connect_other_input(stim_dict)
     time_connect_tg = time.time()
 
     #conn = nest.GetConnections().get()
@@ -86,11 +106,13 @@ if __name__ == '__main__':
     # initialization artifacts.
     print('---> Evaluating...')
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    firing_rates_interval = np.array([stim_dict['th_start'], stim_dict['th_start'] + stim_dict['th_duration']])
+    firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
 
     all_pops = list(map(lambda pop: f"{pop}_src", net_dict['populations'])) + list(map(lambda pop: f"{pop}_tg", net_dict['populations']))
-    print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
+    
+    #print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
     if sim_dict.get('plot_raster', False):
+
         id_sim = sim_dict['data_path'].split("/")[-1]
         helpers.plot_raster(
             sim_dict['data_path'],
@@ -100,37 +122,25 @@ if __name__ == '__main__':
             net_dict['N_scaling'],
             all_pops,
             id_sim)
-        
-    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
+ 
+   # print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
     if sim_dict.get("plot_firing_rates", False):
         helpers.firing_rates(
-            sim_dict["data_path"], 
+            sim_dict["data_path"],
             'spike_recorder',
-            firing_rates_interval[0], 
+            firing_rates_interval[0],
             firing_rates_interval[1])
         helpers.boxplot(sim_dict["data_path"], all_pops)
-    
-    if sim_dict.get("plot_voltages", False):
-        helpers.plot_voltages(
-            sim_dict["data_path"], 
-            'voltmeter', 
-            firing_rates_interval[0], 
-            firing_rates_interval[1], 
-            all_pops,
-            'spike_recorder' if 'spike_recorder' in sim_dict["rec_dev"] else None,
-            #self.input_meters.keys()
-            net_src.input_meters.keys())
-        
-    if sim_dict.get("plot_network", False):
-        helpers.plot_network(
-            sim_dict["data_path"],
-            all_pops, 
-            net_dict["conn_weights"],
-            stim_dict["conn_weights_th"] if stim_dict["thalamic_input"] else None)
-        
+
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
+    ############################################################################### 
+    # Histogramas de spikes
+    import tools.histogram_single_microcircuit as hist_spikes
+    data_path = sim_dict.get('data_path', None)
+    hist_spikes.apliccation_metrics(data_path)
+    
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the
     # data evaluation and print calls.
@@ -159,4 +169,4 @@ if __name__ == '__main__':
         '  Time to evaluate:    {:.3f} s\n'.format(
             time_evaluate -
             time_simulate))
-    plt.show()
+    #plt.show()

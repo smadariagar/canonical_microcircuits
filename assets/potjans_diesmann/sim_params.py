@@ -35,7 +35,7 @@ sim_dict = {
     # presimulation time (in ms)
     't_presim': 0.0,
     # simulation time (in ms)
-    't_sim': 2000.0,
+    't_sim': 1000.0,
     # resolution of the simulation (in ms)
     'sim_resolution': 0.1,
     # list of recording devices, default is 'spike_recorder'. A 'voltmeter' can
@@ -45,9 +45,15 @@ sim_dict = {
     # path to save the output data
     'data_path': os.path.join(os.getcwd(), 'results/potjans_diesmann/', datetime.now().strftime('%Y%m%d%H%M%S')),
     # Seed for NEST
-    'rng_seed': 66,
+    'rng_seed': 44,
     # number of threads per MPI process
-    'local_num_threads': 1,
+    #
+    # Note that when you scale up the network, the microcircut model
+    # may not run correctly if there is < 4 virtual processes
+    # (i.e., a thread in an MPI process)
+    # If you have 4 or more MPI processes, then you can set this value to 1.
+    'local_num_threads': 1, ### OJO acá
+
     # recording interval of the membrane potential (in ms)
     'rec_V_int': 1.0,
     # if True, data will be overwritten,
