@@ -517,6 +517,12 @@ def __gather_metadata(path, name):
     # load filenames
     sd_files = []
     sd_names = []
+
+    # necesario para leer los archivos en el orden correcto
+    def sort_n(text):
+        n=text.split('-')[1]
+        return int(n)
+
     for fn in os.listdir(path):
         if fn.startswith(name):
             sd_files.append(fn)
@@ -524,6 +530,8 @@ def __gather_metadata(path, name):
             fnsplit = '-'.join(fn.split('-')[:-1])
             if fnsplit not in sd_names:
                 sd_names.append(fnsplit)
+    sd_files.sort(key=sort_n)
+    sd_names.sort(key=sort_n)
 
     # load node IDs
     node_idfile = open(os.path.join(path, 'population_nodeids.dat'), 'r')
