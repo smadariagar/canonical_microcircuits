@@ -496,6 +496,7 @@ class Network(network.Network):
         if nest.Rank() == 0:
             print('Connecting thalamic input.')
 
+        print(self)
         # connect Poisson input to thalamic population
         nest.Connect(self.poisson_th, self.thalamic_population)
 
@@ -544,7 +545,25 @@ class Network(network.Network):
         if nest.Rank() == 0:
             print('Connecting thalamic input.')
 
-        thalamic_population = nest.Create('parrot_neuron', n=self.stim_dict['num_th_neurons'])
+        # conversion from PSPs to PSCs
+        PSC_over_PSP = helpers.postsynaptic_potential_to_current(
+            self.net_dict['neuron_params']['C_m'],
+            self.net_dict['neuron_params']['tau_m'],
+            self.net_dict['neuron_params']['tau_syn']
+        )
+        PSC_matrix_mean = self.net_dict['PSP_matrix_mean'] * PSC_over_PSP
+
+        num_th_synapses = helpers.num_synapses_from_conn_probs(
+            stim_dict['conn_probs_th'],
+            stim_dict['num_th_neurons'],
+            self.net_dict['full_num_neurons'])[0]
+        weight_th = stim_dict['PSP_th'] * PSC_over_PSP
+        if self.net_dict['K_scaling'] != 1:
+            num_th_synapses *= self.net_dict['K_scaling']
+            weight_th /= np.sqrt(self.net_dict['K_scaling'])
+        num_th_synapses = np.round(num_th_synapses).astype(int)
+
+        thalamic_population = nest.Create('parrot_neuron', n=stim_dict['num_th_neurons'])
 
         poisson_th = nest.Create('poisson_generator')
         poisson_th.set(
@@ -560,14 +579,14 @@ class Network(network.Network):
         for i, target_pop in enumerate(self.pops):
             conn_dict_th = {
                 'rule': 'fixed_total_number',
-                'N': self.num_th_synapses[i],
+                'N': num_th_synapses[i],
             }
 
             syn_dict_th = {
                 'weight': nest.math.redraw(
                     nest.random.normal(
-                        mean=self.weight_th,
-                        std=self.weight_th * self.net_dict['weight_rel_std']),
+                        mean=weight_th,
+                        std=weight_th * self.net_dict['weight_rel_std']),
                     min=0.0,
                     max=np.Inf,
                 ),

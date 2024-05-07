@@ -29,7 +29,7 @@ Thalamic input and DC input can be switched on individually.
 
 import numpy as np
 
-stim_dict = {
+stim_dict2 = {
     # optional thalamic input
     # turn thalamic input on or off (True or False)
     'thalamic_input': True,

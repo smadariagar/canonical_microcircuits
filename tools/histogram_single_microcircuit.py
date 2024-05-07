@@ -95,73 +95,12 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     return info_total, times_simulation
 
 
-def apliccation_metrics_old(folder_path):
+def apliccation_metrics(folder_path):
     """_summary_
 
     Args:
         folder_path (_type_): _description_
     """
-    # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
-    archivos_spike_recorder = select_spike_recorder_files(folder_path)
-    info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
-
-    # Mapear las capas a los nuevos nombres
-    layer_mapping = {1: '2/3', 2: '4', 3: '5', 4: '6'}
-    info_total['Layer'] = info_total['Layer'].map(layer_mapping)
-
-    # Crear un histograma por cada combinación de type y Layer
-    unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
-
-    # Número de combinaciones únicas
-    num_combinations = len(unique_combinations)
-
-    # Configurar el diseño de subplots
-    num_rows = num_combinations
-    num_cols = 1
-    fs = 18  # fontsize
-
-    # Crear subplots
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(8, 2*num_rows))
-
-    # Iterar sobre cada combinación única
-    for i, row in enumerate(unique_combinations.itertuples(), 1):
-        subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
-
-        # Configurar la ubicación de la subfigura actual
-        if num_rows > 1:
-            ax = axs[i-1]
-        else:
-            ax = axs
-
-        # Asignar colores según el tipo
-        color = '#595289' if row.type == 'exc' else '#af143c'
-
-        # Crear el histograma en la subfigura actual con colores personalizados
-        #ax.hist(subset['time'], bins=range(int(subset['time'].min()), int(subset['time'].max()) + 11, 5), alpha=1.0, label=f"{row.type}, Layer {row.Layer}", color=color)
-        n, bins, rects = ax.hist(subset['time'], bins=range(0, int(sim_dict["t_sim"]), 2), alpha=1.0, label=f"{row.type}, Layer {row.Layer}", color=color)
-
-        # Configurar etiquetas y título
-        ax.set_xlabel('Time', fontsize=fs)
-        ax.set_ylabel('Frequency', fontsize=fs)
-        ax.set_title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=fs)
-        #ax.set_ylim([0.0, 1500.0])20240405025743
-        ax.legend()
-
-        # Ajustar el espaciado entre subplots para evitar superposiciones
-        plt.tight_layout()
-
-        # Guardar la figura en un archivo
-    plt.savefig(folder_path + "/spike_time_histogram.png", dpi=300)
-
-
-def apliccation_metrics(path, folder):
-    """_summary_
-
-    Args:
-        folder_path (_type_): _description_
-    """
-    folder_path = os.path.join(path, folder)
-
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
     info_total, times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
@@ -175,7 +114,7 @@ def apliccation_metrics(path, folder):
 
     # Configurar el diseño de plots
     fs = 16  # fontsize
-    
+
     data = []
     # Iterar sobre cada combinación única
     for i, row in enumerate(unique_combinations.itertuples(), 1):
@@ -212,6 +151,70 @@ def apliccation_metrics(path, folder):
 
         # Guardar la figura en un archivo
         plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
+
+
+def apliccation_metrics_folders(path, folder):
+    """_summary_
+
+    Args:
+        folder_path (_type_): _description_
+    """
+    folder_path = os.path.join(path, folder)
+
+    # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
+    archivos_spike_recorder = select_spike_recorder_files(folder_path)
+    info_total, times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
+
+    # Mapear las capas a los nuevos nombres
+    layer_mapping = {
+        1: '2/3a', 2: '4a', 3: '5a', 4: '6a',
+        5: '2/3b', 6: '4b', 7: '5b', 8: '6b',
+        9: '2/3c', 10: '4c', 11: '5c', 12: '6c',
+        13: '2/3d', 14: '4d', 15: '5d', 16: '6d',
+    }
+    info_total['Layer'] = info_total['Layer'].map(layer_mapping)
+
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
+
+    # Configurar el diseño de plots
+    fs = 16  # fontsize
+
+    data = []
+    # Iterar sobre cada combinación única
+    for i, row in enumerate(unique_combinations.itertuples(), 1):
+        #if i == 9:
+            #break
+        # Crea plots
+        #fig = plt.figure(figsize=(6, 4))
+
+        subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
+
+        # Asignar colores según el tipo
+        color = '#0063B2' if row.type == 'exc' else '#b015b6'
+
+        # Crear el histograma en la subfigura actual con colores personalizados
+        l_bin = 20
+        n, bins, rects = plt.hist(
+            subset['time'], bins=range(0, int(sim_dict["t_sim"])+l_bin, l_bin), label=f"{row.type}, Layer{row.Layer}",
+            color=color, edgecolor='black', linewidth=1.2)
+
+        data.append(n.tolist())
+
+        # Configurar etiquetas y título
+        #plt.xlabel('time [ms]', fontsize=fs)
+        #plt.xticks(fontsize=fs)
+        #plt.ylabel('frequency', fontsize=fs)
+        #plt.yticks(fontsize=fs)
+        #plt.title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=22)
+        #ax.set_ylim([0.0, 1500.0])20240405025743
+        #plt.legend()
+
+        # Ajustar el espaciado entre subplots para evitar superposiciones
+        #plt.tight_layout()
+
+        # Guardar la figura en un archivo
+        #plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
 
     return data, bins[0:-1]
 

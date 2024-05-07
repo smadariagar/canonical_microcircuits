@@ -29,7 +29,7 @@ Thalamic input and DC input can be switched on individually.
 
 import numpy as np
 
-stim_dict = {
+stim_dict3 = {
     # optional thalamic input
     # turn thalamic input on or off (True or False)
     'thalamic_input': True,
@@ -40,7 +40,7 @@ stim_dict = {
     # rate of the thalamic input (in spikes/s)
     'th_rate': 8.0,
     # number of thalamic neurons
-    'num_th_neurons': 180, #902
+    'num_th_neurons': 902, #902
     # connection probabilities of the thalamus to the different populations
     # (same order as in 'populations' in 'net_dict')
     'conn_probs_th':
