@@ -1,6 +1,34 @@
+# -*- coding: utf-8 -*-
+#
+# run_model.py
+#
+# Este código debería correr todas las variables de mi modelo.
+# Todo el modelo está construido sobre NEST
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Run Simulation
+-----------------------------------------
+
+Este script corre el modelo de corteza visual, con módulos de microcircuito tanto en V1 como en V2.
+
 """
-    _summary_
-"""
+
+###############################################################################
+# Import the necessary modules and start the time measurements.
 import time
 import os
 from random import randint
@@ -15,6 +43,7 @@ from assets.potjans_diesmann.sim_params import sim_dict # simulación
 from assets.potjans_diesmann.stimulus_params1 import stim_dict1
 from assets.potjans_diesmann.stimulus_params2 import stim_dict2
 from assets.potjans_diesmann.stimulus_params3 import stim_dict3
+from assets.potjans_diesmann.stimulus_params4 import stim_dict4
 from assets.potjans_diesmann.stimulus_V2 import stim_v2
 
 from assets.potjans_diesmann.lateral_params import lateral_dict
@@ -31,10 +60,10 @@ if __name__ == '__main__':
 
     nest.ResetKernel()
     nest.local_num_threads = sim_dict['local_num_threads']
-    nest.resolution = sim_dict['sim_resolution']
-    nest.rng_seed = sim_dict['rng_seed']
-    nest.overwrite_files = sim_dict['overwrite_files']
-    nest.print_time = sim_dict['print_time']
+    nest.resolution        = sim_dict['sim_resolution']
+    nest.rng_seed          = sim_dict['rng_seed']
+    nest.overwrite_files   = sim_dict['overwrite_files']
+    nest.print_time        = sim_dict['print_time']
 
     if nest.Rank() == 0:
         print('RNG seed: {}'.format(
@@ -42,10 +71,16 @@ if __name__ == '__main__':
         print('Total number of virtual processes: {}'.format(
             nest.total_num_virtual_procs))
 
-    print('---------> Starting simulation...')
-    # N and K scaling
-    net_dict.update({'N_scaling': 0.05})
-    net_dict.update({'K_scaling': 0.05})
+    data_path = sim_dict.get('data_path', None)
+    rng_seeds = []
+
+    ###############################################################################
+    # A priori el modelo tiene 3 módulos en V1 y un módulo en V2
+    print('---------> Creating the model...')
+
+    # N & K scaling
+    net_dict.update({'N_scaling': 0.3})
+    net_dict.update({'K_scaling': 0.3})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -54,101 +89,115 @@ if __name__ == '__main__':
                                      net_dict['N_scaling'])).astype(int)
     stim_dict3['num_th_neurons'] = np.round((stim_dict3['num_th_neurons'] *
                                      net_dict['N_scaling'])).astype(int)
+    stim_dict4['num_th_neurons'] = np.round((stim_dict4['num_th_neurons'] *
+                                     net_dict['N_scaling'])).astype(int)
 
-    # N & K scaling
+    # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
+
     feedforward_dict.update({'N_scaling': net_dict['N_scaling']})
     feedforward_dict.update({'K_scaling': net_dict['K_scaling']})
+
     feedback_dict.update({'N_scaling': net_dict['N_scaling']})
     feedback_dict.update({'K_scaling': net_dict['K_scaling']})
 
-    # toy example
-    Cte_value = True
-    if Cte_value:
-        sim_dict.update({'t_sim': 1000.0})
+    # Simulation params
+    sim_dutation = 1000.0
+    sim_dict.update({'t_sim': sim_dutation})
 
+    # CRF params
+    CRF = True
+    if CRF:
         stim_star = 200.0
-        stim_duration = 600.0
+        stim_duration = 500.0
+        
         stim_dict1.update({'thalamic_input': True})
         stim_dict1.update({'th_start': stim_star})
         stim_dict1.update({'th_duration': stim_duration})
         stim_dict1.update({'th_rate': 20.0})
 
-        stim_dict2.update({'thalamic_input': True})
-        stim_dict2.update({'th_start': stim_star})
-        stim_dict2.update({'th_duration': stim_duration})
-        stim_dict2.update({'th_rate': 10.0})
+    # ECRF params
+    ECRF = True
+    if ECRF:
+        stim_star = 500.0
+        stim_duration = 300.0
 
         stim_dict3.update({'thalamic_input': True})
         stim_dict3.update({'th_start': stim_star})
         stim_dict3.update({'th_duration': stim_duration})
-        stim_dict3.update({'th_rate': 5.0})
+        stim_dict3.update({'th_rate': 20.0})
 
-    data_path = sim_dict.get('data_path', None)
-    rng_seeds = []
+    ###############################################################################
+    # Model type
+    V1_B = True
+    V1_C = False
+    V1_D = False
+    V2 = True
+    Lat_conn = True
+    FF_conn = True
+    FB_conn = True
+
+    plot_hist = False
 
     ###############################################################################
     # Microcircuits V1 created
-    # MCC A
-    # Create network
-    print("---> Creating A network...")
+    print("---> Creating Microcircuits...")
+
+    ###############################################################################
+    # Create MCC A
+    print("---> Creating networks V1_A...")
     nest.rng_seed = randint(1, 1000)
     rng_seeds.append(nest.rng_seed)
     net_A = network.Network(sim_dict, net_dict, stim_dict1)
     time_network_A = time.time()
+    
     # Create all nodes
     net_A.create()
     time_create_A = time.time()
+
     # Connect all nodes
-    print("---> Connecting A network...")
     net_A.connect()
     time_connect_A = time.time()
 
-    # MCC B
-    # Create network
-    print("---> Creating B network...")
-    nest.rng_seed = randint(1, 1000)
-    rng_seeds.append(nest.rng_seed)
-    net_B = network.Network(sim_dict, net_dict, stim_dict2)
-    time_network_B = time.time()
-    # Create all nodes
-    net_B.create()
-    time_create_B = time.time()
-    # Connect all nodes
-    print("---> Connecting B network...")
-    net_B.connect()
-    time_connect_B = time.time()
+    ###############################################################################
+    # Create MCC B
+    if V1_B:
+        print("---> Creating networks V1_B...")
+        nest.rng_seed = randint(1, 1000)
+        rng_seeds.append(nest.rng_seed)
+        net_B = network.Network(sim_dict, net_dict, stim_dict3)
+        time_network_B = time.time()
 
-    # MCC C
-    # Create network
-    print("---> Creating C network...")
-    nest.rng_seed = randint(1, 1000)
-    rng_seeds.append(nest.rng_seed)
-    net_C = network.Network(sim_dict, net_dict, stim_dict3)
-    time_network_C = time.time()
-    # Create all nodes
-    net_C.create()
-    time_create_C = time.time()
-    # Connect all nodes
-    print("---> Connecting C network...")
-    net_C.connect()
+        # Create all nodes
+        net_B.create()
+        time_create_B = time.time()
 
-    stim_dict1.update({'thalamic_input': True})
-    stim_dict1.update({'th_start': 600.0})
-    stim_dict1.update({'th_duration': 200.0})
-    stim_dict1.update({'th_rate': 20.0})
-
-    net_C.connect_other_input(stim_dict1)
-    time_connect_C = time.time()
+        # Connect all nodes
+        net_B.connect()
+        time_connect_B = time.time()
 
     ###############################################################################
-    # Microcircuits V2 created
-    # MCC V2
-    # Create network
-    V2=True
+    # Create MCC C
+    if V1_C:
+        print("---> Creating networks V1_C...")
+        nest.rng_seed = randint(1, 1000)
+        rng_seeds.append(nest.rng_seed)
+        net_C = network.Network(sim_dict, net_dict, stim_dict3)
+        time_network_C = time.time()
+        
+        # Create all nodes
+        net_C.create()
+        time_create_C = time.time()
+        
+        # Connect all nodes
+        net_C.connect()
+        time_connect_C = time.time()
+
+    ###############################################################################
+    # Create MCC V2
     if V2:
-        print("---> Creating V2 network...")
+        print("---> Creating networks V2...")
         nest.rng_seed = randint(1, 1000)
         rng_seeds.append(nest.rng_seed)
         net_V2 = network.Network(sim_dict, net_dict, stim_v2)
@@ -165,31 +214,43 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Lateral connections
-    print("---> Connecting NETWORKS...")
-    net_A.connect_networks(net_B, lateral_dict)
-    net_B.connect_networks(net_A, lateral_dict)
+    if Lat_conn:
+        print("---> Connecting networks laterally...")
+        if V1_B:
+            net_A.connect_networks(net_B, lateral_dict)
+            net_B.connect_networks(net_A, lateral_dict)
 
-    net_A.connect_networks(net_C, lateral_dict)
-    net_C.connect_networks(net_A, lateral_dict)
+        if V1_C:
+            net_A.connect_networks(net_C, lateral_dict)
+            net_C.connect_networks(net_A, lateral_dict)
 
-    net_B.connect_networks(net_C, lateral_dict)
-    net_C.connect_networks(net_B, lateral_dict)
+            net_B.connect_networks(net_C, lateral_dict)
+            net_C.connect_networks(net_B, lateral_dict)
 
     ###############################################################################
     # Vertical connections
-    if V2:
+    if FF_conn:
+        print("---> Connecting networks feedforward...")
         net_A.connect_networks(net_V2, feedforward_dict)
-        net_B.connect_networks(net_V2, feedforward_dict)
-        net_C.connect_networks(net_V2, feedforward_dict)
+        if V1_B:
+            net_B.connect_networks(net_V2, feedforward_dict)
+        if V1_C:
+            net_C.connect_networks(net_V2, feedforward_dict)
 
+    if FB_conn:
+        print("---> Connecting networks feedback...")
         net_V2.connect_networks(net_A, feedback_dict)
-        net_V2.connect_networks(net_B, feedback_dict)
-        net_V2.connect_networks(net_C, feedback_dict)
+        if V1_B:
+            net_V2.connect_networks(net_B, feedback_dict)
+        if V1_C:
+            net_V2.connect_networks(net_C, feedback_dict)
 
+    ###############################################################################
+    # Simulation over MCC A
+    print('---> Simulating...')
     nest.Prepare()
     nest.Cleanup()
 
-    print('---> Simulating...')
     net_A.simulate(sim_dict['t_sim'])
     time_simulate = time.time()
 
@@ -201,11 +262,11 @@ if __name__ == '__main__':
     # The computation of spike rates discards the presimulation time to exclude
     # initialization artifacts.
     print('---> Evaluating...')
-    raster_plot_interval = np.array([sim_dict['t_presim']+100, sim_dict["t_sim"]])
-    firing_rates_interval = np.array([sim_dict['t_presim']+100, sim_dict["t_sim"]])
+    raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
+    firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
 
-    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) + list(map(lambda pop: f"{pop}_V2", net_dict['populations']))
-
+    #all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) + list(map(lambda pop: f"{pop}_V2", net_dict['populations']))
+    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
     print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
     if sim_dict.get('plot_raster', False):
         id_sim = sim_dict['data_path'].split("/")[-1]
@@ -232,10 +293,13 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Histogramas de spikes
-    #import tools.histogram_single_microcircuit as hist_spikes
-    #data_path = sim_dict.get('data_path', None)
-    #hist_spikes.apliccation_metrics(data_path)
+    if plot_hist:
+        import tools.histogram_single_microcircuit as hist_spikes
+        data_path = sim_dict.get('data_path', None)
+        hist_spikes.apliccation_metrics(data_path)
 
+    ###############################################################################
+    # Saving seeds
     with open(os.path.join(data_path, 'seeds.json'), 'w') as file:
         json.dump(rng_seeds, file)
 

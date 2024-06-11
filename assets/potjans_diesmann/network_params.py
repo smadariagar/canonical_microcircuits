@@ -56,9 +56,9 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
 
 net_dict = {
     # factor to scale the number of neurons
-    'N_scaling': 0.05,
+    'N_scaling': 0.5,
     # factor to scale the indegrees
-    'K_scaling': 0.05,
+    'K_scaling': 0.5,
     # neuron model
     'neuron_model': 'iaf_psc_exp',
     # names of the simulated neuronal populations
@@ -109,7 +109,7 @@ net_dict = {
     # as in 'populations')
     'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
     # rate of the Poisson generator (in spikes/s)
-    'bg_rate': 8.,
+    'bg_rate': 7.,
     # delay from the Poisson generator to the network (in ms)
     'delay_poisson': 1.5,
 

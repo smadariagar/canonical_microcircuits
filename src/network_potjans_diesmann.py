@@ -470,8 +470,8 @@ class Network(network.Network):
                                 max=w_max),
                         'delay': nest.math.redraw(
                             nest.random.normal(
-                                mean=net.net_dict["delay_matrix_mean"][i][j],
-                                std=(net.net_dict["delay_matrix_mean"][i][j] * net.net_dict["delay_rel_std"])),
+                                mean=lateral_dict["delay_matrix_mean"][i][j],
+                                std=(lateral_dict["delay_matrix_mean"][i][j] * lateral_dict["delay_rel_std"])),
                                 min=nest.resolution,
                                 max=np.Inf)}
 

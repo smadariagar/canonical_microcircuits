@@ -24,8 +24,13 @@ def select_spike_recorder_files(path):
     Returns:
         list: A list of file names starting with 'spike_recorder'.
     """
+    def sort_n(text):
+        n=text.split('-')[1]
+        return int(n)
+
     file_names = os.listdir(path)
     spike_recorder_files = [file for file in file_names if file.startswith('spike_recorder')]
+    spike_recorder_files.sort(key=sort_n)
     return spike_recorder_files
 
 

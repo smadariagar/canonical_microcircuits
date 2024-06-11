@@ -462,7 +462,8 @@ def boxplot(path, populations):
         rates_per_neuron_rev.append(
             np.loadtxt(os.path.join(path, ('rate' + str(i) + '.dat'))))
 
-    plt.figure(figsize=(5, 10))
+
+    plt.figure(figsize=(5, 3*len(populations)/8))
     bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
                      meanprops=meanprops, meanline=True, showmeans=True)
     plt.setp(bp['boxes'], color='black', linewidth=2)
