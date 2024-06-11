@@ -109,7 +109,7 @@ net_dict = {
     # as in 'populations')
     'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
     # rate of the Poisson generator (in spikes/s)
-    'bg_rate': 7.,
+    'bg_rate': 8.,
     # delay from the Poisson generator to the network (in ms)
     'delay_poisson': 1.5,
 

@@ -79,8 +79,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.2})
+    net_dict.update({'K_scaling': 0.2})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     ###############################################################################
     # Model type
     V1_B = True
-    V1_C = False
+    V1_C = True
     V1_D = False
     V2 = True
     Lat_conn = True
@@ -166,7 +166,7 @@ if __name__ == '__main__':
         print("---> Creating networks V1_B...")
         nest.rng_seed = randint(1, 1000)
         rng_seeds.append(nest.rng_seed)
-        net_B = network.Network(sim_dict, net_dict, stim_dict3)
+        net_B = network.Network(sim_dict, net_dict, stim_dict2)
         time_network_B = time.time()
 
         # Create all nodes
@@ -221,9 +221,10 @@ if __name__ == '__main__':
             net_B.connect_networks(net_A, lateral_dict)
 
         if V1_C:
-            net_A.connect_networks(net_C, lateral_dict)
-            net_C.connect_networks(net_A, lateral_dict)
+            net_B.connect_networks(net_C, lateral_dict)
+            net_C.connect_networks(net_B, lateral_dict)
 
+        if V1_D:
             net_B.connect_networks(net_C, lateral_dict)
             net_C.connect_networks(net_B, lateral_dict)
 
@@ -265,8 +266,8 @@ if __name__ == '__main__':
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
     firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
 
-    #all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) + list(map(lambda pop: f"{pop}_V2", net_dict['populations']))
-    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
+    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) + list(map(lambda pop: f"{pop}_V2", net_dict['populations']))
+    #all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
     print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
     if sim_dict.get('plot_raster', False):
         id_sim = sim_dict['data_path'].split("/")[-1]
