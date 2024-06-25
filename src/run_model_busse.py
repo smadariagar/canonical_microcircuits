@@ -88,26 +88,26 @@ if __name__ == '__main__':
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
 
     # Simulation params
-    sim_dutation = 500.0
+    sim_dutation = 600.0
     sim_dict.update({'t_sim': sim_dutation})
 
     # Stimulation to MCC A
     stim_star = 200.0
-    stim_duration = 300.0
+    stim_duration = 400.0
     
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 30.0})
+    stim_dict1.update({'th_rate': 20.0})
 
     # Stimulation to MCC B
-    stim_star = 350.0
-    stim_duration = 100.0
+    stim_star = 400.0
+    stim_duration = 200.0
 
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 30.0})
+    stim_dict2.update({'th_rate': 20.0})
 
     ###############################################################################
     # Model type
@@ -181,7 +181,9 @@ if __name__ == '__main__':
     # initialization artifacts.
     print('---> Evaluating...')
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
+    firing_rates_interval = np.array([0, 200])
+    firing_rates_interval1 = np.array([200, 400])
+    firing_rates_interval2 = np.array([400, 600])
 
     all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 

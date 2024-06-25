@@ -65,7 +65,7 @@ sim_dict = {
     # if True, raster plots will be plotted.
     'plot_raster': True,
     # if True, the firing rates will be plotted.
-    'plot_firing_rates': True,
+    'plot_firing_rates': False,
     # if True, voltage traces will be plotted.
     'plot_voltages': False,
 }

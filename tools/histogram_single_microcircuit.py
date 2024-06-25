@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from utils.helpers import __load_meter_data
-from assets.potjans_diesmann.sim_params import sim_dict
+#from assets.potjans_diesmann.sim_params import sim_dict
 
 warnings.filterwarnings("ignore")
 
@@ -65,6 +65,10 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     if len(spike_recorder_files) % 2 != 0:
         print("Number of files is not even.")
         return
+
+    # Read JSON
+    with open(os.path.join(folder_path, 'sim_params.json'), 'r') as file:
+        sim_dict = json.load(file)
 
     info = []
     times_simulation = []
@@ -169,6 +173,10 @@ def apliccation_metrics_folders(path, folder):
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
     info_total, times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
+
+    # Read JSON
+    with open(os.path.join(folder_path, 'sim_params.json'), 'r') as file:
+        sim_dict = json.load(file)
 
     # Mapear las capas a los nuevos nombres
     layer_mapping = {

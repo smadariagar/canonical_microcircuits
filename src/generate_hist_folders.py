@@ -4,12 +4,12 @@ summary_
 import os
 import csv
 import time
-import numpy as np
 
 import warnings
-import tools.histogram_single_microcircuit as hist_spikes
+import numpy as np
 
 import matplotlib.pyplot as plt
+import tools.histogram_single_microcircuit as hist_spikes
 
 warnings.filterwarnings("ignore")
 
@@ -23,64 +23,64 @@ def psht_plot(l2e, l2i, l4e, l4i, l5e, l5i, l6e, l6i, mcc, bins):
     axes[0][0].plot(bins, n, linewidth=2.0, color='#0063B2')
     axes[0][0].tick_params(axis='both', which='major', labelsize=10)
     axes[0][0].tick_params(axis='both', which='minor', labelsize=10)
-    axes[0][0].set_xlim(20,480)
-    axes[0][0].set_ylim(bottom=np.mean(n))
+    axes[0][0].set_xlim(20,np.max(bins)-10)
+    axes[0][0].set_ylim(bottom=np.min(n[1:]))
     axes[0][0].set_title("L23 e")
     
     n = np.mean(l2i, axis=0)
     axes[0][1].plot(bins, n, linewidth=2.0, color='#b015b6')
     axes[0][1].tick_params(axis='both', which='major', labelsize=10)
     axes[0][1].tick_params(axis='both', which='minor', labelsize=10)
-    axes[0][1].set_xlim(20,480)
-    axes[0][1].set_ylim(bottom=np.mean(n))
+    axes[0][1].set_xlim(20,np.max(bins)-10)
+    axes[0][1].set_ylim(bottom=np.min(n[1:]))
     axes[0][1].set_title("L23 i")
 
     n = np.mean(l4e, axis=0)
     axes[1][0].plot(bins, n, linewidth=2.0, color='#0063B2')
     axes[1][0].tick_params(axis='both', which='major', labelsize=10)
     axes[1][0].tick_params(axis='both', which='minor', labelsize=10)
-    axes[1][0].set_xlim(20,480)
-    axes[1][0].set_ylim(bottom=np.mean(n))
+    axes[1][0].set_xlim(20,np.max(bins)-10)
+    axes[1][0].set_ylim(bottom=np.min(n[1:]))
     axes[1][0].set_title("L4 e")
     
     n = np.mean(l4i, axis=0)
     axes[1][1].plot(bins, n, linewidth=2.0, color='#b015b6')
     axes[1][1].tick_params(axis='both', which='major', labelsize=10)
     axes[1][1].tick_params(axis='both', which='minor', labelsize=10)
-    axes[1][1].set_xlim(20,480)
-    axes[1][1].set_ylim(bottom=np.mean(n))
+    axes[1][1].set_xlim(20,np.max(bins)-10)
+    axes[1][1].set_ylim(bottom=np.min(n[1:]))
     axes[1][1].set_title("L4 i")
 
     n = np.mean(l5e, axis=0)
     axes[2][0].plot(bins, n, linewidth=2.0, color='#0063B2')
     axes[2][0].tick_params(axis='both', which='major', labelsize=10)
     axes[2][0].tick_params(axis='both', which='minor', labelsize=10)
-    axes[2][0].set_xlim(20,480)
-    axes[2][0].set_ylim(bottom=np.mean(n))
+    axes[2][0].set_xlim(20,np.max(bins)-10)
+    axes[2][0].set_ylim(bottom=np.min(n[1:]))
     axes[2][0].set_title("L5 e")
     
     n = np.mean(l5i, axis=0)
     axes[2][1].plot(bins, n, linewidth=2.0, color='#b015b6')
     axes[2][1].tick_params(axis='both', which='major', labelsize=10)
     axes[2][1].tick_params(axis='both', which='minor', labelsize=10)
-    axes[2][1].set_xlim(20,480)
-    axes[2][1].set_ylim(bottom=np.mean(n))
+    axes[2][1].set_xlim(20,np.max(bins)-10)
+    axes[2][1].set_ylim(bottom=np.min(n[1:]))
     axes[2][1].set_title("L5 i")
 
     n = np.mean(l6e, axis=0)
     axes[3][0].plot(bins, n, linewidth=2.0, color='#0063B2')
     axes[3][0].tick_params(axis='both', which='major', labelsize=10)
     axes[3][0].tick_params(axis='both', which='minor', labelsize=10)
-    axes[3][0].set_xlim(20,480)
-    axes[3][0].set_ylim(bottom=np.mean(n))
+    axes[3][0].set_xlim(20,np.max(bins)-10)
+    axes[3][0].set_ylim(bottom=np.min(n[1:]))
     axes[3][0].set_title("L6 e")
     
     n = np.mean(l6i, axis=0)
     axes[3][1].plot(bins, n, linewidth=2.0, color='#b015b6')
     axes[3][1].tick_params(axis='both', which='major', labelsize=10)
     axes[3][1].tick_params(axis='both', which='minor', labelsize=10)
-    axes[3][1].set_xlim(20,480)
-    axes[3][1].set_ylim(bottom=np.mean(n))
+    axes[3][1].set_xlim(20,np.max(bins)-10)
+    axes[3][1].set_ylim(bottom=np.min(n[1:]))
     axes[3][1].set_title("L6 i")
 
     plt.tight_layout()    
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     mccs = ['V1_A', 'V1_B', 'V1_C', 'V2']
 
-    for i in range(1):
+    for i in range(2):
 
         L23I = []
         L23E = []

@@ -74,8 +74,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.4})
-    net_dict.update({'K_scaling': 0.4})
+    net_dict.update({'N_scaling': 0.3})
+    net_dict.update({'K_scaling': 0.3})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -88,32 +88,44 @@ if __name__ == '__main__':
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
 
     # Simulation params
-    sim_dutation = 500.0
+    sim_dutation = 600.0
     sim_dict.update({'t_sim': sim_dutation})
 
     # Stimulation to MCC A
     stim_star = 200.0
-    stim_duration = 300.0
+    stim_duration = 400.0
     
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 30.0})
+    stim_dict1.update({'th_rate': 20.0})
 
     # Stimulation to MCC B
-    stim_star = 350.0
-    stim_duration = 100.0
+    stim_star = 400.0
+    stim_duration = 200.0
 
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 30.0})
+    stim_dict2.update({'th_rate': 20.0})
+
+    ###############################################################################
+    # Adjust group stimulation
+
+    group = 5
+    full_num_neurons = np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])
+
+    stim_dict2.update({'num_th_neurons': 25000})
+    conn_probs_th = np.array([1.0, 0.2, 0.0, 0.0, 0.2, 0.0, 0.0, 0.0])*full_num_neurons* 0.005/stim_dict2['num_th_neurons']
+
+    stim_dict2['num_th_neurons'] = np.round((stim_dict2['num_th_neurons'] *
+                                     net_dict['N_scaling'])).astype(int)
+    stim_dict2.update({'conn_probs_th': conn_probs_th})
 
     ###############################################################################
     # Model type
     V1_B = False
     Lat_conn = False
-
     plot_hist = False
 
     ###############################################################################
@@ -137,7 +149,6 @@ if __name__ == '__main__':
     time_connect_A = time.time()
 
     net_A.connect_other_input(stim_dict2)
-
 
     ###############################################################################
     # Create MCC B
@@ -184,7 +195,9 @@ if __name__ == '__main__':
     # initialization artifacts.
     print('---> Evaluating...')
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    firing_rates_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
+    firing_rates_interval_1 = np.array([0, 200])
+    firing_rates_interval_2 = np.array([200, 400])
+    firing_rates_interval_3 = np.array([400, 600])
 
     all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
 
@@ -200,14 +213,33 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
+    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval_1))
     if sim_dict.get("plot_firing_rates", False):
         helpers.firing_rates(
             sim_dict['data_path'],
             'spike_recorder',
-            firing_rates_interval[0],
-            firing_rates_interval[1])
-        helpers.boxplot(sim_dict["data_path"], all_pops)
+            firing_rates_interval_1[0],
+            firing_rates_interval_1[1])
+        helpers.boxplot(sim_dict["data_path"], all_pops, '1')
+
+    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval_2))
+    if sim_dict.get("plot_firing_rates", False):
+        helpers.firing_rates(
+            sim_dict['data_path'],
+            'spike_recorder',
+            firing_rates_interval_2[0],
+            firing_rates_interval_2[1])
+        helpers.boxplot(sim_dict["data_path"], all_pops, '2')
+
+    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval_3))
+    if sim_dict.get("plot_firing_rates", False):
+        helpers.firing_rates(
+            sim_dict['data_path'],
+            'spike_recorder',
+            firing_rates_interval_3[0],
+            firing_rates_interval_3[1])
+        helpers.boxplot(sim_dict["data_path"], all_pops, '3')
+
 
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()

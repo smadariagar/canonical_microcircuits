@@ -432,7 +432,7 @@ def firing_rates(path, name, begin, end):
         np.around(all_std_rates, decimals=3)))
 
 
-def boxplot(path, populations):
+def boxplot(path, populations, name):
     """ Creates a boxblot of the firing rates of all populations.
 
     To create the boxplot, the firing rates of each neuron in each population
@@ -488,7 +488,8 @@ def boxplot(path, populations):
     plt.xticks(fontsize=fs)
     plt.title('Firing rates', fontsize=22)
     plt.tight_layout()
-    plt.savefig(os.path.join(path, 'box_plot.png'), dpi=300)
+    box_plot_name = name + '_box_plot.png'
+    plt.savefig(os.path.join(path, box_plot_name), dpi=300)
 
 
 def __gather_metadata(path, name):
