@@ -120,7 +120,7 @@ if __name__ == '__main__':
             L6I.append(data[(i*8)+6])
             L6E.append(data[(i*8)+7])
 
-        if False:
+        if True:
             with open(os.path.join(folder_path, 'L23I.csv'), 'w') as file:
                 write = csv.writer(file)
                 write.writerows(L23I)

@@ -47,7 +47,7 @@ stim_dict1 = {
         np.array([0.0, 0.0, 0.0983, 0.0619, 0.0, 0.0, 0.0512, 0.0196]),
     # mean amplitude of the thalamic postsynaptic potential (in mV),
     # standard deviation will be taken from 'net_dict'
-   'PSP_th': 0.15,
+    'PSP_th': 0.15,
     # mean delay of the thalamic input (in ms)
     'delay_th_mean': 1.5,
     # relative standard deviation of the thalamic delay (in ms)

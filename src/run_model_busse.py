@@ -42,6 +42,7 @@ from assets.potjans_diesmann.sim_params import sim_dict # simulación
 
 from assets.potjans_diesmann.stimulus_params1 import stim_dict1
 from assets.potjans_diesmann.stimulus_params2 import stim_dict2
+from assets.potjans_diesmann.stimulus_params3 import stim_dict3
 
 from assets.potjans_diesmann.lateral_params import lateral_dict
 
@@ -82,32 +83,44 @@ if __name__ == '__main__':
                                      net_dict['N_scaling'])).astype(int)
     stim_dict2['num_th_neurons'] = np.round((stim_dict2['num_th_neurons'] *
                                      net_dict['N_scaling'])).astype(int)
+    stim_dict3['num_th_neurons'] = np.round((stim_dict3['num_th_neurons'] *
+                                     net_dict['N_scaling'])).astype(int)
 
     # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
 
     # Simulation params
-    sim_dutation = 600.0
+    sim_dutation = 2000.0
     sim_dict.update({'t_sim': sim_dutation})
 
     # Stimulation to MCC A
-    stim_star = 200.0
-    stim_duration = 400.0
+    stim_star = 500.0
+    stim_duration = 1500.0
     
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 20.0})
+    stim_dict1.update({'th_rate': 18.0})
 
     # Stimulation to MCC B
-    stim_star = 400.0
-    stim_duration = 200.0
+    stim_star = 1000.0
+    stim_duration = 500.0
 
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 20.0})
+    stim_dict2.update({'th_rate': 18.0})
+
+    # Stimulation to MCC B 2
+    stim_star = 1500.0
+    stim_duration = 500.0
+
+    stim_dict3.update({'thalamic_input': True})
+    stim_dict3.update({'th_start': stim_star})
+    stim_dict3.update({'th_duration': stim_duration})
+    stim_dict3.update({'th_rate': 30.0})
+
 
     ###############################################################################
     # Model type
@@ -153,6 +166,8 @@ if __name__ == '__main__':
         net_B.connect()
         time_connect_B = time.time()
 
+        net_B.connect_other_input(stim_dict3)
+
     #conn = nest.GetConnections().get()
 
     ###############################################################################
@@ -181,9 +196,10 @@ if __name__ == '__main__':
     # initialization artifacts.
     print('---> Evaluating...')
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    firing_rates_interval = np.array([0, 200])
-    firing_rates_interval1 = np.array([200, 400])
-    firing_rates_interval2 = np.array([400, 600])
+    firing_rates_interval0 = np.array([0, 500])
+    firing_rates_interval1 = np.array([500, 1000])
+    firing_rates_interval2 = np.array([1000, 1500])
+    firing_rates_interval3 = np.array([1500, 2000])
 
     all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 
@@ -199,13 +215,13 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
+    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval2))
     if sim_dict.get("plot_firing_rates", False):
         helpers.firing_rates(
             sim_dict['data_path'],
             'spike_recorder',
-            firing_rates_interval[0],
-            firing_rates_interval[1])
+            1000,
+            1500)
         helpers.boxplot(sim_dict["data_path"], all_pops)
 
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)

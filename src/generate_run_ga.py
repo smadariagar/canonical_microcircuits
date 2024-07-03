@@ -1,0 +1,35 @@
+"""Hace el histograma
+summary_
+"""
+import os
+import warnings
+
+import tools.genetic_algorithm as gen_alg
+
+warnings.filterwarnings("ignore")
+
+if __name__ == '__main__':
+
+    folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
+
+
+    ## Inicialización
+    # creación de data inicial
+    # Población inicial de 10 ind
+    # las conexiones serán desde L23E, l5E y L6E a todas los grupos 3x8
+    gen_alg.generate_first_generation(folder_path, 10)
+
+    ## Simulación N-ésima generación
+    generation = 0
+    for i in range(1):
+        gen_alg.get_subject(folder_path, generation, i)
+        #os.system("python -m src.test_GA")
+
+        # evaluar sujeto i
+
+    
+    ## Seleción mejores
+    # seleccionan los 5 mejores
+
+    ## Generación nueva generación (parámetros)
+    # #os.system("python -m src.generate_hist_folders")
