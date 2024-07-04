@@ -21,9 +21,8 @@ if __name__ == '__main__':
 
     ## Simulación N-ésima generación
     generation = 0
-    for i in range(1):
-        gen_alg.get_subject(folder_path, generation, i)
-        #os.system("python -m src.test_GA")
+    for i in range(10):
+        os.system("python -m src.run_model_busse_ga "+str(generation)+" "+str(i))
 
         # evaluar sujeto i
 
@@ -32,4 +31,4 @@ if __name__ == '__main__':
     # seleccionan los 5 mejores
 
     ## Generación nueva generación (parámetros)
-    # #os.system("python -m src.generate_hist_folders")
+    #os.system("python -m src.generate_hist_folders")

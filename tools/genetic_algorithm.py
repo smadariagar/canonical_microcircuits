@@ -17,9 +17,13 @@ warnings.filterwarnings("ignore")
 
 def generate_first_generation(folder_path, n_ind):
 
+    # opening the file with w+ mode truncates the file
+    f = open(os.path.join(folder_path, 'generations.csv'), "w+")
+    f.close()   
+
     for i in range(n_ind):
         suj_id = np.array([[0, i]])
-        r_params = np.random.random_sample((1,8*3))/5
+        r_params = np.random.random_sample((1,8*3))/20
         suj = np.concatenate((suj_id, r_params), axis=1)
 
         add_suj_to_csv(folder_path, suj)
@@ -38,76 +42,38 @@ def add_suj_to_csv(folder_path, suj_info):
 def get_subject(folder_path, gen, id_suj):
     
     # add columns names
-    cols = np.array(['generation', 'subject'])    
+    cols = np.array(['generation', 'subject'])
     params = range(0, 8*3)
-    names = np.concatenate((cols, params), axis=None)    
+    names = np.concatenate((cols, params), axis=None)
     
     df = pd.read_csv(os.path.join(folder_path, 'generations.csv'), header=None, names=names)
 
     m = df.columns.to_list()
+    suj_params = df[(df['generation']==gen) & (df['subject']==id_suj)][m[2:]].values.tolist()
 
-    aux = df[(df['subject']==3) & (df['generation']==0)][m[2:]]
-
-    print(aux)
+    return suj_params[0]
 
 
-def apliccation_metrics(folder_path):
-    """_summary_
+def new_conn_probs(params):
 
-    Args:
-        folder_path (_type_): _description_
-    """
-    # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
-    archivos_spike_recorder = select_spike_recorder_files(folder_path)
-    info_total, times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
+    conn_probs = np.array(
+        [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+            # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
+    
+    cont = 0
+    for j in [0,4,6]:
+        for i in range(8):
+            conn_probs[i, j] = params[cont]
+            cont=cont+1
 
-    # Mapear las capas a los nuevos nombres
-    layer_mapping = {1: '2/3', 2: '4', 3: '5', 4: '6'}
-    info_total['Layer'] = info_total['Layer'].map(layer_mapping)
-
-    # Crear un histograma por cada combinación de type y Layer
-    unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
-
-    # Configurar el diseño de plots
-    fs = 16  # fontsize
-
-    data = []
-    # Iterar sobre cada combinación única
-    for i, row in enumerate(unique_combinations.itertuples(), 1):
-        if i == 9:
-            break
-
-        # Crea plots
-        fig = plt.figure(figsize=(6, 4))
-
-        subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
-
-        # Asignar colores según el tipo
-        color = '#0063B2' if row.type == 'exc' else '#b015b6'
-
-        # Crear el histograma en la subfigura actual con colores personalizados
-        l_bin = 20
-        n, bins, rects = plt.hist(
-            subset['time'], bins=range(0, int(sim_dict["t_sim"])+l_bin, l_bin), label=f"{row.type}, Layer{row.Layer}",
-            color=color, edgecolor='black', linewidth=1.2)
-
-        data.append(n.tolist())
-
-        # Configurar etiquetas y título
-        plt.xlabel('time [ms]', fontsize=fs)
-        plt.xticks(fontsize=fs)
-        plt.ylabel('frequency', fontsize=fs)
-        plt.yticks(fontsize=fs)
-        plt.title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=22)
-        #ax.set_ylim([0.0, 1500.0])20240405025743
-        plt.legend()
-
-        # Ajustar el espaciado entre subplots para evitar superposiciones
-        plt.tight_layout()
-
-        # Guardar la figura en un archivo
-        plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
-
+    return conn_probs
 
 def apliccation_metrics_folders(path, folder):
     """_summary_
