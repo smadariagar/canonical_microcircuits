@@ -234,6 +234,28 @@ if __name__ == '__main__':
         data_path = sim_dict.get('data_path', None)
         hist_spikes.apliccation_metrics(data_path)
 
+    data_path = sim_dict.get('data_path', None)
+    data, bins = hist_spikes.apliccation_metrics(data_path)
+    L23E_hist = data[1]
+    performance = []
+
+    performance.append(np.mean(L23E_hist[1:25]))
+    performance.append(np.std(L23E_hist[1:25]))
+    
+    performance.append(np.mean(L23E_hist[25:50]))
+    performance.append(np.std(L23E_hist[25:50]))
+
+    performance.append(np.mean(L23E_hist[50:75]))
+    performance.append(np.std(L23E_hist[50:75]))
+    
+    performance.append(np.mean(L23E_hist[75:100]))
+    performance.append(np.std(L23E_hist[75:100]))
+
+    suj_perf = [100, 100]+performance
+    folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
+
+    gen_alg.save_performance(folder_path, suj_perf)
+
     ###############################################################################
     # Saving seeds
     with open(os.path.join(data_path, 'seeds.json'), 'w') as file:

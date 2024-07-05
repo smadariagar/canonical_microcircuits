@@ -114,8 +114,17 @@ def apliccation_metrics(folder_path):
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
     info_total, times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder)
 
+    # Read JSON
+    with open(os.path.join(folder_path, 'sim_params.json'), 'r') as file:
+        sim_dict = json.load(file)
+
     # Mapear las capas a los nuevos nombres
-    layer_mapping = {1: '2/3', 2: '4', 3: '5', 4: '6'}
+    layer_mapping = {
+        1: '2/3a', 2: '4a', 3: '5a', 4: '6a',
+        5: '2/3b', 6: '4b', 7: '5b', 8: '6b',
+        9: '2/3c', 10: '4c', 11: '5c', 12: '6c',
+        13: '2/3d', 14: '4d', 15: '5d', 16: '6d',
+    }
     info_total['Layer'] = info_total['Layer'].map(layer_mapping)
 
     # Crear un histograma por cada combinación de type y Layer
@@ -127,11 +136,10 @@ def apliccation_metrics(folder_path):
     data = []
     # Iterar sobre cada combinación única
     for i, row in enumerate(unique_combinations.itertuples(), 1):
-        if i == 9:
-            break
-
+        #if i == 9:
+        #    break
         # Crea plots
-        fig = plt.figure(figsize=(6, 4))
+        #fig = plt.figure(figsize=(6, 4))
 
         subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
 
@@ -147,19 +155,21 @@ def apliccation_metrics(folder_path):
         data.append(n.tolist())
 
         # Configurar etiquetas y título
-        plt.xlabel('time [ms]', fontsize=fs)
-        plt.xticks(fontsize=fs)
-        plt.ylabel('frequency', fontsize=fs)
-        plt.yticks(fontsize=fs)
-        plt.title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=22)
+        #plt.xlabel('time [ms]', fontsize=fs)
+        #plt.xticks(fontsize=fs)
+        #plt.ylabel('frequency', fontsize=fs)
+        #plt.yticks(fontsize=fs)
+        #plt.title(f'Histogram - {row.type}, Layer {row.Layer}', fontsize=22)
         #ax.set_ylim([0.0, 1500.0])20240405025743
-        plt.legend()
+        #plt.legend()
 
         # Ajustar el espaciado entre subplots para evitar superposiciones
-        plt.tight_layout()
+        #plt.tight_layout()
 
         # Guardar la figura en un archivo
-        plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
+        #plt.savefig(folder_path + "/" + str(i) + "spike_time_histogram.png", dpi=300)
+
+    return data, bins[0:-1]
 
 
 def apliccation_metrics_folders(path, folder):
