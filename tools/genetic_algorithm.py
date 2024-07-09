@@ -58,6 +58,15 @@ def get_subject(folder_path, gen, id_suj):
 
     return suj_params[0]
 
+def get_best_subject(folder_path, gen, id_suj):
+    
+    # add columns names
+    df = pd.read_csv(os.path.join(folder_path, 'best_generations.csv'), header=None, names=None)
+
+    suj_params = df.values[gen,:].tolist()
+
+    return suj_params
+
 
 def new_conn_probs(params):
 
@@ -166,3 +175,54 @@ def making_babies(folder_path, generation, parent0_id, parent1_id):
             baby[gen] = 0
         
     return np.array(baby)
+
+
+def sort_best_performance(folder_path):
+    
+    # add columns names
+    cols = np.array(['generation', 'subject'])
+    params = range(0, 8)
+    names = np.concatenate((cols, params), axis=None)
+    
+    df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
+    m = df.columns.to_list()
+
+    perf_all = []
+    for i in range(np.size(df['1'])):
+        perf = df.values[i,2:].tolist()
+        perf_all.append(perf_calculation(perf))
+    perf_all = sorted(range(len(perf_all)), key=lambda k: perf_all[k])
+    
+    all_best_params = []
+    for best in range(10):
+        best_suj = df.values[perf_all[best],:2].tolist()
+        par = get_subject(folder_path, best_suj[0], best_suj[1])
+        all_best_params.append(par)
+
+        # convert array into dataframe 
+        dfn = pd.DataFrame([par]) 
+    
+        # save the dataframe as a csv file 
+        # append data frame to CSV file
+        dfn.to_csv(os.path.join(folder_path, 'best_generations.csv'), mode='a', index=False, header=False)
+        
+    plot_params(all_best_params)
+
+
+def plot_params(params):
+    
+    print(np.mean(params, axis=0))
+    print(np.std(params, axis=0))
+
+
+    fig = plt.figure()
+    for i in range(np.size(params, axis=0)):
+        plt.plot(range(24),params[:][i], '.--')
+
+
+    fig2 = plt.figure()
+    plt.errorbar(range(24), np.mean(params, axis=0), np.std(params, axis=0))
+
+    plt.show()
+
+    

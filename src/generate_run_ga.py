@@ -22,10 +22,11 @@ if __name__ == '__main__':
     for generation in range(1,10):
         for i in range(10):
 
-            os.system("python -m src.run_model_busse_ga "+str(generation)+" "+str(i))
+            os.system("python -m src.run_model_busse_ga "+str(generation)+" "+str(generation))
 
         ## Seleción mejores
-        gen_alg.generate_next_generation(folder_path, generation)
+    #    gen_alg.generate_next_generation(folder_path, generation)
 
         ## Generación nueva generación (parámetros)
         #os.system("python -m src.generate_hist_folders")
+    #gen_alg.sort_best_performance(folder_path)

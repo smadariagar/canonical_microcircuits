@@ -52,7 +52,6 @@ from assets.potjans_diesmann.lateral_params import lateral_dict
 from assets.potjans_diesmann.network_params import net_dict #para cada microcircuito es igual
 
 import tools.genetic_algorithm as gen_alg
-import tools.histogram_single_microcircuit as hist_spikes
 
 from . import network_potjans_diesmann as network
 
@@ -64,7 +63,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    subject_params = gen_alg.get_subject(folder_path, args.gen, args.id_s)
+    subject_params = gen_alg.get_best_subject(folder_path, args.gen, args.id_s)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -88,8 +87,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.2})
+    net_dict.update({'K_scaling': 0.2})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -102,10 +101,10 @@ if __name__ == '__main__':
     # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
-
+    
     new_conn_probs = gen_alg.new_conn_probs(subject_params)
     lateral_dict.update({'conn_probs': new_conn_probs})
-
+  
     # Simulation params
     sim_dutation = 2000.0
     sim_dict.update({'t_sim': sim_dutation})
@@ -230,29 +229,24 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
+    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval2))
+    if sim_dict.get("plot_firing_rates", False):
+        helpers.firing_rates(
+            sim_dict['data_path'],
+            'spike_recorder',
+            1000,
+            1500)
+        helpers.boxplot(sim_dict["data_path"], all_pops)
+
+    #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
     ###############################################################################
-    # Histogramas de spikes y performance
-    data_path = sim_dict.get('data_path', None)
-    data, bins = hist_spikes.apliccation_metrics(data_path)
-    L23E_hist = data[1]
-    performance = []
-
-    performance.append(np.mean(L23E_hist[1:25]))
-    performance.append(np.std(L23E_hist[1:25]))
-    
-    performance.append(np.mean(L23E_hist[25:50]))
-    performance.append(np.std(L23E_hist[25:50]))
-
-    performance.append(np.mean(L23E_hist[50:75]))
-    performance.append(np.std(L23E_hist[50:75]))
-    
-    performance.append(np.mean(L23E_hist[75:100]))
-    performance.append(np.std(L23E_hist[75:100]))
-
-    suj_perf = [args.gen, args.id_s]+performance
-    gen_alg.save_performance(folder_path, suj_perf)
+    # Histogramas de spikes
+    if plot_hist:
+        import tools.histogram_single_microcircuit as hist_spikes
+        data_path = sim_dict.get('data_path', None)
+        hist_spikes.apliccation_metrics(data_path)
 
     ###############################################################################
     # Saving seeds
