@@ -194,34 +194,87 @@ def sort_best_performance(folder_path):
     perf_all = sorted(range(len(perf_all)), key=lambda k: perf_all[k])
     
     all_best_params = []
+    ids = []
     for best in range(10):
         best_suj = df.values[perf_all[best],:2].tolist()
         par = get_subject(folder_path, best_suj[0], best_suj[1])
         all_best_params.append(par)
+        ids.append(best_suj)
 
         # convert array into dataframe 
-        dfn = pd.DataFrame([par]) 
+        dfn = pd.DataFrame([[best_suj[0], best_suj[1]]+par]) 
     
         # save the dataframe as a csv file 
         # append data frame to CSV file
         dfn.to_csv(os.path.join(folder_path, 'best_generations.csv'), mode='a', index=False, header=False)
         
-    plot_params(all_best_params)
+    plot_params(all_best_params,ids)
 
 
-def plot_params(params):
+def plot_generation(folder_path, generation):
     
-    print(np.mean(params, axis=0))
-    print(np.std(params, axis=0))
+    # add columns names
+    cols = np.array(['generation', 'subject'])
+    params = range(0, 8)
+    names = np.concatenate((cols, params), axis=None)
+    
+    df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
+    m = df.columns.to_list()
 
+    all_generation = []
+    ids = []
+    for subj in range(10):
+        generation_suj = df.values[subj+10*generation,:2].tolist()
+        par = get_subject(folder_path, generation, subj)
+        all_generation.append(par)
+        ids.append(generation_suj)
 
-    fig = plt.figure()
+    plot_params(all_generation, ids)
+
+def plot_params(params, ids):
+    
+    fig, axs = plt.subplots(3,sharex=True, sharey=True, figsize=(6,9))
+
     for i in range(np.size(params, axis=0)):
-        plt.plot(range(24),params[:][i], '.--')
+        axs[0].plot(range(8),params[i][0:8], '.--')
+        axs[0].set_ylabel('L2/3 E')
+        axs[1].plot(range(8),params[i][8:16], '.--')
+        axs[1].set_ylabel('L5 E')
+        axs[2].plot(range(8),params[i][16:24], '.--', label= 'gen='+str(ids[i][0])+' suj='+str(ids[i][1]))     
+        axs[2].set_ylabel('L6 E')
+
+    axs[2].set_ylim(0, 0.12)
+
+    xticks = ['L2/3E','L2/3I','L4E','L4I','L5E','L5I','L6E','L6I']
+    plt.xticks(range(8), xticks)
+    plt.tight_layout()   
+    axs[2].legend(loc='lower right')
+
+    auxm = []
+    auxs = []
+    for i in range(np.size(params, axis=1)):
+        aux_auxm = [] 
+        for j in range(np.size(params, axis=0)):
+            aux_auxm.append(params[j][i])
+            
+        auxm.append(np.mean(aux_auxm))   
+        auxs.append(np.std(aux_auxm))   
+
+    fig2, axs2 = plt.subplots(3,sharex=True, sharey=True, figsize=(6,9))
+
+    axs2[0].errorbar(range(8), auxm[0:8], auxs[0:8])
+    axs2[0].set_ylabel('L2/3 E')
+    axs2[1].errorbar(range(8), auxm[8:16], auxs[8:16])
+    axs2[1].set_ylabel('L5 E')
+    axs2[2].errorbar(range(8), auxm[16:24], auxs[16:24])
+    axs2[2].set_ylabel('L6 E')
+    axs2[0].set_ylim(0, 0.12)
+
+    xticks = ['L2/3E','L2/3I','L4E','L4I','L5E','L5I','L6E','L6I']
+    plt.xticks(range(8), xticks)
+    plt.tight_layout()   
 
 
-    fig2 = plt.figure()
-    plt.errorbar(range(24), np.mean(params, axis=0), np.std(params, axis=0))
 
     plt.show()
 
