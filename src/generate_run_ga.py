@@ -3,6 +3,7 @@ summary_
 """
 import os
 import warnings
+import numpy as np
 
 import tools.genetic_algorithm as gen_alg
 
@@ -16,19 +17,22 @@ if __name__ == '__main__':
     # creación de data inicial
     # Población inicial de 10 ind
     # las conexiones serán desde L23E, l5E y L6E a todas los grupos 3x8
+    
     #gen_alg.generate_first_generation(folder_path, 10)
-    gen_alg.sort_best_performance(folder_path)
+    #gen_alg.sort_best_performance(folder_path)
     ## Simulación N-ésima generación
-    for generation in range(10):
+    for generation in range(15,20):
     #generation = 0
-        for i in range(5):
+        gen_alg.generate_next_generation(folder_path, generation-1)
 
-            os.system("python -m src.run_model_busse_ga "+str(generation)+" "+str(generation))
+        for i in range(10):
 
-        ## Seleción mejores
-    #    gen_alg.generate_next_generation(folder_path, generation)
+            os.system("python -m src.run_model_busse_ga "+str(generation)+" "+str(i))
 
         ## Generación nueva generación (parámetros)
+        ## Seleción mejores
+
+        
     #os.system("python -m src.generate_hist_folders")
     #gen_alg.plot_generation(folder_path,0)
     #gen_alg.sort_best_performance(folder_path)

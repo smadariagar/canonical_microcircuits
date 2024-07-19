@@ -63,7 +63,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    subject_params = gen_alg.get_best_subject(folder_path, args.gen, args.id_s)
+    subject_params = gen_alg.get_subject(folder_path, args.gen, args.id_s)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -229,24 +229,14 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval2))
-    if sim_dict.get("plot_firing_rates", False):
-        helpers.firing_rates(
-            sim_dict['data_path'],
-            'spike_recorder',
-            1000,
-            1500)
-        helpers.boxplot(sim_dict["data_path"], all_pops)
-
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
     ###############################################################################
     # Histogramas de spikes
-    if plot_hist:
-        import tools.histogram_single_microcircuit as hist_spikes
-        data_path = sim_dict.get('data_path', None)
-        hist_spikes.apliccation_metrics(data_path)
+    data_path = sim_dict.get('data_path', None)
+    gen_alg.save_performance(folder_path, data_path, [args.gen, args.id_s])
+    
 
     ###############################################################################
     # Saving seeds
