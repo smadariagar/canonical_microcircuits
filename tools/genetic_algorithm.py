@@ -58,7 +58,10 @@ def get_subject(folder_path, gen, id_suj):
     m = df.columns.to_list()
     suj_params = df[(df['generation']==gen) & (df['subject']==id_suj)][m[2:]].values.tolist()
 
-    return suj_params[0]
+    try:
+        return suj_params[0]
+    except:
+        return []
 
 def get_best_subject(folder_path, gen, id_suj):
     
@@ -91,6 +94,22 @@ def new_conn_probs(params):
 
     return conn_probs
 
+def get_performance(folder_path, gen, id_suj):
+    
+    # add columns names
+    cols = np.array(['generation', 'subject'])
+    params = range(4)
+    names = np.concatenate((cols, params), axis=None)
+    
+    df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
+
+    m = df.columns.to_list()
+    performance = df[(df['generation']==gen) & (df['subject']==id_suj)][m[2:]].values.tolist()
+    
+    try:
+        return performance[0]
+    except:
+        return []
 
 def save_performance(folder_path, subject_path, suj_id):
 
@@ -116,7 +135,7 @@ def generate_next_generation(folder_path, last_generation):
     
     df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
     m = df.columns.to_list()
-
+    
     perf_last_gen = []
     for i in range(10):
         perf = df[(df['generation']==last_generation) & (df['subject']==i)][m[2:]].values.tolist()
@@ -156,7 +175,7 @@ def perf_calculation(perf):
     m = -n*perf[0]
     norm_perf = perf*n+m
 
-    return ext_val+supp_val+abs(80-norm_perf[2])+abs(20-norm_perf[3])
+    return ext_val+supp_val*10+abs(80-norm_perf[2])+abs(20-norm_perf[3])
 
 def making_babies(folder_path, generation, parent0_id, parent1_id):
     
@@ -170,7 +189,7 @@ def making_babies(folder_path, generation, parent0_id, parent1_id):
         else:
             baby.append(parent1[gen])
 
-        if np.random.random_sample() >= 0.5:
+        if np.random.random_sample() >= 0.3:
             baby[gen] = baby[gen] + (np.random.randn()/50)
 
         if baby[gen] < 0:
@@ -187,7 +206,6 @@ def sort_best_performance(folder_path):
     names = np.concatenate((cols, params), axis=None)
     
     df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
-    m = df.columns.to_list()
 
     perf_all = []
     for i in range(np.size(df['1'])):
