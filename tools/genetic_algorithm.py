@@ -54,7 +54,6 @@ def get_subject(folder_path, gen, id_suj):
     names = np.concatenate((cols, params), axis=None)
     
     df = pd.read_csv(os.path.join(folder_path, 'generations.csv'), header=None, names=names)
-
     m = df.columns.to_list()
     suj_params = df[(df['generation']==gen) & (df['subject']==id_suj)][m[2:]].values.tolist()
 
@@ -62,6 +61,7 @@ def get_subject(folder_path, gen, id_suj):
         return suj_params[0]
     except:
         return []
+
 
 def get_best_subject(folder_path, gen, id_suj):
     
@@ -175,6 +175,9 @@ def perf_calculation(perf):
     m = -n*perf[0]
     norm_perf = perf*n+m
 
+    if perf[0]==0 and perf[1]==0 and perf[2]==0 and perf[3]==0:
+        return 10000
+        
     return ext_val+supp_val*10+abs(80-norm_perf[2])+abs(20-norm_perf[3])
 
 def making_babies(folder_path, generation, parent0_id, parent1_id):
@@ -190,7 +193,7 @@ def making_babies(folder_path, generation, parent0_id, parent1_id):
             baby.append(parent1[gen])
 
         if np.random.random_sample() >= 0.3:
-            baby[gen] = baby[gen] + (np.random.randn()/50)
+            baby[gen] = baby[gen] + (np.random.randn()/40)
 
         if baby[gen] < 0:
             baby[gen] = 0
@@ -202,7 +205,7 @@ def sort_best_performance(folder_path):
     
     # add columns names
     cols = np.array(['generation', 'subject'])
-    params = range(0, 8)
+    params = range(4)
     names = np.concatenate((cols, params), axis=None)
     
     df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
@@ -217,7 +220,7 @@ def sort_best_performance(folder_path):
     for best in range(10):
         best_suj = df.values[perf_all[best],:2].tolist()
         par = get_subject(folder_path, best_suj[0], best_suj[1])
-        all_best_params.append(par)
+        all_best_params.append(best_suj + par)
 
         # convert array into dataframe 
         dfn = pd.DataFrame([par]) 
@@ -231,18 +234,62 @@ def sort_best_performance(folder_path):
 
 def plot_params(params):
     
-    print(np.mean(params, axis=0))
-    print(np.std(params, axis=0))
+    mean_params, std_params = np.mean(params, axis=0), np.std(params, axis=0) 
 
+    print(mean_params)
+    print(std_params)
 
-    fig = plt.figure()
+    fig, ax = plt.subplots(3, layout='constrained', figsize=(6,8), sharex=True)
     for i in range(np.size(params, axis=0)):
-        plt.plot(range(24),params[:][i], '.--')
+        gen, suj = params[i][0], params[i][1]
+        ax[0].plot(range(0,8), params[i][2:10], '.--')
+        ax[1].plot(range(0,8), params[i][10:18], '.--')
+        ax[2].plot(range(0,8), params[i][18:26], '.--', label='gen='+str(gen)+' suj='+str(suj))
+    ax[0].set_ylabel('L2/3 E')
+    ax[1].set_ylabel('L5 E')
+    ax[2].set_ylabel('L6 E')
+    ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
+    ax[2].legend(loc='lower right')
 
 
-    fig2 = plt.figure()
-    plt.errorbar(range(24), np.mean(params, axis=0), np.std(params, axis=0))
+    fig, ax = plt.subplots(3, layout='constrained', figsize=(6,6), sharex=True)
+    ax[0].errorbar(range(0,8), mean_params[2:10],   std_params[2:10])
+    ax[1].errorbar(range(0,8), mean_params[10:18],  std_params[10:18])
+    ax[2].errorbar(range(0,8), mean_params[18:26],  std_params[18:26])
+    ax[0].set_ylabel('L2/3 E')
+    ax[1].set_ylabel('L5 E')
+    ax[2].set_ylabel('L6 E')
+    ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
 
     plt.show()
+
+def plot_performance(folder_path):
+
+    # add columns names
+    cols = np.array(['generation', 'subject'])
+    params = range(4)
+    names = np.concatenate((cols, params), axis=None)
+    
+    df = pd.read_csv(os.path.join(folder_path, 'performance.csv'), header=None, names=names)
+    m = df.columns.to_list()
+
+    last_gen = np.max(df[['generation']].values)
+    fig = plt.subplots(layout='constrained', figsize=(last_gen,4))
+
+    x_adj = np.arange(-0.3,0.3,0.06)
+    for gen in range(last_gen+1):
+        for suj in range(10):
+            perf = df[(df['generation']==gen) & (df['subject']==suj)][m[2:]].values.tolist()
+            plt.scatter(gen+x_adj[suj], perf_calculation(perf[0]), c='b')
+    plt.ylim([0,1000])
+    plt.xticks(range(last_gen+1),range(last_gen+1))
+
+    plt.show()
+
+
+
+    
+
+
 
     

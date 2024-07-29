@@ -87,8 +87,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.1})
+    net_dict.update({'K_scaling': 0.1})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *

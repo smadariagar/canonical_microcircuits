@@ -23,8 +23,6 @@ if __name__ == '__main__':
 
     ## Simulación N-ésima generación
     for gen in range(20):
-    #generation = 0
-    #gen_alg.generate_next_generation(folder_path, generation-1)
 
         for suj in range(10):
 
@@ -33,7 +31,7 @@ if __name__ == '__main__':
 
             if len(gen_alg.get_performance(folder_path, gen, suj)) == 0:
                 # convert array into dataframe 
-                df = pd.DataFrame([[gen, suj, 0, 0, 0, 0]]) 
+                df = pd.DataFrame([[gen, suj, 10000, 10001, 10002, 10003]]) 
                 
                 # save the dataframe as a csv file 
                 df.to_csv(os.path.join(folder_path, 'performance.csv'), mode='a', index=False, header=False)
@@ -49,4 +47,7 @@ if __name__ == '__main__':
 
     ## Find the best of all
     gen_alg.sort_best_performance(folder_path)
+    #gen_alg.plot_performance(folder_path)
+
+    ## brain in a dish son todos distincas conexiones -> puede haber otra solución 
 
