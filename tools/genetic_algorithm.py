@@ -29,7 +29,7 @@ def generate_first_generation(folder_path, n_ind):
     f.close()  
 
     for i in range(n_ind):
-        suj_id = np.array([[0, i]])
+        suj_id = np.array([[0, i, 0, 0]])
         r_params = np.random.random_sample((1,8*3))/10
         suj = np.concatenate((suj_id, r_params), axis=1)
 
@@ -49,13 +49,13 @@ def add_suj_to_csv(folder_path, suj_info):
 def get_subject(folder_path, gen, id_suj):
     
     # add columns names
-    cols = np.array(['generation', 'subject'])
+    cols = np.array(['generation', 'subject', 'parent0', 'parent1'])
     params = range(0, 8*3)
     names = np.concatenate((cols, params), axis=None)
     
     df = pd.read_csv(os.path.join(folder_path, 'generations.csv'), header=None, names=names)
     m = df.columns.to_list()
-    suj_params = df[(df['generation']==gen) & (df['subject']==id_suj)][m[2:]].values.tolist()
+    suj_params = df[(df['generation']==gen) & (df['subject']==id_suj)][m[4:]].values.tolist()
 
     try:
         return suj_params[0]
@@ -147,7 +147,7 @@ def generate_next_generation(folder_path, last_generation):
     for parents in list(comb):
         new_param_suj = making_babies(folder_path, last_generation, parents[0], parents[1])
 
-        suj_id = np.array([last_generation+1, new_suj])
+        suj_id = np.array([last_generation+1, new_suj, parents[0], parents[1]])
         suj = np.concatenate((suj_id, new_param_suj))
 
         add_suj_to_csv(folder_path, [suj])
