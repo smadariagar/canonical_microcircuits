@@ -94,6 +94,7 @@ def new_conn_probs(params):
 
     return conn_probs
 
+
 def get_performance(folder_path, gen, id_suj):
     
     # add columns names
@@ -111,12 +112,13 @@ def get_performance(folder_path, gen, id_suj):
     except:
         return []
 
+
 def save_performance(folder_path, subject_path, suj_id):
 
     data, bins = hist_spikes.apliccation_metrics(subject_path)
     L23E = data[1]
     
-    perf = [np.mean(L23E[1:25]), np.mean(L23E[25:50]), np.mean(L23E[50:75]), np.mean(L23E[75:100])]
+    perf = L23E
 
     # convert array into dataframe 
     df = pd.DataFrame([suj_id+perf]) 
@@ -162,8 +164,7 @@ def perf_calculation(perf):
     ###################################
     perf = np.array(perf)
     
-    #ext_val = abs(86-perf[0])
-    ext_val = 0
+    ext_val = abs(1160-perf[0])
 
     supp_val = 0
     if perf[1] < perf[2]:
@@ -176,9 +177,10 @@ def perf_calculation(perf):
     norm_perf = perf*n+m
 
     if perf[0]==0 and perf[1]==0 and perf[2]==0 and perf[3]==0:
-        return 10000
+        return 10000000
         
     return ext_val+supp_val*10+abs(80-norm_perf[2])+abs(20-norm_perf[3])
+
 
 def making_babies(folder_path, generation, parent0_id, parent1_id):
     
@@ -262,6 +264,7 @@ def plot_params(params):
     ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
 
     plt.show()
+
 
 def plot_performance(folder_path):
 

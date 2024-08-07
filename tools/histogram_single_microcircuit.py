@@ -72,7 +72,7 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
 
     info = []
     times_simulation = []
-    for n,i in enumerate(range(0,  len(spike_recorder_files), 2)):
+    for n, i in enumerate(range(0, len(spike_recorder_files), 2)):
         # Lectura de parámetros de simulacion
         file1 = spike_recorder_files[i]
         file2 = spike_recorder_files[i + 1]
@@ -96,11 +96,11 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
         inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
         inh_cells['type'] = 'inh'
         inh_cells['Layer'] = n+1
-        cell_info = pd.concat([inh_cells,exc_cells],axis=0)
+        cell_info = pd.concat([inh_cells, exc_cells],axis=0)
 
         info.append(cell_info)
 
-    info_total = pd.concat(info,axis=0)
+    info_total = pd.concat(info, axis=0)
     return info_total, times_simulation
 
 
@@ -147,7 +147,7 @@ def apliccation_metrics(folder_path):
         color = '#0063B2' if row.type == 'exc' else '#b015b6'
 
         # Crear el histograma en la subfigura actual con colores personalizados
-        l_bin = 20
+        l_bin = 500
         n, bins, rects = plt.hist(
             subset['time'], bins=range(0, int(sim_dict["t_sim"])+l_bin, l_bin), label=f"{row.type}, Layer{row.Layer}",
             color=color, edgecolor='black', linewidth=1.2)

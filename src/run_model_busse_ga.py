@@ -63,7 +63,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    subject_params = gen_alg.get_subject(folder_path, args.gen, args.id_s)
+    #subject_params = gen_alg.get_subject(folder_path, args.gen, args.id_s)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -87,8 +87,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.33})
+    net_dict.update({'K_scaling': 0.33})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -102,8 +102,8 @@ if __name__ == '__main__':
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
     
-    new_conn_probs = gen_alg.new_conn_probs(subject_params)
-    lateral_dict.update({'conn_probs': new_conn_probs})
+    #new_conn_probs = gen_alg.new_conn_probs(subject_params)
+    #lateral_dict.update({'conn_probs': new_conn_probs})
   
     # Simulation params
     sim_dutation = 2000.0
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 18.0})
+    stim_dict1.update({'th_rate': 20.0})
 
     # Stimulation to MCC B
     stim_star = 1000.0
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 18.0})
+    stim_dict2.update({'th_rate': 20.0})
 
     # Stimulation to MCC B 2
     stim_star = 1500.0
@@ -236,7 +236,6 @@ if __name__ == '__main__':
     # Histogramas de spikes and save performance
     data_path = sim_dict.get('data_path', None)
     gen_alg.save_performance(folder_path, data_path, [args.gen, args.id_s])
-    
 
     ###############################################################################
     # Saving seeds

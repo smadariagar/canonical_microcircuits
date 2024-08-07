@@ -14,11 +14,14 @@ if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
 
+    gen_alg.generate_first_generation(folder_path, 10)
+    os.system("python -m src.run_model_busse_ga "+str(0)+" "+str(0))
+
     ## Inicialización
     # creación de data inicial
     # Población inicial de 10 ind
     # las conexiones serán desde L23E, l5E y L6E a todas los grupos 3x8
-    gen_alg.generate_first_generation(folder_path, 10)
+    """ gen_alg.generate_first_generation(folder_path, 10)
     #gen_alg.sort_best_performance(folder_path)
 
     ## Simulación N-ésima generación
@@ -47,7 +50,7 @@ if __name__ == '__main__':
 
     ## Find the best of all
     gen_alg.sort_best_performance(folder_path)
-    #gen_alg.plot_performance(folder_path)
+    #gen_alg.plot_performance(folder_path) """
 
     ## brain in a dish son todos distincas conexiones -> puede haber otra solución 
 
