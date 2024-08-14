@@ -104,7 +104,7 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     return info_total, times_simulation
 
 
-def apliccation_metrics(folder_path):
+def apliccation_metrics(folder_path, l_bin):
     """_summary_
 
     Args:
@@ -147,7 +147,6 @@ def apliccation_metrics(folder_path):
         color = '#0063B2' if row.type == 'exc' else '#b015b6'
 
         # Crear el histograma en la subfigura actual con colores personalizados
-        l_bin = 500
         n, bins, rects = plt.hist(
             subset['time'], bins=range(0, int(sim_dict["t_sim"])+l_bin, l_bin), label=f"{row.type}, Layer{row.Layer}",
             color=color, edgecolor='black', linewidth=1.2)

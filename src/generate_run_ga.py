@@ -14,9 +14,6 @@ if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
 
-    gen_alg.generate_first_generation(folder_path, 10)
-    os.system("python -m src.run_model_busse_ga "+str(0)+" "+str(0))
-
     ## Inicialización
     # creación de data inicial
     # Población inicial de 10 ind
@@ -46,11 +43,17 @@ if __name__ == '__main__':
         if gen < 19 and len(gen_alg.get_subject(folder_path, gen+1, 0)) == 0:
                 gen_alg.generate_next_generation(folder_path, gen)
 
-        print('****** Generation '+str(gen)+' is finished ******')
+        print('****** Generation '+str(gen)+' is finished ******') """
+    for j in [0]:
+        for i in range(10):
+            print(j)
+            os.system("python -m src.run_model_busse_ga "+str(0)+" "+str(j))
+        os.system("python -m src.generate_hist_folders")
+    
 
     ## Find the best of all
-    gen_alg.sort_best_performance(folder_path)
-    #gen_alg.plot_performance(folder_path) """
+    #gen_alg.sort_best_performance(folder_path)
+    #gen_alg.plot_performance(folder_path)
 
     ## brain in a dish son todos distincas conexiones -> puede haber otra solución 
 

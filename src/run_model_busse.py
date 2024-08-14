@@ -31,8 +31,11 @@ Este script corre el modelo de corteza visual, con módulos de microcircuito tan
 # Import the necessary modules and start the time measurements.
 import time
 import os
-from random import randint
+
 import json
+import argparse
+from random import randint
+
 import nest
 import numpy as np
 
@@ -48,10 +51,19 @@ from assets.potjans_diesmann.lateral_params import lateral_dict
 
 from assets.potjans_diesmann.network_params import net_dict #para cada microcircuito es igual
 
+import tools.particle_swarm_optimization as pso
+
 from . import network_potjans_diesmann as network
 
-if __name__ == '__main__':
+parser = argparse.ArgumentParser()
+parser.add_argument('gen', type=int)
+parser.add_argument('id_s', type=int)
 
+if __name__ == '__main__':
+    args = parser.parse_args()
+    
+    folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
+    subject_params = pso.get_subject(folder_path, args.gen, args.id_s)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -75,8 +87,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.1})
+    net_dict.update({'K_scaling': 0.1})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -89,32 +101,36 @@ if __name__ == '__main__':
     # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
-
+    
+    # Horizontal weights update
+    new_conn_probs = pso.new_conn_probs(subject_params)
+    lateral_dict.update({'conn_probs': new_conn_probs})
+  
     # Simulation params
-    sim_dutation = 2000.0
+    sim_dutation = 1000.0
     sim_dict.update({'t_sim': sim_dutation})
 
     # Stimulation to MCC A
-    stim_star = 500.0
-    stim_duration = 1500.0
+    stim_star = 250.0
+    stim_duration = 750.0
     
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 18.0})
+    stim_dict1.update({'th_rate': 20.0})
 
     # Stimulation to MCC B
-    stim_star = 1000.0
-    stim_duration = 500.0
+    stim_star = 500.0
+    stim_duration = 250.0
 
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 18.0})
+    stim_dict2.update({'th_rate': 20.0})
 
     # Stimulation to MCC B 2
-    stim_star = 1500.0
-    stim_duration = 500.0
+    stim_star = 750.0
+    stim_duration = 250.0
 
     stim_dict3.update({'thalamic_input': True})
     stim_dict3.update({'th_start': stim_star})
@@ -126,7 +142,6 @@ if __name__ == '__main__':
     # Model type
     V1_B = True
     Lat_conn = True
-
     plot_hist = False
 
     ###############################################################################
@@ -196,10 +211,10 @@ if __name__ == '__main__':
     # initialization artifacts.
     print('---> Evaluating...')
     raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
-    firing_rates_interval0 = np.array([0, 500])
-    firing_rates_interval1 = np.array([500, 1000])
-    firing_rates_interval2 = np.array([1000, 1500])
-    firing_rates_interval3 = np.array([1500, 2000])
+    #firing_rates_interval0 = np.array([0, 500])
+    #firing_rates_interval1 = np.array([500, 1000])
+    #firing_rates_interval2 = np.array([1000, 1500])
+    #firing_rates_interval3 = np.array([1500, 2000])
 
     all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 
@@ -215,46 +230,13 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval2))
-    if sim_dict.get("plot_firing_rates", False):
-        helpers.firing_rates(
-            sim_dict['data_path'],
-            'spike_recorder',
-            1000,
-            1500)
-        helpers.boxplot(sim_dict["data_path"], all_pops)
-
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
     ###############################################################################
-    # Histogramas de spikes
-    if plot_hist:
-        import tools.histogram_single_microcircuit as hist_spikes
-        data_path = sim_dict.get('data_path', None)
-        hist_spikes.apliccation_metrics(data_path)
-
+    # Histogramas de spikes and save performance
     data_path = sim_dict.get('data_path', None)
-    data, bins = hist_spikes.apliccation_metrics(data_path)
-    L23E_hist = data[1]
-    performance = []
-
-    performance.append(np.mean(L23E_hist[1:25]))
-    performance.append(np.std(L23E_hist[1:25]))
-    
-    performance.append(np.mean(L23E_hist[25:50]))
-    performance.append(np.std(L23E_hist[25:50]))
-
-    performance.append(np.mean(L23E_hist[50:75]))
-    performance.append(np.std(L23E_hist[50:75]))
-    
-    performance.append(np.mean(L23E_hist[75:100]))
-    performance.append(np.std(L23E_hist[75:100]))
-
-    suj_perf = [100, 100]+performance
-    folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-
-    gen_alg.save_performance(folder_path, suj_perf)
+    pso.save_result(folder_path, data_path, args.gen, args.id_s)
 
     ###############################################################################
     # Saving seeds
