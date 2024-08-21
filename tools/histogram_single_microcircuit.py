@@ -69,36 +69,35 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     # Read JSON
     with open(os.path.join(folder_path, 'sim_params.json'), 'r') as file:
         sim_dict = json.load(file)
+    t_presim_value = int(sim_dict["t_presim"])
+    t_sim_value = int(sim_dict["t_sim"])
 
     info = []
     times_simulation = []
-    for n, i in enumerate(range(0, len(spike_recorder_files), 2)):
-        # Lectura de parámetros de simulacion
-        file1 = spike_recorder_files[i]
-        file2 = spike_recorder_files[i + 1]
+    for n, i in enumerate(range(0, len(spike_recorder_files), 8)):
+        for j in range(4):
+            # Lectura de parámetros de simulacion
+            file1 = spike_recorder_files[i+j]
+            file2 = spike_recorder_files[i+j+4]
 
-        #t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
-        #t_presim_value = 0
-        t_presim_value = int(sim_dict["t_presim"])
-        t_sim_value = int(sim_dict["t_sim"])
-        times_simulation.append([t_presim_value, t_sim_value])
+            times_simulation.append([t_presim_value, t_sim_value])
 
-        # Lectura excitatoria
-        exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
-        cellids, times = zip(*exc[2][0])
-        exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
-        exc_cells['type'] = 'exc'
-        exc_cells['Layer'] = n+1
+            # Lectura excitatoria
+            exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
+            cellids, times = zip(*exc[2][0])
+            exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
+            exc_cells['type'] = 'exc'
+            exc_cells['Layer'] = n+1
 
-        # Lectura inhibitoria
-        inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
-        cellids, times = zip(*inh[2][0])
-        inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
-        inh_cells['type'] = 'inh'
-        inh_cells['Layer'] = n+1
-        cell_info = pd.concat([inh_cells, exc_cells],axis=0)
+            # Lectura inhibitoria
+            inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
+            cellids, times = zip(*inh[2][0])
+            inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
+            inh_cells['type'] = 'inh'
+            inh_cells['Layer'] = n+1
+            cell_info = pd.concat([inh_cells, exc_cells],axis=0)
 
-        info.append(cell_info)
+            info.append(cell_info)
 
     info_total = pd.concat(info, axis=0)
     return info_total, times_simulation

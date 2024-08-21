@@ -148,6 +148,7 @@ def save_imposed_result(folder_path, trial, suj_id, activity):
     # append data frame to CSV file
     df.to_csv(os.path.join(folder_path, 'results.csv'), mode='a', index=False, header=False)
 
+
 def perf_calculation(activity):
 
     ###################################
@@ -158,50 +159,80 @@ def perf_calculation(activity):
     activity = np.array(activity)
     
     # Variable de actividad basal
-    bg_val = abs(230-activity[0])
-    bg_val = bg_val + abs(400-activity[1])
+    bg_val = abs(300-activity[0])
+    bg_val = bg_val + abs(430-activity[1])
 
     # Variable de supresión
     supp_val = 0
     if activity[1] < activity[2]:
-        supp_val = abs(activity[2]-activity[1])
-        if activity[2] < activity[3]:
-            supp_val = supp_val+abs(activity[3]-activity[2])
+        supp_val = supp_val + abs(activity[2]-activity[1])
+    if activity[2] < activity[3]:
+        supp_val = supp_val + abs(activity[3]-activity[2])
+    if activity[1] < activity[3]:
+        supp_val = supp_val + abs(activity[3]-activity[1])
      
     # Normalización
-    n = 100/(activity[1]-activity[0])
-    m = -n*activity[0]
-    norm_activity = activity*n+m
+    n = (activity[1]-activity[0])/100
+    m = activity[0]
+    norm_80, norm_20 = 80*n+m, 20*n+m
 
     # Variable supresión inicial
-    norm_val_1 = abs(80-norm_activity[2])
+    norm_val_1 = abs(norm_80-activity[2])
 
     # Variable supresión inicial
-    norm_val_2 = abs(20-norm_activity[3])
+    norm_val_2 = abs(norm_20-activity[3])
 
     if activity[0]==0 and activity[1]==0 and activity[2]==0 and activity[3]==0:
         return 10000000
-        
+
     return bg_val + supp_val + norm_val_1 + norm_val_2
+
+
+def modify_performance(folder_path):
+    
+    # add columns names
+    cols = np.array(['trials', 'subjects'])
+    params = range(5)
+    names = np.concatenate((cols, params), axis=None)
+    
+    df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
+    m = df.columns.to_list() 
+
+    trial = df['trials'].unique()
+    subject = df['subjects'].unique()
+
+    for j, trl in enumerate(trial):
+        for i, suj in enumerate(subject):
+
+            activity = df[(df['trials']==trl) & (df['subjects']==suj)][m[2:6]].values[0]
+            per = perf_calculation(activity)
+            n_df = pd.DataFrame([np.concatenate(([trl, suj], activity, per), axis=None)])
+
+            n_df.to_csv(os.path.join(folder_path, 'results_mod.csv'), mode='a', index=False, header=False)
 
 
 def generate_next_iteration(folder_path, last_trial):
 
     # Parameters
-    w = 0.1
-    c1, c2, c3 = 0.2, 0.2, 0.2
+    w = 0.2
+    c1, c2, c3 = 0.3, 0.3, 0.2
 
     # Get best of all
     best_all_id = find_best_result(folder_path, -1)
     best_all = get_subject(folder_path, best_all_id[0], best_all_id[1])
 
+    print('***********************')
+    print(best_all_id)
+    print('***********************')
+
     for i in range(10):
         
         subject_i = get_subject(folder_path, last_trial, i)
 
-
         best_subject_i_id = find_best_result(folder_path, i)    
         best_subject_i = get_subject(folder_path, best_subject_i_id[0], best_subject_i_id[1])
+        print(best_subject_i_id)
+        print('***************')
 
         if last_trial == 0:
             vel = subject_i - subject_i
@@ -210,7 +241,7 @@ def generate_next_iteration(folder_path, last_trial):
 
         rand_subj = np.random.random_sample((1,8*3))/10
 
-        new_position = subject_i + w*vel + np.random.randn()*c1*(best_subject_i-subject_i) + np.random.randn()*c2*(best_all-subject_i) + c3*(1/(1+last_trial))*(rand_subj-subject_i)
+        new_position = subject_i + w*vel + np.random.randn()*c1*(best_subject_i-subject_i) + np.random.randn()*c2*(best_all-subject_i) + np.random.randn()*c3*(rand_subj-subject_i)#*(1/(last_trial-49))
         
         # check negatives
         new_position[new_position<0] = 0
@@ -235,41 +266,89 @@ def plot_params(folder_path, trial, subject):
     
     df = pd.read_csv(os.path.join(folder_path, 'swarm.csv'), header=None, names=names)
     m = df.columns.to_list()
-
+    
+    
     if trial[0] == -1:
         trial = df['trials'].unique()
     if subject[0] == -1:
         subject = df['subjects'].unique()
+        best_trial = find_best_result(folder_path, -1)
+    else:
+        best_trial = find_best_result(folder_path, subject[0])  
 
     params = df[df['trials'].isin(trial) & df['subjects'].isin(subject)].values
     clrs = sns.color_palette('husl', n_colors=np.size(params, axis=0))
 
-    fig, ax = plt.subplots(3, layout='constrained', figsize=(6,8), sharex=True)
+    fig, ax = plt.subplots(3, layout='constrained', figsize=(6,6), sharex=True)
     for i in range(np.size(params, axis=0)):
         trl, suj = params[i][0], params[i][1]
-        ax[0].plot(range(0,8), params[i][2:10], '.--', c=clrs[i])
-        ax[1].plot(range(0,8), params[i][10:18], '.--', c=clrs[i])
-        ax[2].plot(range(0,8), params[i][18:26], '.--', c=clrs[i], label='trl='+str(trl)+' suj='+str(suj))
+        if int(trl) == int(best_trial[0]) and int(suj) == int(best_trial[1]):
+            line, lw = '.-', 4
+        else:
+            line, lw = '.--', 1  
+        ax[0].plot(range(0,8), params[i][2:10], line, lw=lw, c=clrs[i])
+        ax[1].plot(range(0,8), params[i][10:18], line, lw=lw, c=clrs[i])
+        ax[2].plot(range(0,8), params[i][18:26], line, lw=lw, c=clrs[i], label='trl='+str(trl)+' suj='+str(suj))
     ax[0].set_ylabel('L2/3 E')
     ax[1].set_ylabel('L5 E')
     ax[2].set_ylabel('L6 E')
     ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
-    if np.size(params, axis=0) <= 11:
+    if np.size(params, axis=0) <= 10:
         ax[2].legend(loc='lower right')
 
-    if False:
-        mean_params, std_params = np.mean(params, axis=0), np.std(params, axis=0)
-        fig, ax = plt.subplots(3, layout='constrained', figsize=(6,6), sharex=True)
-        ax[0].errorbar(range(0,8), mean_params[2:10],   std_params[2:10])
-        ax[1].errorbar(range(0,8), mean_params[10:18],  std_params[10:18])
-        ax[2].errorbar(range(0,8), mean_params[18:26],  std_params[18:26])
+    if True:
+        best_all_id = find_best_result(folder_path, -1)
+        best_all = get_subject(folder_path, best_all_id[0], best_all_id[1])
+        ax[0].plot(range(0,8), best_all[0:8], '.-', lw=1, c='k')
+        ax[1].plot(range(0,8), best_all[8:16], '.-', lw=1, c='k')
+        ax[2].plot(range(0,8), best_all[16:24], '.-', lw=1, c='k') 
+
+
+def plot_best_params(folder_path, type_best):
+    
+    clrs = sns.color_palette('husl', n_colors=10)
+
+    if type_best == 'sub':
+        fig, ax = plt.subplots(3, layout='constrained', figsize=(6,8), sharex=True)
+        for i in range(10):
+            best_trial = find_best_result(folder_path, i)
+            best_params = get_subject(folder_path, best_trial[0], best_trial[1])
+
+            ax[0].plot(range(0,8), best_params[0:8], '.--', c=clrs[i])
+            ax[1].plot(range(0,8), best_params[8:16], '.--', c=clrs[i])
+            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i], label='trl='+str(best_trial[0])+' suj='+str(best_trial[1]))
         ax[0].set_ylabel('L2/3 E')
         ax[1].set_ylabel('L5 E')
         ax[2].set_ylabel('L6 E')
         ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
+        ax[2].legend(loc='lower right')
+
+    if type_best == 'all':
+        # add columns names
+        cols = np.array(['trials', 'subjects'])
+        params = range(5)
+        names = np.concatenate((cols, params), axis=None)
+    
+        df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
+        result = df[['trials', 'subjects', '4']].values
+
+        sorted_results = sorted(range(len(result[:,2])), key=lambda k: result[:,2][k])
+
+        fig, ax = plt.subplots(3, layout='constrained', figsize=(6,8), sharex=True)
+        for i in range(10):
+            best_params = get_subject(folder_path, result[sorted_results[i],0], result[sorted_results[i],1])
+
+            ax[0].plot(range(0,8), best_params[0:8], '.--', c=clrs[i])
+            ax[1].plot(range(0,8), best_params[8:16], '.--', c=clrs[i])
+            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i], label='trl='+str(result[sorted_results[i],0])+' suj='+str(result[sorted_results[i],1]))
+        ax[0].set_ylabel('L2/3 E')
+        ax[1].set_ylabel('L5 E')
+        ax[2].set_ylabel('L6 E')
+        ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
+        ax[2].legend(loc='lower right')
 
 
-def plot_performance(folder_path, trial, subject):
+def plot_performance(folder_path, trial, subject, trl_plt):
 
     trial, subject, x_adj = [trial], [subject], [0]
 
@@ -284,28 +363,45 @@ def plot_performance(folder_path, trial, subject):
     if trial[0] == -1:
         trial = df['trials'].unique()
         clrs = sns.color_palette('husl', n_colors=len(trial))  # a list of RGB tuples
-
+        if trl_plt != -1:
+            trial = trial[trl_plt:]
+ 
     if subject[0] == -1:
         subject = df['subjects'].unique()
         x_adj = np.linspace(-0.3,0.3,len(subject))
         clrs = sns.color_palette('husl', n_colors=10)  # a list of RGB tuplesv
+        best_trial = find_best_result(folder_path, -1)
+    else:
+        best_trial = find_best_result(folder_path, subject[0])  
+        
 
-    
-
-    fig = plt.subplots(layout='constrained', figsize=(len(trial)/2+len(subject)/5,4))
+    #fig = plt.subplots(layout='constrained', figsize=(len(trial)/2+len(subject)/5,4))
+    fig = plt.subplots(layout='constrained', figsize=(8,3))
 
     for j, trl in enumerate(trial):
         for i, suj in enumerate(subject):
-            perf = df[(df['trials']==trl) & (df['subjects']==suj)][m[6]].values[0]
-            plt.scatter(trl+x_adj[i], perf, c=clrs[suj])
+            if x_adj[0] != 0:
+                col = suj
+            else:
+                col = trl
 
-    plt.ylim([0,1000])
-    #plt.yscale('log')
+            perf = df[(df['trials']==trl) & (df['subjects']==suj)][m[6]].values[0]
+
+            if int(trl) == int(best_trial[0]) and int(suj) == int(best_trial[1]):
+                plt.scatter(trl+x_adj[i], perf, marker='*', c=clrs[int(col)], label='best suj '+str(suj)+' = '+str(perf))
+            else:
+                plt.scatter(trl+x_adj[i], perf, marker='o', c=clrs[int(col)])  
+
+    
+    plt.yscale('log')
+    bottom, top = plt.ylim()  # return the current ylim
+    #plt.ylim([bottom, 5000])
     plt.xlim([np.min(trial)-.5, np.max(trial)+.5])
     plt.xticks(trial, trial)
+    plt.legend(loc='upper right')
 
 
-def plot_activity(folder_path, trial, subject):
+def plot_activity(folder_path, trial, subject, trl_plt):
 
     trial, subject, x_adj = [trial], [subject], [0]
 
@@ -319,6 +415,7 @@ def plot_activity(folder_path, trial, subject):
 
     if trial[0] == -1:
         trial = df['trials'].unique()
+        trial = trial[trl_plt:]
 
     if subject[0] == -1:
         subject = df['subjects'].unique()
@@ -349,7 +446,7 @@ def plot_activity(folder_path, trial, subject):
         mean_actv, std_actv = np.mean(actv, axis=0), np.std(actv, axis=0)
 
         for j, sim in enumerate(actv):
-            plt.errorbar(range(4)+x_adj[i], mean_actv, std_actv, ls='', marker='.', ms=8, c=clrs[suj-1])
+            plt.errorbar(range(4)+x_adj[i], mean_actv, 0, ls='', marker='.', ms=8, c=clrs[suj-1])
     #plt.ylim([0,1000])
     #plt.yscale('log')
     plt.xlim([-.5, 3.5])

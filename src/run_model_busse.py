@@ -151,7 +151,8 @@ if __name__ == '__main__':
     ###############################################################################
     # Create MCC A
     print("---> Creating networks V1_A...")
-    nest.rng_seed = randint(1, 1000)
+    #nest.rng_seed = randint(1, 1000)
+    nest.rng_seed = 55
     rng_seeds.append(nest.rng_seed)
     net_A = network.Network(sim_dict, net_dict, stim_dict1)
     time_network_A = time.time()
@@ -168,7 +169,8 @@ if __name__ == '__main__':
     # Create MCC B
     if V1_B:
         print("---> Creating networks V1_B...")
-        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = randint(1, 1000)
+        nest.rng_seed = 56
         rng_seeds.append(nest.rng_seed)
         net_B = network.Network(sim_dict, net_dict, stim_dict2)
         time_network_B = time.time()
@@ -181,6 +183,7 @@ if __name__ == '__main__':
         net_B.connect()
         time_connect_B = time.time()
 
+        nest.rng_seed = 57
         net_B.connect_other_input(stim_dict3)
 
     #conn = nest.GetConnections().get()
@@ -190,7 +193,9 @@ if __name__ == '__main__':
     if Lat_conn:
         print("---> Connecting networks laterally...")
         if V1_B:
+            nest.rng_seed = 58
             net_A.connect_networks(net_B, lateral_dict)
+            nest.rng_seed = 59
             net_B.connect_networks(net_A, lateral_dict)
 
     ###############################################################################
