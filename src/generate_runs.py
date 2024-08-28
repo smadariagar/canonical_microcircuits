@@ -13,10 +13,10 @@ warnings.filterwarnings("ignore")
 if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    n_trials, n_subjects = 10, 20
+    n_trials, n_subjects = 10,20
 
     ## Inicialización
-    pso.generate_first_population(folder_path, n_subjects)
+    #pso.generate_first_population(folder_path, n_subjects)
 
     for trial in range(n_trials):
         for subject in range(n_subjects):

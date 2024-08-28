@@ -85,12 +85,12 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 1})
+    net_dict.update({'N_scaling': 0.3})
+    net_dict.update({'K_scaling': 0.3})
 
     # Scaling thalamic neurons
-    stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
-                                     net_dict['N_scaling'])).astype(int)
+    #stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
+    #                                 net_dict['N_scaling'])).astype(int)
     stim_dict2 = stim_dict1.copy()
     stim_dict3 = stim_dict1.copy()
     stim_dict4 = stim_dict1.copy()
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 20.0})
+    stim_dict1.update({'th_rate': 15.0})
 
     # Stimulation to MCC B
     stim_star = 500.0
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 20.0})
+    stim_dict2.update({'th_rate': 15.0})
 
     # Stimulation to MCC B 2
     stim_star = 750.0
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     stim_dict3.update({'thalamic_input': True})
     stim_dict3.update({'th_start': stim_star})
     stim_dict3.update({'th_duration': stim_duration})
-    stim_dict3.update({'th_rate': 30.0})
+    stim_dict3.update({'th_rate': 22.0})
 
 
     ###############################################################################
@@ -180,7 +180,6 @@ if __name__ == '__main__':
         net_B.connect()
         time_connect_B = time.time()
 
-        nest.rng_seed = 57
         net_B.connect_other_input(stim_dict3)
 
     #conn = nest.GetConnections().get()

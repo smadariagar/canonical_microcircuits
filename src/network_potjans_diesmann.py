@@ -219,7 +219,7 @@ class Network(network.Network):
                 self.net_dict['full_num_neurons'])[0]
             self.weight_th = self.stim_dict['PSP_th'] * PSC_over_PSP
             if self.net_dict['K_scaling'] != 1:
-                num_th_synapses *= self.net_dict['K_scaling']
+                num_th_synapses *= (self.net_dict['K_scaling'] * self.net_dict['N_scaling'])
                 self.weight_th /= np.sqrt(self.net_dict['K_scaling'])
             self.num_th_synapses = np.round(num_th_synapses).astype(int)
 
@@ -496,7 +496,6 @@ class Network(network.Network):
         if nest.Rank() == 0:
             print('Connecting thalamic input.')
 
-        print(self)
         # connect Poisson input to thalamic population
         nest.Connect(self.poisson_th, self.thalamic_population)
 
@@ -559,11 +558,13 @@ class Network(network.Network):
             self.net_dict['full_num_neurons'])[0]
         weight_th = stim_dict['PSP_th'] * PSC_over_PSP
         if self.net_dict['K_scaling'] != 1:
-            num_th_synapses *= self.net_dict['K_scaling']
+            num_th_synapses *= (self.net_dict['K_scaling'] * self.net_dict['N_scaling'])
             weight_th /= np.sqrt(self.net_dict['K_scaling'])
         num_th_synapses = np.round(num_th_synapses).astype(int)
 
-        thalamic_population = nest.Create('parrot_neuron', n=stim_dict['num_th_neurons'])
+        thalamic_population = nest.Create('parrot_neuron', n=np.round((self.stim_dict['num_th_neurons'] *
+                                                                        self.net_dict['N_scaling'])).astype(int))
+
 
         poisson_th = nest.Create('poisson_generator')
         poisson_th.set(
