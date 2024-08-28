@@ -85,15 +85,15 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 0.1})
+    net_dict.update({'N_scaling': 0.2})
+    net_dict.update({'K_scaling': 0.2})
 
     # Scaling thalamic neurons
     stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
                                      net_dict['N_scaling'])).astype(int)
     stim_dict2 = stim_dict1.copy()
     stim_dict3 = stim_dict1.copy()
-    stim_dict4 = stim_dict1.copy()
+    stim_dictB = stim_dict1.copy()
 
     # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
@@ -104,36 +104,38 @@ if __name__ == '__main__':
     lateral_dict.update({'conn_probs': new_conn_probs})
   
     # Simulation params
-    sim_dutation = 1000.0
+    sim_dutation = 1250.0
     sim_dict.update({'t_sim': sim_dutation})
 
     # Stimulation to MCC A
-    stim_star = 250.0
-    stim_duration = 750.0
+    stim_star = 500.0
+    stim_duration = 250.0
 
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 20.0})
+    stim_dict1.update({'th_rate': 30.0})
 
-    # Stimulation to MCC B
-    stim_star = 500.0
+    # Stimulation to MCC A 2
+    stim_star = 750.0
     stim_duration = 250.0
 
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
     stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 20.0})
+    stim_dict2.update({'th_rate': 24.0})
 
-    # Stimulation to MCC B 2
-    stim_star = 750.0
+    # Stimulation to MCC A 2
+    stim_star = 1000.0
     stim_duration = 250.0
 
     stim_dict3.update({'thalamic_input': True})
     stim_dict3.update({'th_start': stim_star})
     stim_dict3.update({'th_duration': stim_duration})
-    stim_dict3.update({'th_rate': 30.0})
+    stim_dict3.update({'th_rate': 10.0})
 
+    # Stimulation to MCC B
+    stim_dictB.update({'thalamic_input': False})
 
     ###############################################################################
     # Model type
@@ -162,14 +164,20 @@ if __name__ == '__main__':
     net_A.connect()
     time_connect_A = time.time()
 
+    nest.rng_seed = 56
+    net_A.connect_other_input(stim_dict2)
+
+    nest.rng_seed = 57
+    net_A.connect_other_input(stim_dict3)
+
     ###############################################################################
     # Create MCC B
     if V1_B:
         print("---> Creating networks V1_B...")
         #nest.rng_seed = randint(1, 1000)
-        nest.rng_seed = 56
+        nest.rng_seed = 58
         rng_seeds.append(nest.rng_seed)
-        net_B = network.Network(sim_dict, net_dict, stim_dict2)
+        net_B = network.Network(sim_dict, net_dict, stim_dictB)
         time_network_B = time.time()
 
         # Create all nodes
@@ -180,9 +188,6 @@ if __name__ == '__main__':
         net_B.connect()
         time_connect_B = time.time()
 
-        nest.rng_seed = 57
-        net_B.connect_other_input(stim_dict3)
-
     #conn = nest.GetConnections().get()
 
     ###############################################################################
@@ -190,9 +195,9 @@ if __name__ == '__main__':
     if Lat_conn:
         print("---> Connecting networks laterally...")
         if V1_B:
-            nest.rng_seed = 58
-            net_A.connect_networks(net_B, lateral_dict)
             nest.rng_seed = 59
+            net_A.connect_networks(net_B, lateral_dict)
+            nest.rng_seed = 560
             net_B.connect_networks(net_A, lateral_dict)
 
     ###############################################################################
@@ -241,7 +246,7 @@ if __name__ == '__main__':
     ###############################################################################
     # Histogramas de spikes and save performance
     data_path = sim_dict.get('data_path', None)
-    pso.save_result(folder_path, data_path, args.gen, args.id_s)
+    pso.save_busse_params(folder_path, data_path, args.gen, args.id_s)
 
     ###############################################################################
     # Saving seeds

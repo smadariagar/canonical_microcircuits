@@ -104,7 +104,7 @@ def get_result(folder_path, trial, id_suj):
         return []
 
 
-def find_best_result(folder_path, id_suj):
+def sorted_result(folder_path, id_suj):
     
     # add columns names
     cols = np.array(['trials', 'subjects'])
@@ -113,13 +113,11 @@ def find_best_result(folder_path, id_suj):
     
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
     if id_suj == -1:
-        result = df[['trials', 'subjects', '4']].values
+        result = df[(df['subjects']<=100)][['trials', 'subjects', '4']].sort_values('4').values
     else:
-        result = df[(df['subjects']==id_suj)][['trials', 'subjects', '4']].values
+        result = df[(df['subjects']==id_suj)][['trials', 'subjects', '4']].sort_values('4').values
     
-    sorted_results = sorted(range(len(result[:,2])), key=lambda k: result[:,2][k])
-    
-    return result[sorted_results[0],0:2]
+    return result
 
 
 def save_result(folder_path, subject_path, trial, suj_id):
@@ -135,6 +133,26 @@ def save_result(folder_path, subject_path, trial, suj_id):
     # save the dataframe as a csv file 
     # append data frame to CSV file
     df.to_csv(os.path.join(folder_path, 'results.csv'), mode='a', index=False, header=False)
+
+
+def save_busse_params(folder_path, subject_path, trial, suj_id):
+
+    data, bins = hist_spikes.apliccation_metrics(subject_path, 250)
+    activity = data[2]
+    print(data[3])
+    print(activity)
+ 
+    r_max = activity[2]
+    R_max = r_max*(100/142.1)
+
+    print(R_max)
+
+    # convert array into dataframe 
+    #df = pd.DataFrame([[trial,suj_id,activity[0],r_max,c1,c2]])
+    
+    # save the dataframe as a csv file 
+    # append data frame to CSV file
+    #df.to_csv(os.path.join(folder_path, 'results.csv'), mode='a', index=False, header=False)
 
 
 def save_imposed_result(folder_path, trial, suj_id, activity):
@@ -162,6 +180,11 @@ def perf_calculation(activity):
     bg_val = abs(300-activity[0])
     bg_val = bg_val + abs(430-activity[1])
 
+    # Norm activity to target values
+    n = 130/(activity[1]-activity[0])
+    m = 300-n*activity[0]
+    activity = activity*n+m
+
     # Variable de supresión
     supp_val = 0
     if activity[1] < activity[2]:
@@ -172,15 +195,15 @@ def perf_calculation(activity):
         supp_val = supp_val + abs(activity[3]-activity[1])
      
     # Normalización
-    n = (activity[1]-activity[0])/100
-    m = activity[0]
-    norm_80, norm_20 = 80*n+m, 20*n+m
+    n = 130/100
+    m = 300
+    norm_77, norm_24 = 77*n+m, 24*n+m
 
     # Variable supresión inicial
-    norm_val_1 = abs(norm_80-activity[2])
+    norm_val_1 = abs(norm_77-activity[2])
 
     # Variable supresión inicial
-    norm_val_2 = abs(norm_20-activity[3])
+    norm_val_2 = abs(norm_24-activity[3])
 
     if activity[0]==0 and activity[1]==0 and activity[2]==0 and activity[3]==0:
         return 10000000
@@ -211,27 +234,27 @@ def modify_performance(folder_path):
             n_df.to_csv(os.path.join(folder_path, 'results_mod.csv'), mode='a', index=False, header=False)
 
 
-def generate_next_iteration(folder_path, last_trial):
+def generate_next_iteration(folder_path, last_trial, n_subjects):
 
     # Parameters
     w = 0.2
-    c1, c2, c3 = 0.3, 0.3, 0.2
+    c1, c2, c3 = 0.3, 0.3, 0.05
 
     # Get best of all
-    best_all_id = find_best_result(folder_path, -1)
-    best_all = get_subject(folder_path, best_all_id[0], best_all_id[1])
+    best_all_id = sorted_result(folder_path, -1)
+    best_all = get_subject(folder_path, best_all_id[0][0], best_all_id[0][1])
 
     print('***********************')
-    print(best_all_id)
+    print(best_all_id[0])
     print('***********************')
 
-    for i in range(10):
+    for i in range(n_subjects):
         
         subject_i = get_subject(folder_path, last_trial, i)
 
-        best_subject_i_id = find_best_result(folder_path, i)    
-        best_subject_i = get_subject(folder_path, best_subject_i_id[0], best_subject_i_id[1])
-        print(best_subject_i_id)
+        best_subject_i_id = sorted_result(folder_path, i)    
+        best_subject_i = get_subject(folder_path, best_subject_i_id[0][0], best_subject_i_id[0][1])
+        print(best_subject_i_id[0])
         print('***************')
 
         if last_trial == 0:
@@ -240,8 +263,13 @@ def generate_next_iteration(folder_path, last_trial):
             vel = subject_i - get_subject(folder_path, last_trial-1, i)
 
         rand_subj = np.random.random_sample((1,8*3))/10
+        #r_trial = 1/np.log(last_trial-57)
 
-        new_position = subject_i + w*vel + np.random.randn()*c1*(best_subject_i-subject_i) + np.random.randn()*c2*(best_all-subject_i) + np.random.randn()*c3*(rand_subj-subject_i)#*(1/(last_trial-49))
+        rand1 = np.random.random_sample((1,8*3))
+        rand2 = np.random.random_sample((1,8*3))
+        rand3 = np.random.uniform(-0.01,0.01,(1,8*3))
+
+        new_position = subject_i + w*vel + rand1*c1*(best_subject_i-subject_i) + rand2*c2*(best_all-subject_i) +rand3 #+ np.random.randn()*c3*(rand_subj-subject_i)#*r_trial
         
         # check negatives
         new_position[new_position<0] = 0
@@ -267,28 +295,25 @@ def plot_params(folder_path, trial, subject):
     df = pd.read_csv(os.path.join(folder_path, 'swarm.csv'), header=None, names=names)
     m = df.columns.to_list()
     
-    
     if trial[0] == -1:
         trial = df['trials'].unique()
     if subject[0] == -1:
         subject = df['subjects'].unique()
-        best_trial = find_best_result(folder_path, -1)
+        best_subj = False
+        best_trial = sorted_result(folder_path, -1)[0]
     else:
-        best_trial = find_best_result(folder_path, subject[0])  
+        best_trial = sorted_result(folder_path, subject[0])[0]
+        best_subj = True
 
     params = df[df['trials'].isin(trial) & df['subjects'].isin(subject)].values
-    clrs = sns.color_palette('husl', n_colors=np.size(params, axis=0))
+    clrs = sns.color_palette('husl', n_colors=20)
+    line, lw = '.--', 1  
 
     fig, ax = plt.subplots(3, layout='constrained', figsize=(6,6), sharex=True)
-    for i in range(np.size(params, axis=0)):
-        trl, suj = params[i][0], params[i][1]
-        if int(trl) == int(best_trial[0]) and int(suj) == int(best_trial[1]):
-            line, lw = '.-', 4
-        else:
-            line, lw = '.--', 1  
-        ax[0].plot(range(0,8), params[i][2:10], line, lw=lw, c=clrs[i])
-        ax[1].plot(range(0,8), params[i][10:18], line, lw=lw, c=clrs[i])
-        ax[2].plot(range(0,8), params[i][18:26], line, lw=lw, c=clrs[i], label='trl='+str(trl)+' suj='+str(suj))
+    for i in range(20):
+        ax[0].plot(range(0,8), params[-i-1][2:10], line, lw=lw, c=clrs[i])
+        ax[1].plot(range(0,8), params[-i-1][10:18], line, lw=lw, c=clrs[i])
+        ax[2].plot(range(0,8), params[-i-1][18:26], line, lw=lw, c=clrs[i])
     ax[0].set_ylabel('L2/3 E')
     ax[1].set_ylabel('L5 E')
     ax[2].set_ylabel('L6 E')
@@ -296,9 +321,16 @@ def plot_params(folder_path, trial, subject):
     if np.size(params, axis=0) <= 10:
         ax[2].legend(loc='lower right')
 
+    if best_subj:
+        best_id = sorted_result(folder_path, subject[0])
+        best = get_subject(folder_path, best_id[0][0], best_id[0][1])
+        ax[0].plot(range(0,8), best[0:8], '.-', lw=1.2, c='m')
+        ax[1].plot(range(0,8), best[8:16], '.-', lw=1.2, c='m')
+        ax[2].plot(range(0,8), best[16:24], '.-', lw=1.2, c='m') 
+
     if True:
-        best_all_id = find_best_result(folder_path, -1)
-        best_all = get_subject(folder_path, best_all_id[0], best_all_id[1])
+        best_all_id = sorted_result(folder_path, -1)
+        best_all = get_subject(folder_path, best_all_id[0][0], best_all_id[0][1])
         ax[0].plot(range(0,8), best_all[0:8], '.-', lw=1, c='k')
         ax[1].plot(range(0,8), best_all[8:16], '.-', lw=1, c='k')
         ax[2].plot(range(0,8), best_all[16:24], '.-', lw=1, c='k') 
@@ -311,12 +343,12 @@ def plot_best_params(folder_path, type_best):
     if type_best == 'sub':
         fig, ax = plt.subplots(3, layout='constrained', figsize=(6,8), sharex=True)
         for i in range(10):
-            best_trial = find_best_result(folder_path, i)
-            best_params = get_subject(folder_path, best_trial[0], best_trial[1])
+            best_trial = sorted_result(folder_path, i+6)
+            best_params = get_subject(folder_path, best_trial[0][0], best_trial[0][1])
 
             ax[0].plot(range(0,8), best_params[0:8], '.--', c=clrs[i])
             ax[1].plot(range(0,8), best_params[8:16], '.--', c=clrs[i])
-            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i], label='trl='+str(best_trial[0])+' suj='+str(best_trial[1]))
+            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i], label='trl='+str(best_trial[0][0])+' suj='+str(best_trial[0][1]))
         ax[0].set_ylabel('L2/3 E')
         ax[1].set_ylabel('L5 E')
         ax[2].set_ylabel('L6 E')
@@ -324,23 +356,14 @@ def plot_best_params(folder_path, type_best):
         ax[2].legend(loc='lower right')
 
     if type_best == 'all':
-        # add columns names
-        cols = np.array(['trials', 'subjects'])
-        params = range(5)
-        names = np.concatenate((cols, params), axis=None)
-    
-        df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
-        result = df[['trials', 'subjects', '4']].values
-
-        sorted_results = sorted(range(len(result[:,2])), key=lambda k: result[:,2][k])
-
         fig, ax = plt.subplots(3, layout='constrained', figsize=(6,8), sharex=True)
+        best_trial = sorted_result(folder_path, -1)
         for i in range(10):
-            best_params = get_subject(folder_path, result[sorted_results[i],0], result[sorted_results[i],1])
+            best_params = get_subject(folder_path, best_trial[i][0], best_trial[i][1])
 
             ax[0].plot(range(0,8), best_params[0:8], '.--', c=clrs[i])
             ax[1].plot(range(0,8), best_params[8:16], '.--', c=clrs[i])
-            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i], label='trl='+str(result[sorted_results[i],0])+' suj='+str(result[sorted_results[i],1]))
+            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i], label='trl='+str(best_trial[i][0])+' suj='+str(best_trial[i][1]))
         ax[0].set_ylabel('L2/3 E')
         ax[1].set_ylabel('L5 E')
         ax[2].set_ylabel('L6 E')
@@ -370,9 +393,9 @@ def plot_performance(folder_path, trial, subject, trl_plt):
         subject = df['subjects'].unique()
         x_adj = np.linspace(-0.3,0.3,len(subject))
         clrs = sns.color_palette('husl', n_colors=10)  # a list of RGB tuplesv
-        best_trial = find_best_result(folder_path, -1)
+        best_trial = sorted_result(folder_path, -1)[0]
     else:
-        best_trial = find_best_result(folder_path, subject[0])  
+        best_trial = sorted_result(folder_path, subject[0])[0]
         
 
     #fig = plt.subplots(layout='constrained', figsize=(len(trial)/2+len(subject)/5,4))
