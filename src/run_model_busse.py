@@ -100,7 +100,7 @@ if __name__ == '__main__':
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
     
     # Horizontal weights update
-    new_conn_probs = pso.new_conn_probs(subject_params)
+    new_conn_probs = pso.new_conn_probs_alternative(subject_params)
     lateral_dict.update({'conn_probs': new_conn_probs})
   
     # Simulation params

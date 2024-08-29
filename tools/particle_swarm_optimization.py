@@ -114,6 +114,35 @@ def new_conn_probs(params):
     return conn_probs
 
 
+def new_conn_probs_alternative(params):
+    """_summary_
+
+    Args:
+        params (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    conn_probs = np.array(
+        [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+        # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
+
+    cont = 0
+    for j in [0]:
+        for i in range(2):
+            conn_probs[i, j] = params[cont]
+            cont=cont+1
+
+    return conn_probs
+
 def get_result(folder_path, trial, id_suj):
     """_summary_
 
@@ -595,3 +624,69 @@ def plot_activity(folder_path, trial, subject, trl_plt):
     #plt.yscale('log')
     plt.xlim([-.5, 3.5])
     plt.xticks(range(4), ['BG','CRF', 'ECRF', 'WTA-ECRF'])
+
+
+def plot_params_2_var(folder_path, trial, subject, var, n_points):
+    """_summary_
+
+    Args:
+        folder_path (_type_): _description_
+        trial (_type_): _description_
+        subject (_type_): _description_
+    """
+
+    trial, subject = [trial], [subject]
+
+    # add columns names
+    cols = np.array(['trials', 'subjects'])
+    params = range(8*3)
+    names = np.concatenate((cols, params), axis=None)
+
+    df = pd.read_csv(os.path.join(folder_path, 'swarm.csv'), header=None, names=names)
+
+    if trial[0] == -1:
+        trial = df['trials'].unique()
+    if subject[0] == -1:
+        subject = df['subjects'].unique()
+        best_subj = False
+    else:
+        best_subj = True
+
+    params = df[df['trials'].isin(trial) & df['subjects'].isin(subject)].sort_values('trials', ascending=False).values
+    clrs = sns.color_palette('husl', n_colors=n_points)
+    line, lw = '.--', 1
+    n_points-=1
+    fig, ax = plt.subplots(1, layout='constrained', figsize=(4,4), sharex=True)
+    for i in range(n_points+1):
+        perf = get_result(folder_path, trial[n_points-i], subject[0])[-1]
+        ax.scatter(params[n_points-i][var[0]+2], params[n_points-i][var[1]+2], 
+            marker='o', c=clrs[i],
+            label='trl '+str(int(params[n_points-i][0]))+
+                ', suj '+str(int(params[n_points-i][1]))+
+                ', perf '+str(round(perf,2)))
+    ax.set_xlabel('L2/3 E')
+    ax.set_ylabel('L2/3 I')
+    if np.size(params, axis=0) <= 10:
+        ax.legend(loc='lower right')
+
+    if best_subj:
+        best_id = sorted_result(folder_path, subject[0])
+        best = get_subject(folder_path, best_id[0][0], best_id[0][1])
+        ax.scatter(best[var[0]], best[var[1]], marker='*', c='r',
+            label='trl '+str(int(best_id[0][0]))+
+                ', suj '+str(int(best_id[0][1]))+
+                ', perf '+str(round(best_id[0][2],2)))
+    plt.xlim([0, 0.1])
+    plt.ylim([0, 0.1])
+
+    plot_best = True
+    if plot_best:
+        best_all_id = sorted_result(folder_path, -1)
+        best_all = get_subject(folder_path, best_all_id[0][0], best_all_id[0][1])
+        ax.scatter(best_all[var[0]], best_all[var[1]], marker='*', c='k',
+            label='trl '+str(int(best_all_id[0][0]))+
+                ', suj '+str(int(best_all_id[0][1]))+
+                ', perf '+str(round(best_all_id[0][2],2)))
+
+    fig.legend(loc='upper left', bbox_to_anchor=(1.0,1),
+            fancybox=True, shadow=False, ncol=1)
