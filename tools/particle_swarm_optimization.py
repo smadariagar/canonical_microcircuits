@@ -493,17 +493,20 @@ def plot_performance(folder_path, trial, subject, trl_plt):
         if trl_plt != -1:
             trial = trial[trl_plt:]
 
+    best_trial = sorted_result(folder_path, -1)[0]
+    bottom = best_trial[2]
     if subject[0] == -1:
         subject = df['subjects'].unique()
         x_adj = np.linspace(-0.3,0.3,len(subject))
-        clrs = sns.color_palette('husl', n_colors=10)  # a list of RGB tuplesv
-        best_trial = sorted_result(folder_path, -1)[0]
+        clrs = sns.color_palette('husl', n_colors=len(subject))  # a list of RGB tuplesv
     else:
         best_trial = sorted_result(folder_path, subject[0])[0]
 
     #fig = plt.subplots(layout='constrained', figsize=(len(trial)/2+len(subject)/5,4))
     fig = plt.subplots(layout='constrained', figsize=(8,3))
-
+    plt.xlim([np.min(trial)-.5, np.max(trial)+.5])
+    plt.xticks(trial[0:-1:5], trial[0:-1:5])
+    
     for trl in trial:
         for i, suj in enumerate(subject):
             if x_adj[0] != 0:
@@ -514,16 +517,22 @@ def plot_performance(folder_path, trial, subject, trl_plt):
             perf = df[(df['trials']==trl) & (df['subjects']==suj)][m[6]].values[0]
 
             if int(trl) == int(best_trial[0]) and int(suj) == int(best_trial[1]):
-                plt.scatter(trl+x_adj[i], perf, marker='*', c=clrs[int(col)], label='best suj '+str(suj)+' = '+str(perf))
+                plt.scatter(trl+x_adj[i], perf, marker='*', c=clrs[int(col)], 
+                    label='trl '+str(int(trl))+
+                        ', suj '+str(int(suj))+
+                        ', perf '+str(round(perf,2)))
             else:
                 plt.scatter(trl+x_adj[i], perf, marker='o', c=clrs[int(col)])
+    
+    top = plt.ylim()[1]  # return the current ylim
+    plt.ylim([bottom, top*1.1])
+    plt.yscale('log')
 
-    #plt.yscale('log')
-    bottom, top = plt.ylim()  # return the current ylim
-    plt.ylim([0, 2500])
-    plt.xlim([np.min(trial)-.5, np.max(trial)+.5])
-    plt.xticks(trial[0:-1:5], trial[0:-1:5])
-    plt.legend(loc='upper right')
+    plt.legend(loc='lower right', bbox_to_anchor=(1,1.01),
+            fancybox=True, shadow=False, ncol=1)
+    plt.grid(visible=True)
+
+    
 
 
 def plot_activity(folder_path, trial, subject, trl_plt):
