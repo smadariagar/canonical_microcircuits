@@ -140,6 +140,7 @@ if __name__ == '__main__':
     V1_B = True
     Lat_conn = True
     plot_hist = False
+    
 
     ###############################################################################
     # Microcircuits V1 created
