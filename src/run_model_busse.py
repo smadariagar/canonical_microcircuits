@@ -85,8 +85,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 0.1})
+    net_dict.update({'N_scaling': 0.2})
+    net_dict.update({'K_scaling': 0.2})
 
     # Scaling thalamic neurons
     #stim_dict1['num_th_neurons'] = np.round((stim_dict1['num_th_neurons'] *
@@ -100,16 +100,16 @@ if __name__ == '__main__':
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
     
     # Horizontal weights update
-    new_conn_probs = pso.new_conn_probs_alternative(subject_params)
+    new_conn_probs = pso.new_conn_probs(subject_params)
     lateral_dict.update({'conn_probs': new_conn_probs})
   
     # Simulation params
-    sim_dutation = 1000.0
+    sim_dutation = 4000.0
     sim_dict.update({'t_sim': sim_dutation})
 
     # Stimulation to MCC A
-    stim_star = 250.0
-    stim_duration = 750.0
+    stim_star = 1000.0
+    stim_duration = 3000.0
 
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
@@ -117,8 +117,8 @@ if __name__ == '__main__':
     stim_dict1.update({'th_rate': 15.0})
 
     # Stimulation to MCC B
-    stim_star = 500.0
-    stim_duration = 250.0
+    stim_star = 2000.0
+    stim_duration = 1000.0
 
     stim_dict2.update({'thalamic_input': True})
     stim_dict2.update({'th_start': stim_star})
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     stim_dict2.update({'th_rate': 15.0})
 
     # Stimulation to MCC B 2
-    stim_star = 750.0
-    stim_duration = 250.0
+    stim_star = 3000.0
+    stim_duration = 1000.0
 
     stim_dict3.update({'thalamic_input': True})
     stim_dict3.update({'th_start': stim_star})
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     # Create MCC A
     print("---> Creating networks V1_A...")
     #nest.rng_seed = randint(1, 1000)
-    nest.rng_seed = 55
+    nest.rng_seed = 65
     rng_seeds.append(nest.rng_seed)
     net_A = network.Network(sim_dict, net_dict, stim_dict1)
     time_network_A = time.time()
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     if V1_B:
         print("---> Creating networks V1_B...")
         #nest.rng_seed = randint(1, 1000)
-        nest.rng_seed = 56
+        nest.rng_seed = 66
         rng_seeds.append(nest.rng_seed)
         net_B = network.Network(sim_dict, net_dict, stim_dict2)
         time_network_B = time.time()
@@ -190,9 +190,9 @@ if __name__ == '__main__':
     if Lat_conn:
         print("---> Connecting networks laterally...")
         if V1_B:
-            nest.rng_seed = 58
+            nest.rng_seed = 68
             net_A.connect_networks(net_B, lateral_dict)
-            nest.rng_seed = 59
+            nest.rng_seed = 69
             net_B.connect_networks(net_A, lateral_dict)
 
     ###############################################################################
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     ###############################################################################
     # Histogramas de spikes and save performance
     data_path = sim_dict.get('data_path', None)
-    pso.save_result(folder_path, data_path, args.gen, args.id_s)
+    pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
 
     ###############################################################################
     # Saving seeds

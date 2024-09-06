@@ -196,7 +196,7 @@ def sorted_result(folder_path, id_suj):
     return result
 
 
-def save_result(folder_path, subject_path, trial, suj_id):
+def save_result(folder_path, subject_path, trial, suj_id, n_neurons):
     """_summary_
 
     Args:
@@ -206,13 +206,14 @@ def save_result(folder_path, subject_path, trial, suj_id):
         suj_id (_type_): _description_
     """
 
-    data = hist_spikes.apliccation_metrics(subject_path, 250)[0]
-    activity = data[1]
+    data = hist_spikes.apliccation_metrics(subject_path, 1000)[0]
+    activity = np.array(data[1])/n_neurons
+    performance = perf_calculation(activity.tolist())
 
-    performance = perf_calculation(activity)
+
 
     # convert array into dataframe
-    df = pd.DataFrame([[trial,suj_id]+activity+[performance]])
+    df = pd.DataFrame([[trial,suj_id]+activity.tolist()+[performance]])
 
     # save the dataframe as a csv file
     # append data frame to CSV file
@@ -255,16 +256,12 @@ def perf_calculation(activity):
     # 230.8 370.3 417.2 400.9        #
     ###################################
     activity = np.array(activity)
+    print(activity)
 
     # Variable de actividad basal
-    bg_val = abs(300-activity[0])
-    bg_val = bg_val + abs(430-activity[1])
-
-    # Norm activity to target values
-    n = 130/(activity[1]-activity[0])
-    m = 300-n*activity[0]
-    activity = activity*n+m
-
+    bg_val = abs(0.6-activity[0])
+    bg_val = bg_val + abs(0.78-activity[1])
+    
     # Variable de supresión
     supp_val = 0
     if activity[1] < activity[2]:
@@ -276,7 +273,7 @@ def perf_calculation(activity):
 
     # Normalización
     n = (activity[1]-activity[0])/100
-    m = 299
+    m = activity[0]
     norm_77, norm_24 = 77*n+m, 24*n+m
 
     # Variable supresión inicial
@@ -288,7 +285,7 @@ def perf_calculation(activity):
     if activity[0]==0 and activity[1]==0 and activity[2]==0 and activity[3]==0:
         return 10000000
 
-    return bg_val + supp_val + norm_val_1 + norm_val_2
+    return bg_val + supp_val*10 + norm_val_1 + norm_val_2
 
 
 def modify_performance(folder_path):
@@ -330,7 +327,7 @@ def generate_next_iteration(folder_path, last_trial, n_subjects):
 
     # Parameters
     w = 0.2
-    c1, c2, c3 = 0.3, 0.3, 1
+    c1, c2, c3 = 0.3, 0.3, 0.5
 
     # Get best of all
     best_all_id = sorted_result(folder_path, -1)
@@ -423,9 +420,9 @@ def plot_params(folder_path, trial, subject):
     if best_subj:
         best_id = sorted_result(folder_path, subject[0])
         best = get_subject(folder_path, best_id[0][0], best_id[0][1])
-        ax[0].plot(range(0,8), best[0:8], '.-', lw=1.2, c='m')
-        ax[1].plot(range(0,8), best[8:16], '.-', lw=1.2, c='m')
-        ax[2].plot(range(0,8), best[16:24], '.-', lw=1.2, c='m',
+        ax[0].plot(range(0,8), best[0:8], '.-', lw=1.2, c='r')
+        ax[1].plot(range(0,8), best[8:16], '.-', lw=1.2, c='r')
+        ax[2].plot(range(0,8), best[16:24], '.-', lw=1.2, c='r',
             label='trl '+str(int(best_id[0][0]))+
                 ', suj '+str(int(best_id[0][1]))+
                 ', perf '+str(round(best_id[0][2],2)))
@@ -555,7 +552,7 @@ def plot_performance(folder_path, trial, subject, trl_plt):
     
     top = plt.ylim()[1]  # return the current ylim
     plt.ylim([bottom, top*1.1])
-    plt.yscale('log')
+   # plt.yscale('log')
 
     plt.legend(loc='lower right', bbox_to_anchor=(1,1.01),
             fancybox=True, shadow=False, ncol=1)
