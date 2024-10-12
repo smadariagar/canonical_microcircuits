@@ -359,9 +359,9 @@ class Network:
             print('Creating thalamic input for external stimulation.')
         
         # Acá modifiqué para escalar las neuronas talámicas
-        #self.thalamic_population = nest.Create('parrot_neuron', n=self.stim_dict['num_th_neurons'])
-        self.thalamic_population = nest.Create('parrot_neuron', n=np.round((self.stim_dict['num_th_neurons'] *
-                                                                            self.net_dict['N_scaling'])).astype(int))
+        self.thalamic_population = nest.Create('parrot_neuron', n=self.stim_dict['num_th_neurons'])
+        #self.thalamic_population = nest.Create('parrot_neuron', n=np.round((self.stim_dict['num_th_neurons'] *
+         #                                                                   self.net_dict['N_scaling'])).astype(int))
 
         self.poisson_th = nest.Create('poisson_generator')
         self.poisson_th.set(

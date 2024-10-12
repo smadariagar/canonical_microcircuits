@@ -65,7 +65,9 @@ net_dict = {
     'populations': ['L23E', 'L23I', 'L4E', 'L4I', 'L5E', 'L5I', 'L6E', 'L6I'],
     # number of neurons in the different populations (same order as
     # 'populations')
-    'full_num_neurons': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948]),
+    'full_num_neurons': np.array([19697, 5556, 14303, 3576, 7438, 1633, 7504, 1537]),
+    'full_num_neurons_v1': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948]),
+
     # mean rates of the different populations in the non-scaled version of the
     # microcircuit (in spikes/s; same order as in 'populations');
     # necessary for the scaling of the network.
@@ -96,7 +98,7 @@ net_dict = {
     # mean delay of excitatory connections (in ms)
     'delay_exc_mean': 1.5,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 0.75,
+    'delay_inh_mean': 0.75 ,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,
@@ -104,7 +106,7 @@ net_dict = {
     # turn Poisson input on or off (True or False)
     # if False: DC input is applied for compensation
     'poisson_input': True,
-    'dc_compensation': True,
+    'dc_compensation': False,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
     'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),

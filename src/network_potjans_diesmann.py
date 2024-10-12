@@ -218,9 +218,9 @@ class Network(network.Network):
                 self.stim_dict['num_th_neurons'],
                 self.net_dict['full_num_neurons'])[0]
             self.weight_th = self.stim_dict['PSP_th'] * PSC_over_PSP
-            if self.net_dict['K_scaling'] != 1:
-                num_th_synapses *= (self.net_dict['K_scaling'] * self.net_dict['N_scaling'])
-                self.weight_th /= np.sqrt(self.net_dict['K_scaling'])
+            #if self.net_dict['K_scaling'] != 1:
+            num_th_synapses *= (self.net_dict['K_scaling'] * self.net_dict['N_scaling'])
+            self.weight_th /= np.sqrt(self.net_dict['K_scaling'])
             self.num_th_synapses = np.round(num_th_synapses).astype(int)
 
         if nest.Rank() == 0:
@@ -406,19 +406,10 @@ class Network(network.Network):
             lateral_dict["conn_probs"],
             self.net_dict['full_num_neurons'],
             net.net_dict['full_num_neurons'])
-        
+
         num_synapses = np.round((full_num_synapses *
                                   lateral_dict['N_scaling'] *
                                   lateral_dict['K_scaling'])).astype(int)
-        
-        # num_synapses = np.array([[454998, 223236, 202536,  96709,  32936,      0,  22714,      0],
-        #                         [174437,  50188,  41053,  16901,  22212,      0,   3535,      0],
-        #                         [ 35037,   7566, 244828, 174136,   7145,     70, 146244,      0],
-        #                         [ 81143,    928,  99335,  52233,    878,      0,  88109,      0],
-        #                         [106136,  18171,  55078,   1519,  20407,  24079,  14390,      0],
-        #                         [ 12414,   1694,   6077,    129,   3196,   4304,   1324,      0],
-        #                         [ 46812,   5561,  67276,  13202,  41122,   3050,  83726, 108277],
-        #                         [ 22608,    172,   2200,     81,   4016,    252,  28884,  13543]])
         
         # conversion from PSPs to PSCs
         PSC_over_PSP = helpers.postsynaptic_potential_to_current(
@@ -557,14 +548,12 @@ class Network(network.Network):
             stim_dict['num_th_neurons'],
             self.net_dict['full_num_neurons'])[0]
         weight_th = stim_dict['PSP_th'] * PSC_over_PSP
-        if self.net_dict['K_scaling'] != 1:
-            num_th_synapses *= (self.net_dict['K_scaling'] * self.net_dict['N_scaling'])
-            weight_th /= np.sqrt(self.net_dict['K_scaling'])
+        #if self.net_dict['K_scaling'] != 1:
+        num_th_synapses *= (self.net_dict['K_scaling'] * self.net_dict['N_scaling'])
+        weight_th /= np.sqrt(self.net_dict['K_scaling'])
         num_th_synapses = np.round(num_th_synapses).astype(int)
 
-        thalamic_population = nest.Create('parrot_neuron', n=np.round((self.stim_dict['num_th_neurons'] *
-                                                                        self.net_dict['N_scaling'])).astype(int))
-
+        thalamic_population = nest.Create('parrot_neuron', n=stim_dict['num_th_neurons'])
 
         poisson_th = nest.Create('poisson_generator')
         poisson_th.set(

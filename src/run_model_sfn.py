@@ -46,8 +46,13 @@ from assets.potjans_diesmann.sim_params import sim_dict # simulación
 from assets.potjans_diesmann.stimulus_params1 import stim_dict1
 
 from assets.potjans_diesmann.lateral_params import lateral_dict
+from assets.potjans_diesmann.lateral_params2 import lateral_dict as lateral_dict2
+
+from assets.potjans_diesmann.feedforward_params import lateral_dict as FF_dict
+from assets.potjans_diesmann.feedback_params import lateral_dict as FB_dict
 
 from assets.potjans_diesmann.network_params import net_dict #para cada microcircuito es igual
+from assets.potjans_diesmann.network_params_V2 import net_dict as net_dict_v2 
 
 import tools.particle_swarm_optimization as pso
 
@@ -85,20 +90,32 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.1})
     net_dict.update({'K_scaling': 0.3})
+
+    net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
+    net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
 
     # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
     
+    lateral_dict2.update({'N_scaling': net_dict['N_scaling']})
+    lateral_dict2.update({'K_scaling': net_dict['K_scaling']})
+
+    FF_dict.update({'N_scaling': net_dict['N_scaling']})
+    FF_dict.update({'K_scaling': net_dict['K_scaling']})
+    
+    FB_dict.update({'N_scaling': net_dict['N_scaling']})
+    FB_dict.update({'K_scaling': net_dict['K_scaling']})
+
     # Horizontal weights update
     #new_conn_probs = pso.new_conn_probs(subject_params)
     #lateral_dict.update({'conn_probs': new_conn_probs})
     
-    sim_ext = 100
     # Simulation params
-    sim_dutation = 4000.0 + sim_ext
+    sim_ext = 100
+    sim_dutation = 1500.0 + sim_ext
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
@@ -107,39 +124,63 @@ if __name__ == '__main__':
     stim_dict4 = stim_dict1.copy()
 
     # Stimulation to MCC A
-    stim_star = 1000.0 + sim_ext
-    stim_duration = 3000.0
+    stim_star = 500.0 + sim_ext
+    stim_duration = 1000.0
 
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 15.0})
+    stim_dict1.update({'th_rate': 150.0})
 
-    # Stimulation to MCC B
-    stim_star = 2000.0 + sim_ext
-    stim_duration = 1000.0
+    if True:
+        # Stimulation to MCC B
+        stim_star = 500.0 + sim_ext
+        stim_duration = 500.0
 
-    stim_dict2.update({'thalamic_input': True})
-    stim_dict2.update({'th_start': stim_star})
-    stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 15.0})
+        stim_dict2.update({'thalamic_input': False})
+        stim_dict2.update({'th_start': stim_star})
+        stim_dict2.update({'th_duration': stim_duration})
+        stim_dict2.update({'th_rate': 15.0})
 
-    # Stimulation to MCC B 2
-    stim_star = 3000.0 + sim_ext
-    stim_duration = 1000.0
+    if True:
+        # Stimulation external
+        stim_star = 0.0 + sim_ext
+        stim_duration = 1500.0
 
-    stim_dict3.update({'thalamic_input': True})
-    stim_dict3.update({'th_start': stim_star})
-    stim_dict3.update({'th_duration': stim_duration})
-    stim_dict3.update({'th_rate': 22.0})
+        stim_dict3.update({'thalamic_input': True})
+        stim_dict3.update({'th_start': stim_star})
+        stim_dict3.update({'th_duration': stim_duration})
+        stim_dict3.update({'th_rate': 10.0})
+        stim_dict3.update({'conn_probs_th': np.array([0.0, 0.075, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])})
 
+        stim_dict3_v2 = stim_dict3.copy()
+        stim_dict3_v2.update({'th_rate':5.0})
+        stim_dict3_v2.update({'conn_probs_th': np.array([0.13, 0.075, 0.0, 0.0, 0.13, 0.075, 0.0, 0.0])})
+
+        stim_star = 1000 + sim_ext
+        stim_duration = 500.0
+
+        stim_dict3.update({'th_start': stim_star})
+        stim_dict3.update({'th_duration': stim_duration})
+    
+    if True:
+        # Stimulation to MCC B.0
+        stim_star = 1000.0 + sim_ext
+        stim_duration = 500.0
+
+        stim_dict4.update({'thalamic_input': True})
+        stim_dict4.update({'th_start': stim_star})
+        stim_dict4.update({'th_duration': stim_duration})
+        stim_dict4.update({'th_rate': 250.0})
 
     ###############################################################################
     # Model type
-    V1_B = True
+    V1_B, V1_C, V1_D = True, True, True
+    V1_ext = True 
+    V2 = True
     Lat_conn = True
-    plot_hist = False
-    
+    Ver_conn = True
+       
 
     ###############################################################################
     # Microcircuits V1 created
@@ -170,21 +211,71 @@ if __name__ == '__main__':
         #nest.rng_seed = 56
         rng_seeds.append(nest.rng_seed)
         net_B = network.Network(sim_dict, net_dict, stim_dict2)
-        time_network_B = time.time()
 
         # Create all nodes
         net_B.create()
-        time_create_B = time.time()
 
         # Connect all nodes
         net_B.connect()
-        time_connect_B = time.time()
 
+    ###############################################################################
+    # Create MCC C
+    if V1_C:
+        print("---> Creating networks V1_C...")
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_C = network.Network(sim_dict, net_dict, stim_dict4)
+
+        # Create all nodes
+        net_C.create()
+
+        # Connect all nodes
+        net_C.connect()
+
+    ###############################################################################
+    # Create MCC D
+    if V1_D:
+        print("---> Creating networks V1_D...")
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_D = network.Network(sim_dict, net_dict, stim_dict2)
+
+        # Create all nodes
+        net_D.create()
+
+        # Connect all nodes
+        net_D.connect()
+
+     ###############################################################################
+    # Create MCC D
+    if V1_ext:
+        print("---> Conecting ext...")
         nest.rng_seed = randint(1, 1000)
         rng_seeds.append(nest.rng_seed)
-        net_B.connect_other_input(stim_dict3)
+        net_A.connect_other_input(stim_dict3)
+        #net_B.connect_other_input(stim_dict3)
+        #net_C.connect_other_input(stim_dict3)
+        #net_D.connect_other_input(stim_dict3)
 
-    #conn = nest.GetConnections().get()
+
+    ###############################################################################
+    # Create MCC C
+    if V2:
+        print("---> Creating networks V2...")
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_V2 = network.Network(sim_dict, net_dict, stim_dict2)
+
+        # Create all nodes
+        net_V2.create()
+
+        # Connect all nodes
+        net_V2.connect()
+
+        net_V2.connect_other_input(stim_dict3_v2)
 
     ###############################################################################
     # Lateral connections
@@ -200,11 +291,68 @@ if __name__ == '__main__':
             rng_seeds.append(nest.rng_seed)
             net_B.connect_networks(net_A, lateral_dict)
 
+            if V1_C:
+                #nest.rng_seed = 58
+                nest.rng_seed = randint(1, 1000)
+                rng_seeds.append(nest.rng_seed)
+                net_B.connect_networks(net_C, lateral_dict)
+                #nest.rng_seed = 59
+                nest.rng_seed = randint(1, 1000)
+                rng_seeds.append(nest.rng_seed)
+                net_C.connect_networks(net_B, lateral_dict)
+
+                net_C.connect_networks(net_A, lateral_dict2)
+                net_A.connect_networks(net_C, lateral_dict2)
+
+                if V1_D:
+                    nest.rng_seed = randint(1, 1000)
+                    net_C.connect_networks(net_D, lateral_dict)
+                    #nest.rng_seed = 59
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_C, lateral_dict)
+                    
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_A, lateral_dict)
+                    net_D.connect_networks(net_B, lateral_dict2)
+
+                    nest.rng_seed = randint(1, 1000)
+                    net_A.connect_networks(net_D, lateral_dict)
+                    net_B.connect_networks(net_D, lateral_dict2)
+
+
+
+    ###############################################################################
+    # Lateral connections
+    if Ver_conn:
+        print("---> Connecting networks vertically...")
+        
+        #feedforward
+        nest.rng_seed = randint(1, 1000)
+        net_A.connect_networks(net_V2, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_B.connect_networks(net_V2, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_C.connect_networks(net_V2, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_D.connect_networks(net_V2, FF_dict)
+
+        #feedback
+        if True:
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_A, FB_dict)
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_B, FB_dict)
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_C, FB_dict)
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_D, FB_dict)
+
     ###############################################################################
     # Simulation over MCC A
     print('---> Simulating...')
     nest.Prepare()
     nest.Cleanup()
+    nest.rng_seed = randint(1, 1000)
 
     print('**********************************************')
     print('TRL: '+str(args.gen)+', SUJ : '+str(args.id_s) )
@@ -228,17 +376,17 @@ if __name__ == '__main__':
 
     all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 
-    print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
-    if sim_dict.get('plot_raster', False):
-        id_sim = sim_dict['data_path'].split("/")[-1]
-        helpers.plot_raster(
-            sim_dict['data_path'],
-            'spike_recorder',
-            raster_plot_interval[0],
-            raster_plot_interval[1],
-            net_dict['N_scaling'],
-            all_pops,
-            id_sim)
+    # print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
+    # if sim_dict.get('plot_raster', False):
+    #     id_sim = sim_dict['data_path'].split("/")[-1]
+    #     helpers.plot_raster(
+    #         sim_dict['data_path'],
+    #         'spike_recorder',
+    #         raster_plot_interval[0],
+    #         raster_plot_interval[1],
+    #         net_dict['N_scaling'],
+    #         all_pops,
+    #         id_sim)
 
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()

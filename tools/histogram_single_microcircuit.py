@@ -87,15 +87,17 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
             cellids, times = zip(*exc[2][0])
             exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
             exc_cells['type'] = 'exc'
-            exc_cells['Layer'] = n+1
+            exc_cells['Layer'] = n
 
             # Lectura inhibitoria
             inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
             cellids, times = zip(*inh[2][0])
             inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
             inh_cells['type'] = 'inh'
-            inh_cells['Layer'] = n+1
-            cell_info = pd.concat([inh_cells, exc_cells],axis=0)
+            inh_cells['Layer'] = n
+
+            cell_info = pd.concat([exc_cells, inh_cells], axis=0)
+            
 
             info.append(cell_info)
 
@@ -129,16 +131,9 @@ def apliccation_metrics(folder_path, l_bin):
     # Crear un histograma por cada combinación de type y Layer
     unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
 
-    # Configurar el diseño de plots
-    fs = 16  # fontsize
-
     data = []
     # Iterar sobre cada combinación única
     for i, row in enumerate(unique_combinations.itertuples(), 1):
-        #if i == 9:
-        #    break
-        # Crea plots
-        #fig = plt.figure(figsize=(6, 4))
 
         subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
 

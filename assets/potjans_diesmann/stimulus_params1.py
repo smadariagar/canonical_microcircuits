@@ -38,7 +38,7 @@ stim_dict1 = {
     # duration of the thalamic input (in ms)
     'th_duration': 500.0,
     # rate of the thalamic input (in spikes/s)
-    'th_rate': 20.0,#120.0,
+    'th_rate': 0.0,#120.0,
     # number of thalamic neurons
     'num_th_neurons': 902, 
     # connection probabilities of the thalamus to the different populations

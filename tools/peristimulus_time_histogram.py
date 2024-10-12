@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 
 from assets.potjans_diesmann.sim_params import sim_dict 
 from utils.helpers import __load_meter_data
+import tools.histogram_single_microcircuit as hist_spikes
+
 
 warnings.filterwarnings("ignore")
 
@@ -69,6 +71,9 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files, k):
         # Lectura de parámetros de simulacion
         file1 = spike_recorder_files[i]
         file2 = spike_recorder_files[i + 1]
+
+        print(file1)
+        print(file2)
         
         #t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
         #t_presim_value = 0
@@ -101,6 +106,7 @@ def active_neurons(folder_path, k):
     
     # Llama a la función para obtener los archivos que comienzan con "spike_recorder"
     archivos_spike_recorder = select_spike_recorder_files(folder_path)
+    print(archivos_spike_recorder)
     info_total,times = process_files_in_pairs_positions(folder_path, archivos_spike_recorder, k)
 
     # Abrir el archivo .dat en modo lectura
@@ -153,69 +159,219 @@ def PSTH_maker(folder_path, k, neurons_psth_id):
     return times_spikes_psth
 
 
-def PSTH_spikes_trial(path, path_b):
+def PSTH_folders_data(path, scaling, t_sim, l_bin):
     """
     Sálvenme
     """
-    neurons_psth_aux = []
 
-    for f in os.listdir(path):
-        if os.path.isdir(os.path.join(path, f)):
-            trial_path = os.path.join(path, f)
+    # add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+    hist_data = pd.DataFrame(columns=names)
 
-            neuronas_mas_activas = active_neurons(trial_path, int(f))
-            neurons_psth_aux.extend(neuronas_mas_activas)
-    
-    neurons_psth_aux.sort()
-    neurons_psth = []
-    [neurons_psth.append(item) for item in neurons_psth_aux if item not in neurons_psth]
-    print(neurons_psth)
-
-    all_times_spikes = []
-    print(neurons_psth)
-    for f in os.listdir(path_b):
-        if os.path.isdir(os.path.join(path_b, f)):
-            trial_path = os.path.join(path_b, f)
-
-            aux = PSTH_maker(trial_path, int(f), neurons_psth)
-            all_times_spikes.extend(aux)
-
-    print(len(all_times_spikes))
-
-
-    color = '#0063b2'
-    n, bins, rects = plt.hist(all_times_spikes, bins=range(0, int(sim_dict["t_sim"]), 4), alpha=1.0, label='aloja', color=color)
-    
-    m= np.convolve( n, np.ones(10)/10, mode='same')
-    print(max(m))
-    m=m/max(m)
-    plt.show()
-
-
-    fs = 16
-    plt.figure(figsize=(6, 4))
-    aa=plt.plot(bins[1:]-5,m,color=color, linewidth=3)
-    plt.xlabel('time [ms]', fontsize=fs)
-    plt.yticks(fontsize=fs)
-    plt.ylim([0.2, 1])
-    plt.xticks(fontsize=fs)
-    plt.title('Peristimulus time histogram', fontsize=22)
-    plt.tight_layout()
-
-    plt.savefig(os.path.join(path_b, 'PSTH.png'), dpi=300)
-    plt.show()
-    return 0
+    for folder in os.listdir(path):
+        trial_path = os.path.join(path, folder)
         
+        if not os.path.isdir(trial_path):
+            continue
+        print(trial_path)
+
+        # Read JSON
+        with open(os.path.join(trial_path, 'net_params.json'), 'r') as file:
+            net_dict = json.load(file)
+        #num_neurons = net_dict['full_num_neurons_v1']
+        num_neurons = net_dict['full_num_neurons']
+
+        num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons
+
+        archivos_spike_recorder = hist_spikes.select_spike_recorder_files(trial_path)
+        info_total, times = hist_spikes.process_files_in_pairs_positions(trial_path, archivos_spike_recorder)
+
+        tiempos = info_total.iloc[:,1]-100
+        info_total['time']=tiempos
+  
+        # Mapear las capas a los nuevos nombres
+        layer_mapping = {
+            0: '2/3a', 1: '4a', 2: '5a', 3: '6a',
+            4: '2/3b', 5: '4b', 6: '5b', 7: '6b',
+            8: '2/3c', 9: '4c', 10: '5c', 11: '6c',
+            12: '2/3d', 13: '4d', 14: '5d', 15: '6d',
+            16: '2/3v2', 17: '4v2', 18: '5v2', 19: '6v2',}
+        
+        info_total['Layer'] = info_total['Layer'].map(layer_mapping)
+        
+        # Crear un histograma por cada combinación de type y Layer
+        unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
+
+        # Iterar sobre cada combinación única
+        for i, row in enumerate(unique_combinations.itertuples()):
+            
+            subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
+
+            # Crear el histograma en la subfigura actual con colores personalizados
+            hist, bin_edges = np.histogram(subset['time'], bins=range(0, t_sim+l_bin, l_bin))
+            hist = hist * (1000/l_bin) / (num_neurons[i]*scaling)
+
+            hist_data.loc[len(hist_data.index)] = np.concatenate(([folder, row.Layer, row.type] , hist), axis=None)
+        
+    hist_data.to_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)
 
 
-id_result = '20240408173443' # Modelo de un microcircuito
-path_result = 'results/potjans_diesmann/'+id_result+'/'
+def PSTH_plot(path, t_sim, l_bin):
 
-id_result = '20240408173443' # Modelo de un microcircuito
-path_B = 'results/potjans_diesmann/'+id_result+'/'
 
-PSTH_spikes_trial(path_result, path_B)
-# Llama a la función para obtener los archivos que comienzan con "spike_recorder"
-#archivos_spike_recorder = select_spike_recorder_files(path_result)
-#apliccation_metrics(path_result, archivos_spike_recorder)
-#20240406081551
+    # add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+
+    hist_data = pd.read_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), header=None, names=names)
+    bin_centers = np.linspace(l_bin/2, t_sim-(l_bin/2), int(t_sim/l_bin))
+
+    # Generate psth
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
+    
+    # # Iterar sobre cada combinación única
+    for i, row in enumerate(unique_combinations.itertuples()):
+        
+        if row.type == 'exc':
+            color = '#0063B2'
+        else:
+            color = '#b015b6'
+
+        subset = hist_data[(hist_data['type'] == row.type) & (hist_data['layer'] == row.layer)][names[3:]].values
+        subset = subset.astype(float)
+        
+        fig = plt.figure(layout='constrained', figsize=(8,3))
+
+        plt.plot(bin_centers, np.mean(subset,axis=0), '.-', color=color)
+        bot, top = plt.ylim()  # return the current ylim
+    
+    plt.plot([500, 500], [bot, top], 'k--')
+    plt.plot([1000, 1000], [bot, top], 'k--')
+    #plt.plot([3000, 3000], [bot, top], 'k--')
+
+    plt.title(row.layer+' '+row.type)
+    plt.xlabel('time [ms]')
+    plt.ylabel('firing rate (spikes/s)')
+
+    plt.show()
+
+def PSTH_plot_tog(path, t_sim, l_bin):
+
+    # add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+
+    hist_data = pd.read_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), header=None, names=names)
+    bin_centers = np.linspace(l_bin/2, t_sim-(l_bin/2), int(t_sim/l_bin))
+
+    # Generate psth
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
+    
+
+    fig, ax = plt.subplots(8, layout='constrained', figsize=(8,16), sharex=True)
+
+    # # Iterar sobre cada combinación única
+    nmcc = -1
+    sym = ['o', '^', '1','x','s']
+    sy = sym+sym
+    for j, row in enumerate(unique_combinations.itertuples()):
+        
+        if row.type == 'exc':
+            color = '#0063B2'
+        else:
+            color = '#b015b6'
+
+        if j%8==0:
+            nmcc = nmcc+1
+
+        subset = hist_data[(hist_data['type'] == row.type) & (hist_data['layer'] == row.layer)][names[3:]].values
+        subset = subset.astype(float)
+        
+        i = j-nmcc*8
+        ax[i].plot(bin_centers, np.mean(subset,axis=0), sym[nmcc]+'-', color=color)
+        bot, top = ax[i].get_ylim()  # return the current ylim
+
+        
+        ax[i].plot([500, 500], [bot, top], 'k--')
+        ax[i].plot([1000, 1000], [bot, top], 'k--')
+        #plt.plot([3000, 3000], [bot, top], 'k--')
+
+        
+        #plt.title(row.layer+' '+row.type)
+        #plt.xlabel('time [ms]')
+        #plt.ylabel('firing rate (spikes/s)')
+
+    plt.show()
+
+def PSTH_figure(path, t_sim, l_bin, mcc):
+
+    # add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+
+    hist_data = pd.read_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), header=None, names=names)
+    bin_centers = np.linspace(l_bin/2, t_sim-(l_bin/2), int(t_sim/l_bin))
+
+    # add columns names
+    mean_data = pd.DataFrame(columns=names)
+    
+    # Generate psth
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
+
+    fig, ax = plt.subplots(8, layout='constrained', figsize=(8,16), sharex=True)
+
+    # # Iterar sobre cada combinación única
+    nmcc = -1
+    sym = ['o', '^', '1','x']
+    sy = sym+sym
+    for j, row in enumerate(unique_combinations.itertuples()):
+
+        if j%8==0:
+            nmcc = nmcc+1
+
+        if nmcc < mcc:
+            continue
+
+        if nmcc > mcc:
+            break
+        
+        if row.type == 'exc':
+            color = '#0063B2'
+        else:
+            color = '#b015b6'
+
+        subset = hist_data[(hist_data['type'] == row.type) & (hist_data['layer'] == row.layer)][names[3:]].values
+        subset = subset.astype(float)
+
+        i = j-nmcc*8
+        x = bin_centers
+        y = np.mean(subset,axis=0)
+
+        ci = np.std(subset,axis=0)#/np.sqrt(len(subset))
+        ax[i].plot(bin_centers, np.mean(subset,axis=0), '.-', color=color)
+        ax[i].fill_between(bin_centers, (y-ci), (y+ci), color=color, alpha=.1)
+
+        bot, top = ax[i].get_ylim()  # return the current ylim
+        ax[i].plot([500, 500], [bot, top], 'k--')
+        ax[i].plot([1000, 1000], [bot, top], 'k--')
+        #plt.plot([3000, 3000], [bot, top], 'k--')
+
+        
+        #plt.title(row.layer+' '+row.type)
+        #plt.xlabel('time [ms]')
+        #plt.ylabel('firing rate (spikes/s)')
+
+        mean_data.loc[len(mean_data.index)] = np.concatenate((['mean', row.layer, row.type] , y), axis=None)
+        mean_data.loc[len(mean_data.index)] = np.concatenate((['std', row.layer, row.type] , ci), axis=None)
+
+    plt.show()
+
+    mean_data.to_csv(os.path.join(path, 'mean_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)

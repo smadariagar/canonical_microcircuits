@@ -67,20 +67,20 @@ lateral_dict = {
     # L6E lateral
     'conn_probs': # segun wagatsuma 2013
         np.array(
-            [[0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23E
-             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23I
+            [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23E
+             [0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23I
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L4E
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L4I
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L5E
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L5I
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L6E
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]),    # L6I
-             # L23E  L23I L4E  L4I   L5E   L5I   L6E   L6I
+            # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
     
     # mean delay of excitatory connections (in ms)
     'delay_exc_mean': 4.0,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 2.0,
+    'delay_inh_mean': 2.5,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,
