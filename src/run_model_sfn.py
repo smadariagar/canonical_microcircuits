@@ -55,6 +55,7 @@ from assets.potjans_diesmann.network_params import net_dict #para cada microcirc
 from assets.potjans_diesmann.network_params_V2 import net_dict as net_dict_v2 
 
 import tools.particle_swarm_optimization as pso
+import tools.peristimulus_time_histogram as psth
 
 from . import network_potjans_diesmann as network
 
@@ -91,7 +92,7 @@ if __name__ == '__main__':
 
     # N & K scaling
     net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'K_scaling': 0.5})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -114,8 +115,8 @@ if __name__ == '__main__':
     #lateral_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_ext = 100
-    sim_dutation = 1500.0 + sim_ext
+    sim_ext = 100.0
+    sim_dutation = 5000.0 + sim_ext
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
@@ -124,17 +125,18 @@ if __name__ == '__main__':
     stim_dict4 = stim_dict1.copy()
 
     # Stimulation to MCC A
-    stim_star = 500.0 + sim_ext
-    stim_duration = 1000.0
+    stim_star = 1000.0 + sim_ext
+    stim_duration = 2000.0
 
     stim_dict1.update({'thalamic_input': True})
     stim_dict1.update({'th_start': stim_star})
     stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 150.0})
+    stim_dict1.update({'th_rate': 20.0})
 
-    if True:
+    # Stimulation for extra-classical receptive field
+    if False:
         # Stimulation to MCC B
-        stim_star = 500.0 + sim_ext
+        stim_star = 1000.0 + sim_ext
         stim_duration = 500.0
 
         stim_dict2.update({'thalamic_input': False})
@@ -142,7 +144,8 @@ if __name__ == '__main__':
         stim_dict2.update({'th_duration': stim_duration})
         stim_dict2.update({'th_rate': 15.0})
 
-    if True:
+    # Estimulación top-down compensatoria
+    if False:
         # Stimulation external
         stim_star = 0.0 + sim_ext
         stim_duration = 1500.0
@@ -163,7 +166,7 @@ if __name__ == '__main__':
         stim_dict3.update({'th_start': stim_star})
         stim_dict3.update({'th_duration': stim_duration})
     
-    if True:
+    if False:
         # Stimulation to MCC B.0
         stim_star = 1000.0 + sim_ext
         stim_duration = 500.0
@@ -175,11 +178,11 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Model type
-    V1_B, V1_C, V1_D = True, True, True
-    V1_ext = True 
-    V2 = True
-    Lat_conn = True
-    Ver_conn = True
+    V1_B, V1_C, V1_D = False, False, False
+    V1_ext = False 
+    V2 = False
+    Lat_conn = False
+    Ver_conn = False
        
 
     ###############################################################################
@@ -202,6 +205,7 @@ if __name__ == '__main__':
     # Connect all nodes
     net_A.connect()
     time_connect_A = time.time()
+    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
 
     ###############################################################################
     # Create MCC B
@@ -217,6 +221,7 @@ if __name__ == '__main__':
 
         # Connect all nodes
         net_B.connect()
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 
     ###############################################################################
     # Create MCC C
@@ -232,6 +237,7 @@ if __name__ == '__main__':
 
         # Connect all nodes
         net_C.connect()
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) 
 
     ###############################################################################
     # Create MCC D
@@ -247,6 +253,7 @@ if __name__ == '__main__':
 
         # Connect all nodes
         net_D.connect()
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_D", net_dict['populations'])) 
 
      ###############################################################################
     # Create MCC D
@@ -258,7 +265,6 @@ if __name__ == '__main__':
         #net_B.connect_other_input(stim_dict3)
         #net_C.connect_other_input(stim_dict3)
         #net_D.connect_other_input(stim_dict3)
-
 
     ###############################################################################
     # Create MCC C
@@ -276,6 +282,7 @@ if __name__ == '__main__':
         net_V2.connect()
 
         net_V2.connect_other_input(stim_dict3_v2)
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_V2", net_dict['populations'])) 
 
     ###############################################################################
     # Lateral connections
@@ -320,7 +327,6 @@ if __name__ == '__main__':
                     net_B.connect_networks(net_D, lateral_dict2)
 
 
-
     ###############################################################################
     # Lateral connections
     if Ver_conn:
@@ -347,6 +353,7 @@ if __name__ == '__main__':
             nest.rng_seed = randint(1, 1000)
             net_V2.connect_networks(net_D, FB_dict)
 
+    
     ###############################################################################
     # Simulation over MCC A
     print('---> Simulating...')
@@ -374,27 +381,31 @@ if __name__ == '__main__':
     #firing_rates_interval2 = np.array([1000, 1500])
     #firing_rates_interval3 = np.array([1500, 2000])
 
-    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
-
-    # print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
-    # if sim_dict.get('plot_raster', False):
-    #     id_sim = sim_dict['data_path'].split("/")[-1]
-    #     helpers.plot_raster(
-    #         sim_dict['data_path'],
-    #         'spike_recorder',
-    #         raster_plot_interval[0],
-    #         raster_plot_interval[1],
-    #         net_dict['N_scaling'],
-    #         all_pops,
-    #         id_sim)
+    print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
+    if sim_dict.get('plot_raster', False):
+        id_sim = sim_dict['data_path'].split("/")[-1]
+        helpers.plot_raster(
+            sim_dict['data_path'],
+            'spike_recorder',
+            raster_plot_interval[0],
+            raster_plot_interval[1],
+            net_dict['N_scaling'],
+            all_pops,
+            id_sim)
 
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
     ###############################################################################
+    # Generate metrics
+    l_bin = 50
+    data_path = sim_dict.get('data_path', None)
+    psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim']-sim_ext, l_bin)
+    psth.PSTH_plot(data_path, sim_dict['t_sim']-sim_ext, l_bin)
+
+    ###############################################################################
     # Histogramas de spikes and save performance
-    #data_path = sim_dict.get('data_path', None)
-    #pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
+    # pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
 
     ###############################################################################
     # Saving seeds
@@ -404,7 +415,6 @@ if __name__ == '__main__':
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the
     # data evaluation and print calls.
-
     print(
         '\nTimes of Rank {}:\n'.format(
             nest.Rank()) +
@@ -429,4 +439,4 @@ if __name__ == '__main__':
         '  Time to evaluate:    {:.3f} s\n'.format(
             time_evaluate -
             time_simulate))
-    #plt.show()
+    

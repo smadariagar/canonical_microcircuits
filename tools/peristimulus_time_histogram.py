@@ -159,16 +159,10 @@ def PSTH_maker(folder_path, k, neurons_psth_id):
     return times_spikes_psth
 
 
-def PSTH_folders_data(path, scaling, t_sim, l_bin):
+def PSTH_folders_data(path):
     """
     Sálvenme
     """
-
-    # add columns names
-    cols = np.array(['folder', 'layer', 'type'])
-    params = range(int(t_sim/l_bin))
-    names = np.concatenate((cols, params), axis=None)
-    hist_data = pd.DataFrame(columns=names)
 
     for folder in os.listdir(path):
         trial_path = os.path.join(path, folder)
@@ -177,49 +171,58 @@ def PSTH_folders_data(path, scaling, t_sim, l_bin):
             continue
         print(trial_path)
 
-        # Read JSON
-        with open(os.path.join(trial_path, 'net_params.json'), 'r') as file:
-            net_dict = json.load(file)
-        #num_neurons = net_dict['full_num_neurons_v1']
-        num_neurons = net_dict['full_num_neurons']
 
-        num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons
+def PSTH_data(path, scaling, t_sim, l_bin):
+    """
+    Help me
+    """
 
-        archivos_spike_recorder = hist_spikes.select_spike_recorder_files(trial_path)
-        info_total, times = hist_spikes.process_files_in_pairs_positions(trial_path, archivos_spike_recorder)
+    # Add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+    hist_data = pd.DataFrame(columns=names)
 
-        tiempos = info_total.iloc[:,1]-100
-        info_total['time']=tiempos
-  
-        # Mapear las capas a los nuevos nombres
-        layer_mapping = {
-            0: '2/3a', 1: '4a', 2: '5a', 3: '6a',
-            4: '2/3b', 5: '4b', 6: '5b', 7: '6b',
-            8: '2/3c', 9: '4c', 10: '5c', 11: '6c',
-            12: '2/3d', 13: '4d', 14: '5d', 15: '6d',
-            16: '2/3v2', 17: '4v2', 18: '5v2', 19: '6v2',}
+    # Read JSON
+    with open(os.path.join(path, 'net_params.json'), 'r') as file:
+        net_dict = json.load(file)
+    #num_neurons = net_dict['full_num_neurons_v1']
+    num_neurons = net_dict['full_num_neurons']
+    num_neurons = num_neurons#+num_neurons+num_neurons+num_neurons+num_neurons
+
+    archivos_spike_recorder = hist_spikes.select_spike_recorder_files(path)
+    info_total, times = hist_spikes.process_files_in_pairs_positions(path, archivos_spike_recorder)
+    tiempos = info_total.iloc[:,1]-100.1
+    info_total['time'] = tiempos
+
+    # Mapear las capas a los nuevos nombres
+    layer_mapping = {
+        0: '2/3a', 1: '4a', 2: '5a', 3: '6a',
+        4: '2/3b', 5: '4b', 6: '5b', 7: '6b',
+        8: '2/3c', 9: '4c', 10: '5c', 11: '6c',
+        12: '2/3d', 13: '4d', 14: '5d', 15: '6d',
+        16: '2/3v2', 17: '4v2', 18: '5v2', 19: '6v2',}
+    
+    info_total['Layer'] = info_total['Layer'].map(layer_mapping)
+    
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
+
+    # Iterar sobre cada combinación única
+    for i, row in enumerate(unique_combinations.itertuples()):
         
-        info_total['Layer'] = info_total['Layer'].map(layer_mapping)
-        
-        # Crear un histograma por cada combinación de type y Layer
-        unique_combinations = info_total[['type', 'Layer']].drop_duplicates()
+        subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
 
-        # Iterar sobre cada combinación única
-        for i, row in enumerate(unique_combinations.itertuples()):
-            
-            subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
-
-            # Crear el histograma en la subfigura actual con colores personalizados
-            hist, bin_edges = np.histogram(subset['time'], bins=range(0, t_sim+l_bin, l_bin))
-            hist = hist * (1000/l_bin) / (num_neurons[i]*scaling)
-
-            hist_data.loc[len(hist_data.index)] = np.concatenate(([folder, row.Layer, row.type] , hist), axis=None)
-        
+        # Crear el histograma en la subfigura actual con colores personalizados
+        hist, bin_edges = np.histogram(subset['time'], bins=range(0, int(t_sim)+1, l_bin))
+        hist = hist * (1000/l_bin) / (num_neurons[i]*scaling)
+ 
+        hist_data.loc[len(hist_data.index)] = np.concatenate(([path, row.Layer, row.type] , hist), axis=None)
+    
     hist_data.to_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)
 
 
 def PSTH_plot(path, t_sim, l_bin):
-
 
     # add columns names
     cols = np.array(['folder', 'layer', 'type'])

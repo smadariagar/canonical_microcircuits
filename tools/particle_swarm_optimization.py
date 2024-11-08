@@ -203,7 +203,7 @@ def save_result(folder_path, subject_path, trial, suj_id, n_neurons):
         suj_id (_type_): _description_
     """
 
-    data = hist_spikes.apliccation_metrics(subject_path, 1000)[0]
+    data = hist_spikes.apliccation_metrics(subject_path, 500)[0]
     activity = np.array(data[1])/n_neurons
     performance = perf_calculation(activity.tolist())
 

@@ -362,11 +362,11 @@ class Network(network.Network):
                     }
 
                     if self.weight_matrix_mean[i][j] < 0:
-                        w_min = np.NINF
+                        w_min = -np.inf
                         w_max = 0.0
                     else:
                         w_min = 0.0
-                        w_max = np.Inf
+                        w_max = np.inf
 
                     syn_dict = {
                         'synapse_model': 'static_synapse',
@@ -387,7 +387,7 @@ class Network(network.Network):
                             # https://nest-simulator.readthedocs.io/en/latest/nest_behavior
                             # /random_numbers.html#rounding-effects-when-randomizing-delays
                             min=nest.resolution - 0.5 * nest.resolution,
-                            max=np.Inf,
+                            max=np.inf,
                         ),
                     }
 
@@ -445,11 +445,11 @@ class Network(network.Network):
                         'N': num_synapses[i][j]}  
 
                     if weight_matrix_mean[i][j] < 0:
-                        w_min = np.NINF
+                        w_min = -np.inf
                         w_max = 0.0
                     else:
                         w_min = 0.0
-                        w_max = np.Inf
+                        w_max = np.inf
                 
                     syn_dict = {
                         'synapse_model': 'static_synapse',
@@ -464,7 +464,7 @@ class Network(network.Network):
                                 mean=lateral_dict["delay_matrix_mean"][i][j],
                                 std=(lateral_dict["delay_matrix_mean"][i][j] * lateral_dict["delay_rel_std"])),
                                 min=nest.resolution,
-                                max=np.Inf)}
+                                max=np.inf)}
 
                     #print(source_pop, target_pop)
                     nest.Connect(
@@ -503,7 +503,7 @@ class Network(network.Network):
                         mean=self.weight_th,
                         std=self.weight_th * self.net_dict['weight_rel_std']),
                     min=0.0,
-                    max=np.Inf,
+                    max=np.inf,
                 ),
                 'delay': nest.math.redraw(
                     nest.random.normal(
@@ -514,7 +514,7 @@ class Network(network.Network):
                     # https://nest-simulator.readthedocs.io/en/latest/nest_behavior
                     # /random_numbers.html#rounding-effects-when-randomizing-delays
                     min=nest.resolution - 0.5 * nest.resolution,
-                    max=np.Inf,
+                    max=np.inf,
                 ),
             }
 
@@ -578,7 +578,7 @@ class Network(network.Network):
                         mean=weight_th,
                         std=weight_th * self.net_dict['weight_rel_std']),
                     min=0.0,
-                    max=np.Inf,
+                    max=np.inf,
                 ),
                 'delay': nest.math.redraw(
                     nest.random.normal(
@@ -589,7 +589,7 @@ class Network(network.Network):
                     # https://nest-simulator.readthedocs.io/en/latest/nest_behavior
                     # /random_numbers.html#rounding-effects-when-randomizing-delays
                     min=nest.resolution - 0.5 * nest.resolution,
-                    max=np.Inf,
+                    max=np.inf,
                 ),
             }
 
