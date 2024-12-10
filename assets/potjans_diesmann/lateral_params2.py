@@ -80,7 +80,7 @@ lateral_dict = {
     # mean delay of excitatory connections (in ms)
     'delay_exc_mean': 4.0,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 2.5,
+    'delay_inh_mean': 3.0,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,

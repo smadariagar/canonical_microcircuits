@@ -43,13 +43,19 @@ from utils import helpers
 
 from assets.potjans_diesmann.sim_params import sim_dict # simulación
 
-from assets.potjans_diesmann.stimulus_params1 import stim_dict1
+from assets.potjans_diesmann.stimulus_params1 import stim_dict as stim_dict_A
 
 from assets.potjans_diesmann.lateral_params import lateral_dict
+from assets.potjans_diesmann.lateral_params2 import lateral_dict as lateral_dict2
+
+from assets.potjans_diesmann.feedforward_params import lateral_dict as FF_dict
+from assets.potjans_diesmann.feedback_params import lateral_dict as FB_dict
 
 from assets.potjans_diesmann.network_params import net_dict #para cada microcircuito es igual
+from assets.potjans_diesmann.network_params_V2 import net_dict as net_dict_v2 
 
 import tools.particle_swarm_optimization as pso
+import tools.peristimulus_time_histogram as psth
 
 from . import network_potjans_diesmann as network
 
@@ -85,65 +91,103 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.3})
-    net_dict.update({'K_scaling': 0.3})
+    net_dict.update({'N_scaling': 0.1})
+    net_dict.update({'K_scaling': 0.1})
+
+    net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
+    net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
 
     # Lateral and vertical N & K scaling
     lateral_dict.update({'N_scaling': net_dict['N_scaling']})
     lateral_dict.update({'K_scaling': net_dict['K_scaling']})
     
+    lateral_dict2.update({'N_scaling': net_dict['N_scaling']})
+    lateral_dict2.update({'K_scaling': net_dict['K_scaling']})
+
+    FF_dict.update({'N_scaling': net_dict['N_scaling']})
+    FF_dict.update({'K_scaling': net_dict['K_scaling']})
+    
+    FB_dict.update({'N_scaling': net_dict['N_scaling']})
+    FB_dict.update({'K_scaling': net_dict['K_scaling']})
+
     # Horizontal weights update
     #new_conn_probs = pso.new_conn_probs(subject_params)
     #lateral_dict.update({'conn_probs': new_conn_probs})
     
-    sim_ext = 100
     # Simulation params
-    sim_dutation = 4000.0 + sim_ext
+    sim_dutation = 1500.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
-    stim_dict2 = stim_dict1.copy()
-    stim_dict3 = stim_dict1.copy()
-    stim_dict4 = stim_dict1.copy()
+    stim_dict_B = stim_dict_A.copy()
+    stim_dict_C = stim_dict_A.copy()
+    stim_dict4 = stim_dict_A.copy()
+
+    stim_dict_v2 = stim_dict_A.copy()
 
     # Stimulation to MCC A
-    stim_star = 1000.0 + sim_ext
-    stim_duration = 3000.0
-
-    stim_dict1.update({'thalamic_input': True})
-    stim_dict1.update({'th_start': stim_star})
-    stim_dict1.update({'th_duration': stim_duration})
-    stim_dict1.update({'th_rate': 15.0})
-
-    # Stimulation to MCC B
-    stim_star = 2000.0 + sim_ext
+    stim_star = 500.0 
     stim_duration = 1000.0
 
-    stim_dict2.update({'thalamic_input': True})
-    stim_dict2.update({'th_start': stim_star})
-    stim_dict2.update({'th_duration': stim_duration})
-    stim_dict2.update({'th_rate': 15.0})
+    stim_dict_A.update({'thalamic_input': True})
+    stim_dict_A.update({'th_start': stim_star})
+    stim_dict_A.update({'th_duration': stim_duration})
+    stim_dict_A.update({'th_rate': 200.0})
 
-    # Stimulation to MCC B 2
-    stim_star = 3000.0 + sim_ext
-    stim_duration = 1000.0
+    stim_dict_A_2 = stim_dict_A.copy() 
+    stim_dict_A_2.update({'num_th_neurons': 10})
 
-    stim_dict3.update({'thalamic_input': True})
-    stim_dict3.update({'th_start': stim_star})
-    stim_dict3.update({'th_duration': stim_duration})
-    stim_dict3.update({'th_rate': 22.0})
+    # Stimulation for extra-classical receptive field
+    if False:
+        # Stimulation to MCC B
+        stim_star = 1000.0 
+        stim_duration = 500.0
 
+        stim_dict_B.update({'thalamic_input': False})
+        stim_dict_B.update({'th_start': stim_star})
+        stim_dict_B.update({'th_duration': stim_duration})
+        stim_dict_B.update({'th_rate': 15.0})
+
+    # Estimulación top-down compensatoria
+    if True:
+        # Stimulation external
+        stim_star = 1000.0 
+        stim_duration = 500.0
+
+        stim_dict_C.update({'thalamic_input': True})
+        stim_dict_C.update({'th_start': stim_star})
+        stim_dict_C.update({'th_duration': stim_duration})
+        stim_dict_C.update({'th_rate': 250.0})
+
+        #stim_dict_C_2 = stim_dict_C.copy() 
+        #stim_dict_C_2.update({'num_th_neurons': 2500})
+    
+    if False:
+        # Stimulation to MCC B.0
+        stim_star = 0.0
+        stim_duration = 1500.0 
+
+        stim_dict4.update({'thalamic_input': True})
+        stim_dict4.update({'th_start': stim_star})
+        stim_dict4.update({'th_duration': stim_duration})
+        stim_dict4.update({'th_rate': 50.0})
+        stim_dict4.update({'conn_probs_th': np.array([0.13, 0.075, 0.0, 0.0, 0.13, 0.075, 0.0, 0.0])})
 
     ###############################################################################
     # Model type
-    V1_B = True
+    V1_B, V1_C, V1_D = True, True, True,
+    V1_ext = False 
+    V2 = True
     Lat_conn = True
-    plot_hist = False
-    
+    Ver_conn = True
+       
 
     ###############################################################################
     # Microcircuits V1 created
+
     print("---> Creating Microcircuits...")
+    #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
+    net_dict.update({'K_ext': np.array([1500, 1500, 2100, 1900, 1950, 1900, 2900, 2100])})
 
     ###############################################################################
     # Create MCC A
@@ -151,7 +195,7 @@ if __name__ == '__main__':
     nest.rng_seed = randint(1, 1000)
     #nest.rng_seed = 55
     rng_seeds.append(nest.rng_seed)
-    net_A = network.Network(sim_dict, net_dict, stim_dict1)
+    net_A = network.Network(sim_dict, net_dict, stim_dict_A)
     time_network_A = time.time()
     
     # Create all nodes
@@ -161,6 +205,7 @@ if __name__ == '__main__':
     # Connect all nodes
     net_A.connect()
     time_connect_A = time.time()
+    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
 
     ###############################################################################
     # Create MCC B
@@ -169,22 +214,77 @@ if __name__ == '__main__':
         nest.rng_seed = randint(1, 1000)
         #nest.rng_seed = 56
         rng_seeds.append(nest.rng_seed)
-        net_B = network.Network(sim_dict, net_dict, stim_dict2)
-        time_network_B = time.time()
+        net_B = network.Network(sim_dict, net_dict, stim_dict_B)
 
         # Create all nodes
         net_B.create()
-        time_create_B = time.time()
 
         # Connect all nodes
         net_B.connect()
-        time_connect_B = time.time()
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 
+    ###############################################################################
+    # Create MCC C
+    if V1_C:
+        print("---> Creating networks V1_C...")
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_C = network.Network(sim_dict, net_dict, stim_dict_C)
+
+        # Create all nodes
+        net_C.create()
+
+        # Connect all nodes
+        net_C.connect()
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) 
+
+    ###############################################################################
+    # Create MCC D
+    if V1_D:
+        print("---> Creating networks V1_D...")
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_D = network.Network(sim_dict, net_dict, stim_dict_B)
+        
+        # Create all nodes
+        net_D.create()
+
+        # Connect all nodes
+        net_D.connect()
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_D", net_dict['populations'])) 
+
+    ###############################################################################
+    # Create MCC D
+    if V1_ext:
+        print("---> Conecting ext...")
         nest.rng_seed = randint(1, 1000)
         rng_seeds.append(nest.rng_seed)
-        net_B.connect_other_input(stim_dict3)
+        net_A.connect_other_input(stim_dict4)
+        net_B.connect_other_input(stim_dict4)
+        net_C.connect_other_input(stim_dict4)
+        net_D.connect_other_input(stim_dict4)
 
-    #conn = nest.GetConnections().get()
+    ###############################################################################
+    # Create MCC C
+    if V2:
+        #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
+        net_dict.update({'K_ext': np.array([1600, 1500, 1980, 1900, 2000, 1900, 2850, 2100])})
+        print("---> Creating networks V2...")
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_V2 = network.Network(sim_dict, net_dict, stim_dict_B)
+
+        # Create all nodes
+        net_V2.create()
+
+        # Connect all nodes
+        net_V2.connect()
+
+        #net_V2.connect_other_input(stim_dict3_v2)
+        all_pops = all_pops + list(map(lambda pop: f"{pop}_V2", net_dict['populations'])) 
 
     ###############################################################################
     # Lateral connections
@@ -200,11 +300,68 @@ if __name__ == '__main__':
             rng_seeds.append(nest.rng_seed)
             net_B.connect_networks(net_A, lateral_dict)
 
+            if V1_C:
+                #nest.rng_seed = 58
+                nest.rng_seed = randint(1, 1000)
+                rng_seeds.append(nest.rng_seed)
+                net_B.connect_networks(net_C, lateral_dict)
+                #nest.rng_seed = 59
+                nest.rng_seed = randint(1, 1000)
+                rng_seeds.append(nest.rng_seed)
+                net_C.connect_networks(net_B, lateral_dict)
+
+                net_C.connect_networks(net_A, lateral_dict2)
+                net_A.connect_networks(net_C, lateral_dict2)
+
+                if V1_D:
+                    nest.rng_seed = randint(1, 1000)
+                    net_C.connect_networks(net_D, lateral_dict)
+                    #nest.rng_seed = 59
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_C, lateral_dict)
+                    
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_A, lateral_dict)
+                    net_D.connect_networks(net_B, lateral_dict2)
+
+                    nest.rng_seed = randint(1, 1000)
+                    net_A.connect_networks(net_D, lateral_dict)
+                    net_B.connect_networks(net_D, lateral_dict2)
+
+
+    ###############################################################################
+    # Lateral connections
+    if Ver_conn:
+        print("---> Connecting networks vertically...")
+        
+        #feedforward
+        nest.rng_seed = randint(1, 1000)
+        net_A.connect_networks(net_V2, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_B.connect_networks(net_V2, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_C.connect_networks(net_V2, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_D.connect_networks(net_V2, FF_dict)
+
+        #feedback
+        if True:
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_A, FB_dict)
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_B, FB_dict)
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_C, FB_dict)
+            nest.rng_seed = randint(1, 1000)
+            net_V2.connect_networks(net_D, FB_dict)
+
+    
     ###############################################################################
     # Simulation over MCC A
     print('---> Simulating...')
     nest.Prepare()
     nest.Cleanup()
+    nest.rng_seed = randint(1, 1000)
 
     print('**********************************************')
     print('TRL: '+str(args.gen)+', SUJ : '+str(args.id_s) )
@@ -220,13 +377,13 @@ if __name__ == '__main__':
     # The computation of spike rates discards the presimulation time to exclude
     # initialization artifacts.
     print('---> Evaluating...')
-    raster_plot_interval = np.array([sim_dict['t_presim'], sim_dict["t_sim"]])
+    raster_plot_interval = np.array([0, sim_dict["t_sim"]])
+    firing_rates_interval = np.array([0, sim_dict["t_sim"]])
+
     #firing_rates_interval0 = np.array([0, 500])
     #firing_rates_interval1 = np.array([500, 1000])
     #firing_rates_interval2 = np.array([1000, 1500])
     #firing_rates_interval3 = np.array([1500, 2000])
-
-    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations'])) + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
 
     print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
     if sim_dict.get('plot_raster', False):
@@ -240,13 +397,30 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
+
+    print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
+    if sim_dict.get("plot_firing_rates", False):
+        helpers.firing_rates(
+            sim_dict['data_path'],
+            'spike_recorder',
+            firing_rates_interval[0],
+            firing_rates_interval[1])
+        helpers.boxplot(sim_dict['data_path'], all_pops, 'a')
+
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
     ###############################################################################
+    # Generate metrics
+    l_bin = 50
+    data_path = sim_dict.get('data_path', None)
+    psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], l_bin)
+    psth.PSTH_plot_tog(data_path, sim_dict['t_sim'], l_bin)
+
+
+    ###############################################################################
     # Histogramas de spikes and save performance
-    #data_path = sim_dict.get('data_path', None)
-    #pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
+    # pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
 
     ###############################################################################
     # Saving seeds
@@ -256,7 +430,6 @@ if __name__ == '__main__':
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the
     # data evaluation and print calls.
-
     print(
         '\nTimes of Rank {}:\n'.format(
             nest.Rank()) +
@@ -281,4 +454,4 @@ if __name__ == '__main__':
         '  Time to evaluate:    {:.3f} s\n'.format(
             time_evaluate -
             time_simulate))
-    #plt.show()
+    

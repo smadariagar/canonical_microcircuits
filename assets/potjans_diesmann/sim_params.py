@@ -33,7 +33,7 @@ sim_dict = {
     # The full simulation time is the sum of a presimulation time and the main
     # simulation time.
     # presimulation time (in ms)
-    't_presim': 0.0,
+    't_presim': 100.0,
     # simulation time (in ms)
     't_sim': 1000.0,
     # resolution of the simulation (in ms)
@@ -65,7 +65,7 @@ sim_dict = {
     # if True, raster plots will be plotted.
     'plot_raster': True,
     # if True, the firing rates will be plotted.
-    'plot_firing_rates': False,
+    'plot_firing_rates': True,
     # if True, voltage traces will be plotted.
     'plot_voltages': False,
 }

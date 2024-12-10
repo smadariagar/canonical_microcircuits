@@ -5,6 +5,7 @@ import os
 import warnings
 
 import tools.particle_swarm_optimization as pso
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -20,7 +21,7 @@ if __name__ == '__main__':
 
             if len(pso.get_result(folder_path, trial, subject)) == 0:
                 #os.system("python -m src.run_model_busse "+str(trial)+" "+str(subject))
-                os.system("python -m src.run_model_sfn "+str(trial)+" "+str(subject))
+                os.system("python -m src.run_model_busse "+str(trial)+" "+str(subject))
 
         #     if len(pso.get_result(folder_path, trial, subject)) == 0:
         #         pso.save_imposed_result(folder_path, trial, subject, [0, 0, 0, 0, 10000])

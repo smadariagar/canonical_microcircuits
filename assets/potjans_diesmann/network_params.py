@@ -103,7 +103,7 @@ net_dict = {
     # turn Poisson input on or off (True or False)
     # if False: DC input is applied for compensation
     'poisson_input': True,
-    'dc_compensation': True,
+    'dc_compensation': False,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
     'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
@@ -142,7 +142,8 @@ net_dict = {
         # time constant of postsynaptic currents (in ms)
         'tau_syn': 0.5,
         # refractory period of the neurons after a spike (in ms)
-        't_ref': 2.0}}
+        #'t_ref': 2.0
+        't_ref': 2.2}}
 
 # derive matrix of mean PSPs,
 # the mean PSP of the connection from L4E to L23E is doubled

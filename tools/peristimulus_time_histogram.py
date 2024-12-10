@@ -188,11 +188,11 @@ def PSTH_data(path, scaling, t_sim, l_bin):
         net_dict = json.load(file)
     #num_neurons = net_dict['full_num_neurons_v1']
     num_neurons = net_dict['full_num_neurons']
-    num_neurons = num_neurons#+num_neurons+num_neurons+num_neurons+num_neurons
+    num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons
 
     archivos_spike_recorder = hist_spikes.select_spike_recorder_files(path)
     info_total, times = hist_spikes.process_files_in_pairs_positions(path, archivos_spike_recorder)
-    tiempos = info_total.iloc[:,1]-100.1
+    tiempos = info_total.iloc[:,1]
     info_total['time'] = tiempos
 
     # Mapear las capas a los nuevos nombres
@@ -214,7 +214,7 @@ def PSTH_data(path, scaling, t_sim, l_bin):
         subset = info_total[(info_total['type'] == row.type) & (info_total['Layer'] == row.Layer)]
 
         # Crear el histograma en la subfigura actual con colores personalizados
-        hist, bin_edges = np.histogram(subset['time'], bins=range(0, int(t_sim)+1, l_bin))
+        hist, bin_edges = np.histogram(subset['time'], bins=range(0, int(t_sim)+l_bin, l_bin))
         hist = hist * (1000/l_bin) / (num_neurons[i]*scaling)
  
         hist_data.loc[len(hist_data.index)] = np.concatenate(([path, row.Layer, row.type] , hist), axis=None)
@@ -252,15 +252,15 @@ def PSTH_plot(path, t_sim, l_bin):
         plt.plot(bin_centers, np.mean(subset,axis=0), '.-', color=color)
         bot, top = plt.ylim()  # return the current ylim
     
-    plt.plot([500, 500], [bot, top], 'k--')
-    plt.plot([1000, 1000], [bot, top], 'k--')
-    #plt.plot([3000, 3000], [bot, top], 'k--')
+        plt.plot([500, 500], [bot, top], 'k--')
+        plt.plot([1000, 1000], [bot, top], 'k--')
+        #plt.plot([3000, 3000], [bot, top], 'k--')
 
-    plt.title(row.layer+' '+row.type)
-    plt.xlabel('time [ms]')
-    plt.ylabel('firing rate (spikes/s)')
+        plt.title(row.layer+' '+row.type)
+        plt.xlabel('time [ms]')
+        plt.ylabel('firing rate (spikes/s)')
 
-    plt.show()
+        plt.show()
 
 def PSTH_plot_tog(path, t_sim, l_bin):
 
@@ -310,7 +310,8 @@ def PSTH_plot_tog(path, t_sim, l_bin):
         #plt.xlabel('time [ms]')
         #plt.ylabel('firing rate (spikes/s)')
 
-    plt.show()
+    plot_name = 'a_psth_plot.png'
+    plt.savefig(os.path.join(path, plot_name), dpi=300)
 
 def PSTH_figure(path, t_sim, l_bin, mcc):
 

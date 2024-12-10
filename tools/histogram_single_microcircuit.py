@@ -69,7 +69,7 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
     # Read JSON
     with open(os.path.join(folder_path, 'sim_params.json'), 'r') as file:
         sim_dict = json.load(file)
-    t_presim_value = int(sim_dict["t_presim"])
+    t_presim_value = 0#int(sim_dict["t_presim"])
     t_sim_value = int(sim_dict["t_sim"])
 
     info = []
@@ -83,7 +83,7 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
             times_simulation.append([t_presim_value, t_sim_value])
 
             # Lectura excitatoria
-            exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
+            exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value)
             cellids, times = zip(*exc[2][0])
             exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
             exc_cells['type'] = 'exc'
