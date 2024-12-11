@@ -48,8 +48,8 @@ from assets.potjans_diesmann.stimulus_params1 import stim_dict as stim_dict_A
 from assets.potjans_diesmann.lateral_params import lateral_dict
 from assets.potjans_diesmann.lateral_params2 import lateral_dict as lateral_dict2
 
-from assets.potjans_diesmann.feedforward_params import lateral_dict as FF_dict
-from assets.potjans_diesmann.feedback_params import lateral_dict as FB_dict
+from assets.potjans_diesmann.feedforward_params import feedforward_dict as FF_dict
+from assets.potjans_diesmann.feedback_params import feedback_dict as FB_dict
 
 from assets.potjans_diesmann.network_params import net_dict #para cada microcircuito es igual
 from assets.potjans_diesmann.network_params_V2 import net_dict as net_dict_v2 
@@ -91,8 +91,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 0.1})
+    net_dict.update({'N_scaling': 0.15})
+    net_dict.update({'K_scaling': 0.15})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -119,11 +119,8 @@ if __name__ == '__main__':
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
-    stim_dict_B = stim_dict_A.copy()
+    stim_dict_V2 = stim_dict_A.copy()
     stim_dict_C = stim_dict_A.copy()
-    stim_dict4 = stim_dict_A.copy()
-
-    stim_dict_v2 = stim_dict_A.copy()
 
     # Stimulation to MCC A
     stim_star = 500.0 
@@ -134,21 +131,10 @@ if __name__ == '__main__':
     stim_dict_A.update({'th_duration': stim_duration})
     stim_dict_A.update({'th_rate': 200.0})
 
-    stim_dict_A_2 = stim_dict_A.copy() 
-    stim_dict_A_2.update({'num_th_neurons': 10})
+    stim_dict_B = stim_dict_A.copy() 
+    stim_dict_B.update({'num_th_neurons': 200})
 
     # Stimulation for extra-classical receptive field
-    if False:
-        # Stimulation to MCC B
-        stim_star = 1000.0 
-        stim_duration = 500.0
-
-        stim_dict_B.update({'thalamic_input': False})
-        stim_dict_B.update({'th_start': stim_star})
-        stim_dict_B.update({'th_duration': stim_duration})
-        stim_dict_B.update({'th_rate': 15.0})
-
-    # Estimulación top-down compensatoria
     if True:
         # Stimulation external
         stim_star = 1000.0 
@@ -157,10 +143,10 @@ if __name__ == '__main__':
         stim_dict_C.update({'thalamic_input': True})
         stim_dict_C.update({'th_start': stim_star})
         stim_dict_C.update({'th_duration': stim_duration})
-        stim_dict_C.update({'th_rate': 250.0})
+        stim_dict_C.update({'th_rate': 300.0})
 
-        #stim_dict_C_2 = stim_dict_C.copy() 
-        #stim_dict_C_2.update({'num_th_neurons': 2500})
+        stim_dict_D = stim_dict_C.copy() 
+        stim_dict_D.update({'num_th_neurons': 200})
     
     if False:
         # Stimulation to MCC B.0
@@ -247,7 +233,7 @@ if __name__ == '__main__':
         nest.rng_seed = randint(1, 1000)
         #nest.rng_seed = 56
         rng_seeds.append(nest.rng_seed)
-        net_D = network.Network(sim_dict, net_dict, stim_dict_B)
+        net_D = network.Network(sim_dict, net_dict, stim_dict_D)
         
         # Create all nodes
         net_D.create()
@@ -271,12 +257,16 @@ if __name__ == '__main__':
     # Create MCC C
     if V2:
         #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
-        net_dict.update({'K_ext': np.array([1600, 1500, 1980, 1900, 2000, 1900, 2850, 2100])})
+        net_dict.update({'K_ext': np.array([1500, 1500, 2050, 1900, 1980, 1900, 2850, 2100])})
+        
+        #net_dict.update({'full_num_neurons': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])})
+        net_dict.update({'full_num_neurons': np.array([20683, 5834, 20915, 5279, 4850, 1065, 14395, 2948])})
+
         print("---> Creating networks V2...")
         nest.rng_seed = randint(1, 1000)
         #nest.rng_seed = 56
         rng_seeds.append(nest.rng_seed)
-        net_V2 = network.Network(sim_dict, net_dict, stim_dict_B)
+        net_V2 = network.Network(sim_dict, net_dict, stim_dict_V2)
 
         # Create all nodes
         net_V2.create()
@@ -305,11 +295,11 @@ if __name__ == '__main__':
                 #nest.rng_seed = 58
                 nest.rng_seed = randint(1, 1000)
                 rng_seeds.append(nest.rng_seed)
-                net_B.connect_networks(net_C, lateral_dict)
+                net_B.connect_networks(net_C, lateral_dict2)
                 #nest.rng_seed = 59
                 nest.rng_seed = randint(1, 1000)
                 rng_seeds.append(nest.rng_seed)
-                net_C.connect_networks(net_B, lateral_dict)
+                net_C.connect_networks(net_B, lateral_dict2)
 
                 net_C.connect_networks(net_A, lateral_dict2)
                 net_A.connect_networks(net_C, lateral_dict2)
@@ -322,11 +312,11 @@ if __name__ == '__main__':
                     net_D.connect_networks(net_C, lateral_dict)
                     
                     nest.rng_seed = randint(1, 1000)
-                    net_D.connect_networks(net_A, lateral_dict)
+                    net_D.connect_networks(net_A, lateral_dict2)
                     net_D.connect_networks(net_B, lateral_dict2)
 
                     nest.rng_seed = randint(1, 1000)
-                    net_A.connect_networks(net_D, lateral_dict)
+                    net_A.connect_networks(net_D, lateral_dict2)
                     net_B.connect_networks(net_D, lateral_dict2)
 
 

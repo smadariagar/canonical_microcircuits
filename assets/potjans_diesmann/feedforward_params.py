@@ -52,7 +52,7 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     matrix[:, 1:num_pops:2] = val_inh
     return matrix
 
-lateral_dict = {
+feedforward_dict = {
     # factor to scale the number of neurons
     'N_scaling': 0.2,
     # factor to scale the indegrees
@@ -70,11 +70,11 @@ lateral_dict = {
             [[0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23E
              [0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L23I
              [0.0983, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4E
-             [0.0619, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4I
+             [0.0419, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4I
              [0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L5E
              [0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L5I
              [0.0512, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L6E
-             [0.0196, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]),    # L6I
+             [0.0196, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])*1.2,    # L6I
             # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
     
     # mean delay of excitatory connections (in ms)
@@ -89,8 +89,8 @@ lateral_dict = {
 updated_dict = {
     # matrix of mean delays
     'delay_matrix_mean': get_exc_inh_matrix(
-        lateral_dict['delay_exc_mean'],
-        lateral_dict['delay_inh_mean'],
-        len(lateral_dict['populations']))}
+        feedforward_dict['delay_exc_mean'],
+        feedforward_dict['delay_inh_mean'],
+        len(feedforward_dict['populations']))}
 
-lateral_dict.update(updated_dict)
+feedforward_dict.update(updated_dict)

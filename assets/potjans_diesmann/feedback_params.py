@@ -52,7 +52,7 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     matrix[:, 1:num_pops:2] = val_inh
     return matrix
 
-lateral_dict = {
+feedback_dict = {
     # factor to scale the number of neurons
     'N_scaling': 0.2,
     # factor to scale the indegrees
@@ -102,8 +102,8 @@ lateral_dict = {
 updated_dict = {
     # matrix of mean delays
     'delay_matrix_mean': get_exc_inh_matrix(
-        lateral_dict['delay_exc_mean'],
-        lateral_dict['delay_inh_mean'],
-        len(lateral_dict['populations']))}
+        feedback_dict['delay_exc_mean'],
+        feedback_dict['delay_inh_mean'],
+        len(feedback_dict['populations']))}
 
-lateral_dict.update(updated_dict)
+feedback_dict.update(updated_dict)
