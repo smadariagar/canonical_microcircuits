@@ -277,7 +277,7 @@ def PSTH_plot_tog(path, t_sim, l_bin):
     unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
     
 
-    fig, ax = plt.subplots(8, layout='constrained', figsize=(8,16), sharex=True)
+    fig, ax = plt.subplots(8, layout='constrained', figsize=(8,25), sharex=True)
 
     # # Iterar sobre cada combinación única
     nmcc = -1

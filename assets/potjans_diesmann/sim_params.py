@@ -63,9 +63,9 @@ sim_dict = {
     # is run on a local machine.
     'print_time': True,
     # if True, raster plots will be plotted.
-    'plot_raster': True,
+    'plot_raster': False,
     # if True, the firing rates will be plotted.
-    'plot_firing_rates': True,
+    'plot_firing_rates': False,
     # if True, voltage traces will be plotted.
     'plot_voltages': False,
 }

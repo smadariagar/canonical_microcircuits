@@ -175,12 +175,13 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Model type
-    V1_B, V1_C, V1_D = True, True, True,
-    V1_ext = False 
+    V1_B, V1_C, V1_D = True, True, True
     V2 = True
+
+    V1_ext = False
+
     Lat_conn = True
-    Ver_conn = True
-       
+    FF_conn, FB_conn = True, True
 
     ###############################################################################
     # Microcircuits V1 created
@@ -330,11 +331,12 @@ if __name__ == '__main__':
 
 
     ###############################################################################
-    # Lateral connections
-    if Ver_conn:
+    # Vertica connections
+    #feedforward
+    if FF_conn:
         print("---> Connecting networks vertically...")
         
-        #feedforward
+        
         nest.rng_seed = randint(1, 1000)
         net_A.connect_networks(net_V2, FF_dict)
         nest.rng_seed = randint(1, 1000)
@@ -344,16 +346,16 @@ if __name__ == '__main__':
         nest.rng_seed = randint(1, 1000)
         net_D.connect_networks(net_V2, FF_dict)
 
-        #feedback
-        if True:
-            nest.rng_seed = randint(1, 1000)
-            net_V2.connect_networks(net_A, FB_dict)
-            nest.rng_seed = randint(1, 1000)
-            net_V2.connect_networks(net_B, FB_dict)
-            nest.rng_seed = randint(1, 1000)
-            net_V2.connect_networks(net_C, FB_dict)
-            nest.rng_seed = randint(1, 1000)
-            net_V2.connect_networks(net_D, FB_dict)
+    #feedback
+    if FB_conn:
+        nest.rng_seed = randint(1, 1000)
+        net_V2.connect_networks(net_A, FB_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_V2.connect_networks(net_B, FB_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_V2.connect_networks(net_C, FB_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_V2.connect_networks(net_D, FB_dict)
 
     
     ###############################################################################
@@ -412,7 +414,7 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Generate metrics
-    l_bin = 50
+    l_bin = 100
     data_path = sim_dict.get('data_path', None)
     psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], l_bin)
     psth.PSTH_plot_tog(data_path, sim_dict['t_sim'], l_bin)
