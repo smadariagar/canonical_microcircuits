@@ -14,7 +14,7 @@ import tools.histogram_single_microcircuit as hist_spikes
 
 warnings.filterwarnings("ignore")
 
-def generate_first_population(folder_path, n_pop):
+def generate_first_population(folder_path, n_pop, params):
     """_summary_
 
     Args:
@@ -32,7 +32,7 @@ def generate_first_population(folder_path, n_pop):
 
     for i in range(n_pop):
         suj_id = np.array([[0, i]])
-        r_params = np.random.random_sample((1,8*3))/10
+        r_params = np.random.random_sample((1,params))/10
         suj = np.concatenate((suj_id, r_params), axis=1)
 
         add_suj_to_csv(folder_path, suj)
@@ -227,9 +227,13 @@ def save_imposed_result(folder_path, trial, suj_id, activity):
 
     performance = perf_calculation(activity)
 
-    # convert array into dataframe
-    df = pd.DataFrame([[trial,suj_id]+activity+[performance]])
+    info = np.array([trial,suj_id])
+    print(info+np.array(activity))
 
+    
+    # convert array into dataframe
+    df = pd.DataFrame([[trial,suj_id]+[activity]+[performance]])
+    print(df)
     # save the dataframe as a csv file
     # append data frame to CSV file
     df.to_csv(os.path.join(folder_path, 'results.csv'), mode='a', index=False, header=False)
@@ -245,42 +249,39 @@ def perf_calculation(activity):
         _type_: _description_
     """
 
-    ###################################
-    # MCC conn_prob_lat = 0           #
-    # Basal= 86 +- 26; CRF= 110 +- 24 #
-    # 230.8 370.3 417.2 400.9        #
-    ###################################
     activity = np.array(activity)
-    print(activity)
+    # print(activity)
 
-    # Variable de actividad basal
-    bg_val = abs(0.6-activity[0])
-    bg_val = bg_val + abs(0.78-activity[1])
+    # # Variable de actividad basal
+    # bg_val = abs(0.6-activity[0])
+    # bg_val = bg_val + abs(0.78-activity[1])
     
-    # Variable de supresión
-    supp_val = 0
-    if activity[1] < activity[2]:
-        supp_val = supp_val + abs(activity[2]-activity[1])
-    if activity[2] < activity[3]:
-        supp_val = supp_val + abs(activity[3]-activity[2])
-    if activity[1] < activity[3]:
-        supp_val = supp_val + abs(activity[3]-activity[1])
+    # # Variable de supresión
+    # supp_val = 0
+    # if activity[1] < activity[2]:
+    #     supp_val = supp_val + abs(activity[2]-activity[1])
+    # if activity[2] < activity[3]:
+    #     supp_val = supp_val + abs(activity[3]-activity[2])
+    # if activity[1] < activity[3]:
+    #     supp_val = supp_val + abs(activity[3]-activity[1])
 
-    # Normalización
-    n = (activity[1]-activity[0])/100
-    m = activity[0]
-    norm_77, norm_24 = 77*n+m, 24*n+m
+    # # Normalización
+    # n = (activity[1]-activity[0])/100
+    # m = activity[0]
+    # norm_77, norm_24 = 77*n+m, 24*n+m
 
-    # Variable supresión inicial
-    norm_val_1 = abs(norm_77-activity[2])
+    # # Variable supresión inicial
+    # norm_val_1 = abs(norm_77-activity[2])
 
-    # Variable supresión inicial
-    norm_val_2 = abs(norm_24-activity[3])
+    # # Variable supresión inicial
+    # norm_val_2 = abs(norm_24-activity[3])
 
-    if activity[0]==0 and activity[1]==0 and activity[2]==0 and activity[3]==0:
-        return 10000000
+    # if activity[0]==0 and activity[1]==0 and activity[2]==0 and activity[3]==0:
+    #     return 10000000
 
-    return bg_val + supp_val*10 + norm_val_1 + norm_val_2
+    # return bg_val + supp_val*10 + norm_val_1 + norm_val_2
+
+    return activity[1]-activity[2]
 
 
 def modify_performance(folder_path):

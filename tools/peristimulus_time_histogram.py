@@ -222,6 +222,27 @@ def PSTH_data(path, scaling, t_sim, l_bin):
     hist_data.to_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)
 
 
+def get_data(path, t_sim, l_bin, layer, n_type):
+    """
+    Help me
+    """
+
+    # Add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+
+    df = pd.read_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), header=None, names=names)
+
+    m = df.columns.to_list()
+    performance = df[(df['layer']==layer) & (df['type']==n_type)][m[3:]].values
+
+    try:
+        return performance[0]
+    except Exception:
+        return []
+    
+
 def PSTH_plot(path, t_sim, l_bin):
 
     # add columns names

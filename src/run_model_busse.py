@@ -59,6 +59,7 @@ import tools.peristimulus_time_histogram as psth
 
 from . import network_potjans_diesmann as network
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument('gen', type=int)
 parser.add_argument('id_s', type=int)
@@ -86,13 +87,14 @@ if __name__ == '__main__':
     data_path = sim_dict.get('data_path', None)
     rng_seeds = []
 
+
     ###############################################################################
     # Modelo de 2 MCC en V1
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.15})
-    net_dict.update({'K_scaling': 0.15})
+    net_dict.update({'N_scaling': 0.1})
+    net_dict.update({'K_scaling': 0.1})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -159,15 +161,15 @@ if __name__ == '__main__':
         stim_dict4.update({'th_rate': 50.0})
         stim_dict4.update({'conn_probs_th': np.array([0.13, 0.075, 0.0, 0.0, 0.13, 0.075, 0.0, 0.0])})
 
+
     ###############################################################################
     # Model type
     V1_B, V1_C, V1_D = True, True, True
     V2 = True
 
-    V1_ext = False
+    Lat_conn = False
+    FF_conn, FB_conn = True, False
 
-    Lat_conn = True
-    FF_conn, FB_conn = True, True
 
     ###############################################################################
     # Microcircuits V1 created
@@ -175,6 +177,7 @@ if __name__ == '__main__':
     print("---> Creating Microcircuits...")
     #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
     net_dict.update({'K_ext': np.array([1500, 1500, 2100, 1900, 1950, 1900, 2900, 2100])})
+
 
     ###############################################################################
     # Create MCC A
@@ -194,6 +197,7 @@ if __name__ == '__main__':
     time_connect_A = time.time()
     all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
 
+
     ###############################################################################
     # Create MCC B
     if V1_B:
@@ -209,6 +213,7 @@ if __name__ == '__main__':
         # Connect all nodes
         net_B.connect()
         all_pops = all_pops + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
+
 
     ###############################################################################
     # Create MCC C
@@ -226,6 +231,7 @@ if __name__ == '__main__':
         net_C.connect()
         all_pops = all_pops + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) 
 
+
     ###############################################################################
     # Create MCC D
     if V1_D:
@@ -242,9 +248,10 @@ if __name__ == '__main__':
         net_D.connect()
         all_pops = all_pops + list(map(lambda pop: f"{pop}_D", net_dict['populations'])) 
 
+
     ###############################################################################
     # Create MCC D
-    if V1_ext:
+    if False:
         print("---> Conecting ext...")
         nest.rng_seed = randint(1, 1000)
         rng_seeds.append(nest.rng_seed)
@@ -252,6 +259,7 @@ if __name__ == '__main__':
         net_B.connect_other_input(stim_dict4)
         net_C.connect_other_input(stim_dict4)
         net_D.connect_other_input(stim_dict4)
+
 
     ###############################################################################
     # Create MCC C
@@ -276,6 +284,7 @@ if __name__ == '__main__':
 
         #net_V2.connect_other_input(stim_dict3_v2)
         all_pops = all_pops + list(map(lambda pop: f"{pop}_V2", net_dict['populations'])) 
+
 
     ###############################################################################
     # Lateral connections
@@ -361,6 +370,7 @@ if __name__ == '__main__':
     net_A.simulate(sim_dict['t_sim'])
     time_simulate = time.time()
 
+
     ###############################################################################
     # Plot a spike raster of the simulated neurons and a box plot of the firing
     # rates for each population.
@@ -389,7 +399,6 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-
     print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
     if sim_dict.get("plot_firing_rates", False):
         helpers.firing_rates(
@@ -401,6 +410,7 @@ if __name__ == '__main__':
 
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
+
 
     ###############################################################################
     # Generate metrics
@@ -414,10 +424,12 @@ if __name__ == '__main__':
     # Histogramas de spikes and save performance
     # pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
 
+
     ###############################################################################
     # Saving seeds
     with open(os.path.join(data_path, 'seeds.json'), 'w') as file:
         json.dump(rng_seeds, file)
+
 
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the
