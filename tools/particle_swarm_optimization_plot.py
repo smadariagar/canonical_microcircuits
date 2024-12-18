@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 import tools.histogram_single_microcircuit as hist_spikes
+import tools.particle_swarm_optimization as pso
 
 #from astools/particle_swarm_optimization.pysets.potjans_diesmann.sim_params import sim_dict
 
@@ -103,7 +104,7 @@ def plot_best_params(folder_path, type_best):
         type_best (_type_): _description_
     """
 
-    clrs = sns.color_palette('husl', n_colors=20)
+    clrs = sns.color_palette('coolwarm', n_colors=20)
 
     if type_best == 'sub':
         fig, ax = plt.subplots(3, layout='constrained', figsize=(6,6), sharex=True)
@@ -127,21 +128,25 @@ def plot_best_params(folder_path, type_best):
     if type_best == 'all':
 
         fig, ax = plt.subplots(3, layout='constrained', figsize=(6,6), sharex=True)
-        best_trial = sorted_result(folder_path, -1)
+        best_trial = pso.sorted_result(folder_path, -1)
         group_params = []
         for i in range(20):
-            best_params = get_subject(folder_path, best_trial[i][0], best_trial[i][1])
+            try:
+                best_params = pso.get_subject(folder_path, best_trial[i][0], best_trial[i][1], 8)
+            except:
+                continue
             group_params.append(best_params)
-            ax[0].plot(range(0,8), best_params[0:8], '.--', c=clrs[i])
-            ax[1].plot(range(0,8), best_params[8:16], '.--', c=clrs[i])
-            ax[2].plot(range(0,8), best_params[16:24], '.--', c=clrs[i],
+            ax[0].plot(range(0,4), best_params[0:4], '.--', c=clrs[i])
+            ax[1].plot(range(0,4), best_params[0:4], '.--', c=clrs[i])
+            ax[2].plot(range(0,4), best_params[4:8], '.--', c=clrs[i],
                 label='trl '+str(int(best_trial[i][0]))+
                     ', suj '+str(int(best_trial[i][1]))+
                     ', perf '+str(round(best_trial[i][2],3)))
         ax[0].set_ylabel('L2/3 E')
         ax[1].set_ylabel('L5 E')
         ax[2].set_ylabel('L6 E')
-        ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
+        #ax[2].set_xticks(range(8),['L23E','L23I','L4E','L4I','L5E','L5I','L6E','L6I'])
+        ax[2].set_xticks(range(4),['L23E','L23I','L5E','L5I'])
         fig.legend(loc='upper left', bbox_to_anchor=(1.0,1),
             fancybox=True, shadow=False, ncol=1)
 

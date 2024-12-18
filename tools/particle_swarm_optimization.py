@@ -54,7 +54,7 @@ def add_suj_to_csv(folder_path, suj_info):
     df.to_csv(os.path.join(folder_path, 'swarm.csv'), mode='a', index=False, header=False)
 
 
-def get_subject(folder_path, trial, id_suj):
+def get_subject(folder_path, trial, id_suj, n_params):
     """_summary_
 
     Args:
@@ -68,7 +68,7 @@ def get_subject(folder_path, trial, id_suj):
 
     # add columns names
     cols = np.array(['trials', 'subjects'])
-    params = range(0, 8*4)
+    params = range(0, n_params)
     names = np.concatenate((cols, params), axis=None)
 
     df = pd.read_csv(os.path.join(folder_path, 'swarm.csv'), header=None, names=names)
@@ -132,9 +132,15 @@ def new_conn_probs_alternative(params):
         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
         # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
 
+    # cont = 0
+    # for j in [0]:
+    #     for i in range(2):
+    #         conn_probs[i, j] = params[cont]
+    #         cont=cont+1
+
     cont = 0
-    for j in [0]:
-        for i in range(2):
+    for j in [4,6]:
+        for i in [0,1,4,5]:
             conn_probs[i, j] = params[cont]
             cont=cont+1
 
@@ -154,7 +160,7 @@ def get_result(folder_path, trial, id_suj):
 
     # add columns names
     cols = np.array(['trials', 'subjects'])
-    params = range(5)
+    params = range(4)
     names = np.concatenate((cols, params), axis=None)
 
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
@@ -181,14 +187,14 @@ def sorted_result(folder_path, id_suj):
 
     # add columns names
     cols = np.array(['trials', 'subjects'])
-    params = range(5)
+    params = range(4)
     names = np.concatenate((cols, params), axis=None)
 
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
     if id_suj == -1:
-        result = df[(df['subjects']<=100)][['trials', 'subjects', '4']].sort_values('4').values
+        result = df[(df['subjects']<=100)][['trials', 'subjects', '3']].sort_values('3').values
     else:
-        result = df[(df['subjects']==id_suj)][['trials', 'subjects', '4']].sort_values('4').values
+        result = df[(df['subjects']==id_suj)][['trials', 'subjects', '3']].sort_values('3').values
 
     return result
 
@@ -227,13 +233,9 @@ def save_imposed_result(folder_path, trial, suj_id, activity):
 
     performance = perf_calculation(activity)
 
-    info = np.array([trial,suj_id])
-    print(info+np.array(activity))
-
-    
     # convert array into dataframe
-    df = pd.DataFrame([[trial,suj_id]+[activity]+[performance]])
-    print(df)
+    df = pd.DataFrame([[trial,suj_id]+list(activity)+[performance]])
+
     # save the dataframe as a csv file
     # append data frame to CSV file
     df.to_csv(os.path.join(folder_path, 'results.csv'), mode='a', index=False, header=False)
@@ -265,10 +267,10 @@ def perf_calculation(activity):
     # if activity[1] < activity[3]:
     #     supp_val = supp_val + abs(activity[3]-activity[1])
 
-    # # Normalización
-    # n = (activity[1]-activity[0])/100
-    # m = activity[0]
-    # norm_77, norm_24 = 77*n+m, 24*n+m
+    # Normalización
+    n = (activity[1]-activity[0])/100
+    m = activity[0]
+    norm_77, norm_24 = 77*n+m, 24*n+m
 
     # # Variable supresión inicial
     # norm_val_1 = abs(norm_77-activity[2])
@@ -280,9 +282,10 @@ def perf_calculation(activity):
     #     return 10000000
 
     # return bg_val + supp_val*10 + norm_val_1 + norm_val_2
+    newmax = min(activity[1],10)
 
-    return activity[1]-activity[2]
 
+    return activity[0] + abs(10-newmax) + abs(norm_24-activity[2])*10
 
 def modify_performance(folder_path):
     """_summary_
@@ -293,7 +296,7 @@ def modify_performance(folder_path):
 
     # add columns names
     cols = np.array(['trials', 'subjects'])
-    params = range(5)
+    params = range(4)
     names = np.concatenate((cols, params), axis=None)
 
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
@@ -305,14 +308,14 @@ def modify_performance(folder_path):
     for trl in trial:
         for suj in subject:
 
-            activity = df[(df['trials']==trl) & (df['subjects']==suj)][m[2:6]].values[0]
+            activity = df[(df['trials']==trl) & (df['subjects']==suj)][m[2:5]].values[0]
             per = perf_calculation(activity)
 
             n_df = pd.DataFrame([np.concatenate(([trl, suj], activity, per), axis=None)])
             n_df.to_csv(os.path.join(folder_path, 'results_mod.csv'), mode='a', index=False, header=False)
 
 
-def generate_next_iteration(folder_path, last_trial, n_subjects):
+def generate_next_iteration(folder_path, last_trial, n_subjects, params):
     """_summary_
 
     Args:
@@ -327,7 +330,7 @@ def generate_next_iteration(folder_path, last_trial, n_subjects):
 
     # Get best of all
     best_all_id = sorted_result(folder_path, -1)
-    best_all = get_subject(folder_path, best_all_id[0][0], best_all_id[0][1])
+    best_all = get_subject(folder_path, best_all_id[0][0], best_all_id[0][1], params)
 
     print('***********************')
     print(best_all_id[0])
@@ -335,22 +338,22 @@ def generate_next_iteration(folder_path, last_trial, n_subjects):
 
     for i in range(n_subjects):
 
-        subject_i = get_subject(folder_path, last_trial, i)
+        subject_i = get_subject(folder_path, last_trial, i, params)
 
         best_subject_i_id = sorted_result(folder_path, i)
-        best_subject_i = get_subject(folder_path, best_subject_i_id[0][0], best_subject_i_id[0][1])
+        best_subject_i = get_subject(folder_path, best_subject_i_id[0][0], best_subject_i_id[0][1], params)
         print(best_subject_i_id[0])
         print('***************')
 
         if last_trial == 0:
             vel = subject_i - subject_i
         else:
-            vel = subject_i - get_subject(folder_path, last_trial-1, i)
+            vel = subject_i - get_subject(folder_path, last_trial-1, i, params)
 
         #r_trial = 1/np.log(last_trial-57)
-        rand1 = np.random.random_sample((1,8*3))
-        rand2 = np.random.random_sample((1,8*3))
-        rand3 = np.random.uniform(-0.01,0.01,(1,8*3))
+        rand1 = np.random.random_sample((1,params))
+        rand2 = np.random.random_sample((1,params))
+        rand3 = np.random.uniform(-0.01,0.01,(1,params))
 
         new_position = subject_i + w*vel + rand1*c1*(best_subject_i-subject_i) + rand2*c2*(best_all-subject_i) + rand3*c3
         #+ np.random.randn()*c3*(rand_subj-subject_i)#*r_trial

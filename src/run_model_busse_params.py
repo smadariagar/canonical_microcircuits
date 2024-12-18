@@ -68,7 +68,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    subject_params = pso.get_subject(folder_path, args.gen, args.id_s)
+    subject_params = pso.get_subject(folder_path, args.gen, args.id_s, 8)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -93,8 +93,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.05})
-    net_dict.update({'K_scaling': 0.05})
+    net_dict.update({'N_scaling': 0.1})
+    net_dict.update({'K_scaling': 0.1})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
     # Horizontal weights update
     new_conn_probs = pso.new_conn_probs_alternative(subject_params)
-    lateral_dict.update({'conn_probs': new_conn_probs})
+    FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
     sim_dutation = 1500.0 
@@ -167,8 +167,8 @@ if __name__ == '__main__':
     V1_B, V1_C, V1_D = True, True, True
     V2 = True
 
-    Lat_conn = False
-    FF_conn, FB_conn = True, False
+    Lat_conn = True
+    FF_conn, FB_conn = True, True
 
 
     ###############################################################################
