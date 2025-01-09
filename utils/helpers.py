@@ -250,7 +250,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
         stp = int(10. * N_scaling)
         print('  Only spikes of neurons in steps of {} are shown.'.format(stp))
 
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(7, 5))
     for i, n in enumerate(sd_names):
         times = data[i]['time_ms']
         neurons = np.abs(data[i]['sender'] - last_node_id) + 1
@@ -432,7 +432,7 @@ def firing_rates(path, name, begin, end):
         np.around(all_std_rates, decimals=3)))
 
 
-def boxplot(path, populations, name):
+def boxplot(path, populations, name, all_box, each_box, names):
     """ Creates a boxblot of the firing rates of all populations.
 
     To create the boxplot, the firing rates of each neuron in each population
@@ -462,52 +462,9 @@ def boxplot(path, populations, name):
         rates_per_neuron_rev.append(
             np.loadtxt(os.path.join(path, ('rate' + str(i) + '.dat'))))
 
-
-    #plt.figure(figsize=(5, 3*len(populations)/8))
-    plt.figure(figsize=(8, 25))
-    bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
-                     meanprops=meanprops, meanline=True, showmeans=True)
-    plt.setp(bp['boxes'], color='black', linewidth=2)
-    plt.setp(bp['whiskers'], color='black', linewidth=2.5)
-    plt.setp(bp['caps'], color='black', linewidth=2)
-    plt.setp(bp['fliers'], color='red', marker='*')
-
-    # boxcolors
-    for i in np.arange(len(populations)):
-        boxX = []
-        boxY = []
-        box = bp['boxes'][i]
-        for j in list(range(5)):
-            boxX.append(box.get_xdata()[j])
-            boxY.append(box.get_ydata()[j])
-        boxCoords = list(zip(boxX, boxY))
-        k = i % 2
-        boxPolygon = Polygon(boxCoords, facecolor=color_list[k])
-        plt.gca().add_patch(boxPolygon)
-    plt.xlabel('firing rate [spikes/s]', fontsize=fs)
-    plt.xlim([-1,31])
-    plt.yticks(label_pos, pop_names, fontsize=fs)
-    plt.xticks(fontsize=fs)
-    plt.title('Firing rates', fontsize=22)
-    plt.tight_layout()
-    box_plot_name = name + '_box_plot.png'
-    plt.savefig(os.path.join(path, box_plot_name), dpi=300)
-
-    ##################
-
-
-    for ii in np.arange(0, len(populations),8):
-
-        rates_per_neuron_rev = []
-        cc = 0
-        for i in np.arange(len(populations))[::-1]:
-            i=i-ii
-            rates_per_neuron_rev.append(np.loadtxt(os.path.join(path, ('rate' + str(i) + '.dat'))))
-            cc=cc+1
-            if cc == 8:
-                break
-
-        plt.figure(figsize=(8, 5))
+    if all_box:
+        #plt.figure(figsize=(5, 3*len(populations)/8))
+        plt.figure(figsize=(8, 25))
         bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
                         meanprops=meanprops, meanline=True, showmeans=True)
         plt.setp(bp['boxes'], color='black', linewidth=2)
@@ -516,7 +473,7 @@ def boxplot(path, populations, name):
         plt.setp(bp['fliers'], color='red', marker='*')
 
         # boxcolors
-        for i in np.arange(8):
+        for i in np.arange(len(populations)):
             boxX = []
             boxY = []
             box = bp['boxes'][i]
@@ -529,20 +486,63 @@ def boxplot(path, populations, name):
             plt.gca().add_patch(boxPolygon)
         plt.xlabel('firing rate [spikes/s]', fontsize=fs)
         plt.xlim([-1,31])
-
-
-        elmn = np.arange(len(populations)-8-ii,len(populations)-ii)
-
-        label_pos_grp = [label_pos[e+ii] for e in elmn]
-        pop_names_grp = [pop_names[e] for e in elmn]
-
-        plt.yticks(label_pos_grp, pop_names_grp, fontsize=fs)
-
+        plt.yticks(label_pos, pop_names, fontsize=fs)
         plt.xticks(fontsize=fs)
         plt.title('Firing rates', fontsize=22)
         plt.tight_layout()
-        box_plot_name = name + str(ii) + '_box_plot.png'
+        box_plot_name = name + '_box_plot.png'
         plt.savefig(os.path.join(path, box_plot_name), dpi=300)
+
+    ##################
+
+    if each_box:
+        for ii in np.arange(0, len(populations),8):
+
+            rates_per_neuron_rev = []
+            cc = 0
+            for i in np.arange(len(populations))[::-1]:
+                i=i-ii
+                rates_per_neuron_rev.append(np.loadtxt(os.path.join(path, ('rate' + str(i) + '.dat'))))
+                cc=cc+1
+                if cc == 8:
+                    break
+
+            plt.figure(figsize=(6, 5))
+            bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
+                            meanprops=meanprops, meanline=True, showmeans=True)
+            plt.setp(bp['boxes'], color='black', linewidth=2)
+            plt.setp(bp['whiskers'], color='black', linewidth=2.5)
+            plt.setp(bp['caps'], color='black', linewidth=2)
+            plt.setp(bp['fliers'], color='red', marker='*')
+
+            # boxcolors
+            for i in np.arange(8):
+                boxX = []
+                boxY = []
+                box = bp['boxes'][i]
+                for j in list(range(5)):
+                    boxX.append(box.get_xdata()[j])
+                    boxY.append(box.get_ydata()[j])
+                boxCoords = list(zip(boxX, boxY))
+                k = i % 2
+                boxPolygon = Polygon(boxCoords, facecolor=color_list[k])
+                plt.gca().add_patch(boxPolygon)
+            plt.xlabel('firing rate [spikes/s]', fontsize=fs)
+            plt.xlim([-1,31])
+
+
+            elmn = np.arange(len(populations)-8-ii,len(populations)-ii)
+
+            label_pos_grp = [label_pos[e+ii] for e in elmn]
+            pop_names_grp = [pop_names[e] for e in elmn]
+
+            plt.yticks(label_pos_grp, pop_names_grp, fontsize=fs)
+
+            plt.xticks(fontsize=fs)
+            plt.title('Firing rates' + ' ' + names[-(int(ii/8)+1)], fontsize=22)
+            plt.tight_layout()
+            box_plot_name = name + str(int(ii/8)) + '_box_plot.png'
+            plt.savefig(os.path.join(path, box_plot_name), dpi=300)
 
 
 def __gather_metadata(path, name):

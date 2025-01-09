@@ -139,9 +139,12 @@ def plot_best_params(folder_path, type_best):
             ax[0].plot(range(0,4), best_params[0:4], '.--', c=clrs[i])
             ax[1].plot(range(0,4), best_params[0:4], '.--', c=clrs[i])
             ax[2].plot(range(0,4), best_params[4:8], '.--', c=clrs[i],
-                label='trl '+str(int(best_trial[i][0]))+
-                    ', suj '+str(int(best_trial[i][1]))+
-                    ', perf '+str(round(best_trial[i][2],3)))
+                label='T'+str(int(best_trial[i][0]))+
+                    ', S'+str(int(best_trial[i][1]))+
+                    '| '+str(round(best_trial[i][3],1))+
+                    '| '+str(round(best_trial[i][4],1))+
+                    '| '+str(round(best_trial[i][5],1))+'|'+
+                    ', perf:'+str(round(best_trial[i][2],1)))
         ax[0].set_ylabel('L2/3 E')
         ax[1].set_ylabel('L5 E')
         ax[2].set_ylabel('L6 E')

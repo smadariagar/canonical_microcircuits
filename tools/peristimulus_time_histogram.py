@@ -186,9 +186,10 @@ def PSTH_data(path, scaling, t_sim, l_bin):
     # Read JSON
     with open(os.path.join(path, 'net_params.json'), 'r') as file:
         net_dict = json.load(file)
-    #num_neurons = net_dict['full_num_neurons_v1']
-    num_neurons = net_dict['full_num_neurons']
-    num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons
+    num_neurons = net_dict['full_num_neurons_v1']
+    num_neurons_v2 = net_dict['full_num_neurons_v2']
+
+    num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons_v2
 
     archivos_spike_recorder = hist_spikes.select_spike_recorder_files(path)
     info_total, times = hist_spikes.process_files_in_pairs_positions(path, archivos_spike_recorder)

@@ -93,8 +93,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 0.1})
+    net_dict.update({'N_scaling': 0.05})
+    net_dict.update({'K_scaling': 0.05})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})

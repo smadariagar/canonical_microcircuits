@@ -68,7 +68,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    subject_params = pso.get_subject(folder_path, args.gen, args.id_s, 8)
+    #subject_params = pso.get_subject(folder_path, args.gen, args.id_s, 8)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -93,8 +93,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.1})
-    net_dict.update({'K_scaling': 0.1})
+    net_dict.update({'N_scaling': 0.2})
+    net_dict.update({'K_scaling': 0.2})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -113,22 +113,25 @@ if __name__ == '__main__':
     FB_dict.update({'K_scaling': net_dict['K_scaling']})
 
     # Horizontal weights update
-    new_conn_probs = pso.new_conn_probs_alternative(subject_params)
-    FB_dict.update({'conn_probs': new_conn_probs})
+    #new_conn_probs = pso.new_conn_probs_alternative(subject_params)
+    #FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_dutation = 1500.0 
+    sim_dutation = 3000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
-    stim_dict_V2 = stim_dict_A.copy()
+    stim_dict_B = stim_dict_A.copy() 
     stim_dict_C = stim_dict_A.copy()
+    stim_dict_D = stim_dict_C.copy() 
+    stim_dict_V2 = stim_dict_A.copy()
+
 
     # Stimulation to MCC A
     stim_star = 500.0 
     stim_duration = 1000.0
 
-    stim_dict_A.update({'thalamic_input': True})
+    stim_dict_A.update({'thalamic_input': False})
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
     stim_dict_A.update({'th_rate': 200.0})
@@ -142,7 +145,7 @@ if __name__ == '__main__':
         stim_star = 1000.0 
         stim_duration = 500.0
 
-        stim_dict_C.update({'thalamic_input': True})
+        stim_dict_C.update({'thalamic_input': False})
         stim_dict_C.update({'th_start': stim_star})
         stim_dict_C.update({'th_duration': stim_duration})
         stim_dict_C.update({'th_rate': 300.0})
@@ -150,17 +153,6 @@ if __name__ == '__main__':
         stim_dict_D = stim_dict_C.copy() 
         stim_dict_D.update({'num_th_neurons': 200})
     
-    if False:
-        # Stimulation to MCC B.0
-        stim_star = 0.0
-        stim_duration = 1500.0 
-
-        stim_dict4.update({'thalamic_input': True})
-        stim_dict4.update({'th_start': stim_star})
-        stim_dict4.update({'th_duration': stim_duration})
-        stim_dict4.update({'th_rate': 50.0})
-        stim_dict4.update({'conn_probs_th': np.array([0.13, 0.075, 0.0, 0.0, 0.13, 0.075, 0.0, 0.0])})
-
 
     ###############################################################################
     # Model type
@@ -176,8 +168,7 @@ if __name__ == '__main__':
 
     print("---> Creating Microcircuits...")
     #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
-    net_dict.update({'K_ext': np.array([1500, 1500, 2100, 1900, 1950, 1900, 2900, 2100])})
-
+    #net_dict.update({'K_ext': np.array([1500, 1500, 2100, 1900, 1950, 1900, 2900, 2100])}) #con v2
 
     ###############################################################################
     # Create MCC A
@@ -195,7 +186,7 @@ if __name__ == '__main__':
     # Connect all nodes
     net_A.connect()
     time_connect_A = time.time()
-    all_pops = list(map(lambda pop: f"{pop}_A", net_dict['populations']))
+    all_pops = list(map(lambda pop: f"{pop}", net_dict['populations']))
 
 
     ###############################################################################
@@ -212,7 +203,7 @@ if __name__ == '__main__':
 
         # Connect all nodes
         net_B.connect()
-        all_pops = all_pops + list(map(lambda pop: f"{pop}_B", net_dict['populations'])) 
+        all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations'])) 
 
 
     ###############################################################################
@@ -229,7 +220,7 @@ if __name__ == '__main__':
 
         # Connect all nodes
         net_C.connect()
-        all_pops = all_pops + list(map(lambda pop: f"{pop}_C", net_dict['populations'])) 
+        all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations'])) 
 
 
     ###############################################################################
@@ -246,29 +237,19 @@ if __name__ == '__main__':
 
         # Connect all nodes
         net_D.connect()
-        all_pops = all_pops + list(map(lambda pop: f"{pop}_D", net_dict['populations'])) 
-
-
-    ###############################################################################
-    # Create MCC D
-    if False:
-        print("---> Conecting ext...")
-        nest.rng_seed = randint(1, 1000)
-        rng_seeds.append(nest.rng_seed)
-        net_A.connect_other_input(stim_dict4)
-        net_B.connect_other_input(stim_dict4)
-        net_C.connect_other_input(stim_dict4)
-        net_D.connect_other_input(stim_dict4)
-
+        all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations']))
 
     ###############################################################################
-    # Create MCC C
+    # Create MCC v2
     if V2:
         #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
-        net_dict.update({'K_ext': np.array([1500, 1500, 2050, 1900, 1980, 1900, 2850, 2100])})
+        net_dict.update({'K_ext': np.array([1700, 1450, 1500, 1420, 2050, 1900, 2780, 2000])})
         
         #net_dict.update({'full_num_neurons': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])})
-        net_dict.update({'full_num_neurons': np.array([20683, 5834, 20915, 5279, 4850, 1065, 14395, 2948])})
+        #net_dict.update({'full_num_neurons': np.array([20683, 5834, 20915, 5279, 4850, 1065, 14395, 2948])})
+        net_dict.update({'full_num_neurons': np.array([22051,  6219, 11421, 2855, 4461, 979,  13966, 2859])})
+        #net_dict.update({'full_num_neurons': np.array([22051,  6219, 15421, 3855, 4461, 979,  13966, 2859])})
+
 
         print("---> Creating networks V2...")
         nest.rng_seed = randint(1, 1000)
@@ -283,7 +264,7 @@ if __name__ == '__main__':
         net_V2.connect()
 
         #net_V2.connect_other_input(stim_dict3_v2)
-        all_pops = all_pops + list(map(lambda pop: f"{pop}_V2", net_dict['populations'])) 
+        all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations'])) 
 
 
     ###############################################################################
@@ -397,6 +378,8 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
+    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2']
+
     print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
     if sim_dict.get("plot_firing_rates", False):
         helpers.firing_rates(
@@ -404,7 +387,7 @@ if __name__ == '__main__':
             'spike_recorder',
             firing_rates_interval[0],
             firing_rates_interval[1])
-        helpers.boxplot(sim_dict['data_path'], all_pops, 'a')
+        helpers.boxplot(sim_dict['data_path'], all_pops, 'firing_rate_',  False, True, names)
 
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
@@ -420,10 +403,10 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Histogramas de spikes and save performance
-    psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], 500)
+    #psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], 500)
     #pso.save_result(folder_path, data_path, args.gen, args.id_s, net_A.num_neurons[0])
-    activity = psth.get_data(data_path, sim_dict['t_sim'], 500, '2/3a', 'exc')
-    pso.save_imposed_result(folder_path, args.gen, args.id_s, activity)
+    #activity = psth.get_data(data_path, sim_dict['t_sim'], 500, '2/3a', 'exc')
+    #pso.save_imposed_result(folder_path, args.gen, args.id_s, activity)
 
 
     ###############################################################################

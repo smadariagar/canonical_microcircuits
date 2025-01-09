@@ -192,7 +192,7 @@ def sorted_result(folder_path, id_suj):
 
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
     if id_suj == -1:
-        result = df[(df['subjects']<=100)][['trials', 'subjects', '3']].sort_values('3').values
+        result = df[(df['subjects']<=100)][['trials', 'subjects', '3', '0', '1', '2']].sort_values('3').values
     else:
         result = df[(df['subjects']==id_suj)][['trials', 'subjects', '3']].sort_values('3').values
 
@@ -284,8 +284,7 @@ def perf_calculation(activity):
     # return bg_val + supp_val*10 + norm_val_1 + norm_val_2
     newmax = min(activity[1],10)
 
-
-    return activity[0] + abs(10-newmax) + abs(norm_24-activity[2])*10
+    return activity[0] + abs(10-newmax) + abs(norm_24-activity[2])
 
 def modify_performance(folder_path):
     """_summary_
