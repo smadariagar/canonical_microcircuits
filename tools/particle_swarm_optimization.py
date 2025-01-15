@@ -284,7 +284,7 @@ def perf_calculation(activity):
     # return bg_val + supp_val*10 + norm_val_1 + norm_val_2
     newmax = min(activity[1],10)
 
-    return activity[0] + abs(10-newmax) + abs(norm_24-activity[2])
+    return activity[0] + abs(10-newmax) + abs(norm_24-activity[2])*2
 
 def modify_performance(folder_path):
     """_summary_

@@ -159,10 +159,12 @@ def PSTH_maker(folder_path, k, neurons_psth_id):
     return times_spikes_psth
 
 
-def PSTH_folders_data(path):
+def PSTH_folders_data(path, scaling, t_sim, l_bin):
     """
     Sálvenme
     """
+
+    new_df = []
 
     for folder in os.listdir(path):
         trial_path = os.path.join(path, folder)
@@ -170,6 +172,24 @@ def PSTH_folders_data(path):
         if not os.path.isdir(trial_path):
             continue
         print(trial_path)
+
+        if not os.path.exists(os.path.join(trial_path, 'psth_'+str(l_bin)+'.csv')):
+            PSTH_data(trial_path, scaling, t_sim, l_bin)
+
+        # Add columns names
+        cols = np.array(['folder', 'layer', 'type'])
+        params = range(int(t_sim/l_bin))
+        names = np.concatenate((cols, params), axis=None)
+
+        df = pd.read_csv(os.path.join(trial_path, 'psth_'+str(l_bin)+'.csv'), header=None, names=names)
+
+        if len(new_df)==0:
+            new_df = df
+        else:
+            new_df = pd.concat([new_df, df], axis=0)
+
+    new_df.to_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), mode='w', index=False, header=False)
+
 
 
 def PSTH_data(path, scaling, t_sim, l_bin):
@@ -189,7 +209,7 @@ def PSTH_data(path, scaling, t_sim, l_bin):
     num_neurons = net_dict['full_num_neurons_v1']
     num_neurons_v2 = net_dict['full_num_neurons_v2']
 
-    num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons_v2
+    num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons_v2+num_neurons_v2
 
     archivos_spike_recorder = hist_spikes.select_spike_recorder_files(path)
     info_total, times = hist_spikes.process_files_in_pairs_positions(path, archivos_spike_recorder)
@@ -202,7 +222,8 @@ def PSTH_data(path, scaling, t_sim, l_bin):
         4: '2/3b', 5: '4b', 6: '5b', 7: '6b',
         8: '2/3c', 9: '4c', 10: '5c', 11: '6c',
         12: '2/3d', 13: '4d', 14: '5d', 15: '6d',
-        16: '2/3v2', 17: '4v2', 18: '5v2', 19: '6v2',}
+        16: '2/3v2', 17: '4v2', 18: '5v2', 19: '6v2',
+        20: '2/3v22', 21: '4v22', 22: '5v22', 23: '6v22',}
     
     info_total['Layer'] = info_total['Layer'].map(layer_mapping)
     
@@ -284,6 +305,7 @@ def PSTH_plot(path, t_sim, l_bin):
 
         plt.show()
 
+
 def PSTH_plot_tog(path, t_sim, l_bin):
 
     # add columns names
@@ -299,11 +321,13 @@ def PSTH_plot_tog(path, t_sim, l_bin):
     unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
     
 
-    fig, ax = plt.subplots(8, layout='constrained', figsize=(8,25), sharex=True)
+    fig, ax = plt.subplots(4,2, layout='constrained', figsize=(14,12), sharex=True)
+    ax = ax.flatten()
+
 
     # # Iterar sobre cada combinación única
     nmcc = -1
-    sym = ['o', '^', '1','x','s']
+    sym = ['o', '^', '1','x','s','v']
     sy = sym+sym
     for j, row in enumerate(unique_combinations.itertuples()):
         
@@ -322,18 +346,14 @@ def PSTH_plot_tog(path, t_sim, l_bin):
         ax[i].plot(bin_centers, np.mean(subset,axis=0), sym[nmcc]+'-', color=color)
         bot, top = ax[i].get_ylim()  # return the current ylim
 
-        
         ax[i].plot([500, 500], [bot, top], 'k--')
         ax[i].plot([1000, 1000], [bot, top], 'k--')
-        #plt.plot([3000, 3000], [bot, top], 'k--')
-
-        
-        #plt.title(row.layer+' '+row.type)
-        #plt.xlabel('time [ms]')
-        #plt.ylabel('firing rate (spikes/s)')
+        ax[i].tick_params(axis='x', labelsize=15)
+        ax[i].tick_params(axis='y', labelsize=15) 
 
     plot_name = 'a_psth_plot.png'
     plt.savefig(os.path.join(path, plot_name), dpi=300)
+
 
 def PSTH_figure(path, t_sim, l_bin, mcc):
 
@@ -352,23 +372,18 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
     # Crear un histograma por cada combinación de type y Layer
     unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
 
-    fig, ax = plt.subplots(8, layout='constrained', figsize=(8,16), sharex=True)
-
+    fig, ax = plt.subplots(4,2, layout='constrained', figsize=(8,6), sharex=True)
+    ax = ax.flatten()
     # # Iterar sobre cada combinación única
     nmcc = -1
-    sym = ['o', '^', '1','x']
-    sy = sym+sym
     for j, row in enumerate(unique_combinations.itertuples()):
 
         if j%8==0:
             nmcc = nmcc+1
-
         if nmcc < mcc:
             continue
-
         if nmcc > mcc:
             break
-        
         if row.type == 'exc':
             color = '#0063B2'
         else:
@@ -378,26 +393,33 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
         subset = subset.astype(float)
 
         i = j-nmcc*8
+
         x = bin_centers
         y = np.mean(subset,axis=0)
 
         ci = np.std(subset,axis=0)#/np.sqrt(len(subset))
-        ax[i].plot(bin_centers, np.mean(subset,axis=0), '.-', color=color)
+        ax[i].plot(bin_centers, np.mean(subset,axis=0), '.-', color=color, markersize=2)
         ax[i].fill_between(bin_centers, (y-ci), (y+ci), color=color, alpha=.1)
 
         bot, top = ax[i].get_ylim()  # return the current ylim
         ax[i].plot([500, 500], [bot, top], 'k--')
         ax[i].plot([1000, 1000], [bot, top], 'k--')
-        #plt.plot([3000, 3000], [bot, top], 'k--')
 
+        ax[i].set_title('Layer '+row.layer[0:-1]+' '+row.type, fontsize=15)
         
-        #plt.title(row.layer+' '+row.type)
-        #plt.xlabel('time [ms]')
-        #plt.ylabel('firing rate (spikes/s)')
+        if i%2==0:
+            ax[i].set_ylabel('fr (spikes/s)', fontsize=15)
+
+        if i>5:
+            ax[i].set_xlabel('time [ms]', fontsize=15)
+
+        ax[i].tick_params(axis='x', labelsize=15)
+        ax[i].tick_params(axis='y', labelsize=15) 
 
         mean_data.loc[len(mean_data.index)] = np.concatenate((['mean', row.layer, row.type] , y), axis=None)
         mean_data.loc[len(mean_data.index)] = np.concatenate((['std', row.layer, row.type] , ci), axis=None)
 
     plt.show()
 
+    #if not os.path.exists(os.path.join(path,'mean_'+str(l_bin)+'.csv')):
     mean_data.to_csv(os.path.join(path, 'mean_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)

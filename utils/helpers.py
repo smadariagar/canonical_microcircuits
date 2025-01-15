@@ -507,7 +507,7 @@ def boxplot(path, populations, name, all_box, each_box, names):
                 if cc == 8:
                     break
 
-            plt.figure(figsize=(6, 5))
+            plt.figure(figsize=(5, 5))
             bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
                             meanprops=meanprops, meanline=True, showmeans=True)
             plt.setp(bp['boxes'], color='black', linewidth=2)
@@ -528,7 +528,7 @@ def boxplot(path, populations, name, all_box, each_box, names):
                 boxPolygon = Polygon(boxCoords, facecolor=color_list[k])
                 plt.gca().add_patch(boxPolygon)
             plt.xlabel('firing rate [spikes/s]', fontsize=fs)
-            plt.xlim([-1,31])
+            plt.xlim([-1,26])
 
 
             elmn = np.arange(len(populations)-8-ii,len(populations)-ii)

@@ -93,8 +93,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.2})
-    net_dict.update({'K_scaling': 0.2})
+    net_dict.update({'N_scaling': 0.15})
+    net_dict.update({'K_scaling': 0.15})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     #FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_dutation = 3000.0 
+    sim_dutation = 1500.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     stim_star = 500.0 
     stim_duration = 1000.0
 
-    stim_dict_A.update({'thalamic_input': False})
+    stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
     stim_dict_A.update({'th_rate': 200.0})
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         stim_star = 1000.0 
         stim_duration = 500.0
 
-        stim_dict_C.update({'thalamic_input': False})
+        stim_dict_C.update({'thalamic_input': True})
         stim_dict_C.update({'th_start': stim_star})
         stim_dict_C.update({'th_duration': stim_duration})
         stim_dict_C.update({'th_rate': 300.0})
@@ -239,11 +239,56 @@ if __name__ == '__main__':
         net_D.connect()
         all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations']))
 
+     
+    ###############################################################################
+    # Lateral connections
+    if Lat_conn:
+        print("---> Connecting networks laterally...")
+        if V1_B:
+            #nest.rng_seed = 58
+            nest.rng_seed = randint(1, 1000)
+            rng_seeds.append(nest.rng_seed)
+            net_A.connect_networks(net_B, lateral_dict)
+            #nest.rng_seed = 59
+            nest.rng_seed = randint(1, 1000)
+            rng_seeds.append(nest.rng_seed)
+            net_B.connect_networks(net_A, lateral_dict)
+
+            if V1_C:
+                #nest.rng_seed = 58
+                nest.rng_seed = randint(1, 1000)
+                rng_seeds.append(nest.rng_seed)
+                net_B.connect_networks(net_C, lateral_dict2)
+            
+                nest.rng_seed = randint(1, 1000)
+                rng_seeds.append(nest.rng_seed)
+                net_C.connect_networks(net_B, lateral_dict2)
+
+                net_C.connect_networks(net_A, lateral_dict2)
+                net_A.connect_networks(net_C, lateral_dict2)
+
+                if V1_D:
+                    nest.rng_seed = randint(1, 1000)
+                    net_C.connect_networks(net_D, lateral_dict)                    
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_C, lateral_dict)
+                    
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_A, lateral_dict2)
+                    nest.rng_seed = randint(1, 1000)
+                    net_D.connect_networks(net_B, lateral_dict2)
+
+                    nest.rng_seed = randint(1, 1000)
+                    net_A.connect_networks(net_D, lateral_dict2)
+                    nest.rng_seed = randint(1, 1000)
+                    net_B.connect_networks(net_D, lateral_dict2)
+
+
     ###############################################################################
     # Create MCC v2
     if V2:
         #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
-        net_dict.update({'K_ext': np.array([1700, 1450, 1500, 1420, 2050, 1900, 2780, 2000])})
+        net_dict.update({'K_ext': np.array([1700, 1500, 1550, 1420, 2050, 1900, 2800, 2100])})
         
         #net_dict.update({'full_num_neurons': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])})
         #net_dict.update({'full_num_neurons': np.array([20683, 5834, 20915, 5279, 4850, 1065, 14395, 2948])})
@@ -265,49 +310,21 @@ if __name__ == '__main__':
 
         #net_V2.connect_other_input(stim_dict3_v2)
         all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations'])) 
+      
 
+        nest.rng_seed = randint(1, 1000)
+        #nest.rng_seed = 56
+        rng_seeds.append(nest.rng_seed)
+        net_V22 = network.Network(sim_dict, net_dict, stim_dict_V2)
 
-    ###############################################################################
-    # Lateral connections
-    if Lat_conn:
-        print("---> Connecting networks laterally...")
-        if V1_B:
-            #nest.rng_seed = 58
-            nest.rng_seed = randint(1, 1000)
-            rng_seeds.append(nest.rng_seed)
-            net_A.connect_networks(net_B, lateral_dict)
-            #nest.rng_seed = 59
-            nest.rng_seed = randint(1, 1000)
-            rng_seeds.append(nest.rng_seed)
-            net_B.connect_networks(net_A, lateral_dict)
+        # Create all nodes
+        net_V22.create()
 
-            if V1_C:
-                #nest.rng_seed = 58
-                nest.rng_seed = randint(1, 1000)
-                rng_seeds.append(nest.rng_seed)
-                net_B.connect_networks(net_C, lateral_dict2)
-                #nest.rng_seed = 59
-                nest.rng_seed = randint(1, 1000)
-                rng_seeds.append(nest.rng_seed)
-                net_C.connect_networks(net_B, lateral_dict2)
+        # Connect all nodes
+        net_V22.connect()
 
-                net_C.connect_networks(net_A, lateral_dict2)
-                net_A.connect_networks(net_C, lateral_dict2)
-
-                if V1_D:
-                    nest.rng_seed = randint(1, 1000)
-                    net_C.connect_networks(net_D, lateral_dict)
-                    #nest.rng_seed = 59
-                    nest.rng_seed = randint(1, 1000)
-                    net_D.connect_networks(net_C, lateral_dict)
-                    
-                    nest.rng_seed = randint(1, 1000)
-                    net_D.connect_networks(net_A, lateral_dict2)
-                    net_D.connect_networks(net_B, lateral_dict2)
-
-                    nest.rng_seed = randint(1, 1000)
-                    net_A.connect_networks(net_D, lateral_dict2)
-                    net_B.connect_networks(net_D, lateral_dict2)
+        #net_V2.connect_other_input(stim_dict3_v2)
+        all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations'])) 
 
 
     ###############################################################################
@@ -320,9 +337,15 @@ if __name__ == '__main__':
         nest.rng_seed = randint(1, 1000)
         net_B.connect_networks(net_V2, FF_dict)
         nest.rng_seed = randint(1, 1000)
-        net_C.connect_networks(net_V2, FF_dict)
+        #net_C.connect_networks(net_V2, FF_dict)
         nest.rng_seed = randint(1, 1000)
-        net_D.connect_networks(net_V2, FF_dict)
+        #net_D.connect_networks(net_V2, FF_dict)
+
+   
+        nest.rng_seed = randint(1, 1000)
+        net_C.connect_networks(net_V22, FF_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_D.connect_networks(net_V22, FF_dict)
 
     #feedback
     if FB_conn:
@@ -331,9 +354,19 @@ if __name__ == '__main__':
         nest.rng_seed = randint(1, 1000)
         net_V2.connect_networks(net_B, FB_dict)
         nest.rng_seed = randint(1, 1000)
-        net_V2.connect_networks(net_C, FB_dict)
+        #net_V2.connect_networks(net_C, FB_dict)
         nest.rng_seed = randint(1, 1000)
-        net_V2.connect_networks(net_D, FB_dict)
+        #net_V2.connect_networks(net_D, FB_dict)
+
+        nest.rng_seed = randint(1, 1000)
+        net_V22.connect_networks(net_C, FB_dict)
+        nest.rng_seed = randint(1, 1000)
+        net_V22.connect_networks(net_D, FB_dict)
+
+    nest.rng_seed = randint(1, 1000)
+    net_V2.connect_networks(net_V22, lateral_dict)
+    nest.rng_seed = randint(1, 1000)
+    net_V22.connect_networks(net_V2, lateral_dict)
 
     
     ###############################################################################
@@ -378,7 +411,7 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2']
+    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2', 'CMC V22']
 
     print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
     if sim_dict.get("plot_firing_rates", False):
@@ -395,7 +428,7 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Generate metrics
-    l_bin = 100
+    l_bin = 50
     data_path = sim_dict.get('data_path', None)
     psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], l_bin)
     psth.PSTH_plot_tog(data_path, sim_dict['t_sim'], l_bin)
