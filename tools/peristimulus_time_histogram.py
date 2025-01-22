@@ -372,7 +372,7 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
     # Crear un histograma por cada combinación de type y Layer
     unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
 
-    fig, ax = plt.subplots(4,2, layout='constrained', figsize=(8,6), sharex=True)
+    fig, ax = plt.subplots(4,2, layout='constrained', figsize=(10,8), sharex=True)
     ax = ax.flatten()
     # # Iterar sobre cada combinación única
     nmcc = -1
@@ -408,7 +408,7 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
         ax[i].set_title('Layer '+row.layer[0:-1]+' '+row.type, fontsize=15)
         
         if i%2==0:
-            ax[i].set_ylabel('fr (spikes/s)', fontsize=15)
+            ax[i].set_ylabel('firing rate\n(spikes/s)', fontsize=15)
 
         if i>5:
             ax[i].set_xlabel('time [ms]', fontsize=15)
@@ -418,7 +418,10 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
 
         mean_data.loc[len(mean_data.index)] = np.concatenate((['mean', row.layer, row.type] , y), axis=None)
         mean_data.loc[len(mean_data.index)] = np.concatenate((['std', row.layer, row.type] , ci), axis=None)
-
+    
+    #plt.suptitle('Neuronal activity of cortical microcircuit V1 (|)\nwith thalamic input at 20 Hz\n', fontsize=22)
+    plot_name = 'psth_'+str(mcc)+'_plot.png'
+    plt.savefig(os.path.join(path, plot_name), dpi=300)
     plt.show()
 
     #if not os.path.exists(os.path.join(path,'mean_'+str(l_bin)+'.csv')):

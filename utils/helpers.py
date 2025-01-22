@@ -250,7 +250,7 @@ def plot_raster(path, name, begin, end, N_scaling, populations, id_sim=None):
         stp = int(10. * N_scaling)
         print('  Only spikes of neurons in steps of {} are shown.'.format(stp))
 
-    plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(6, 5))
     for i, n in enumerate(sd_names):
         times = data[i]['time_ms']
         neurons = np.abs(data[i]['sender'] - last_node_id) + 1
@@ -428,8 +428,7 @@ def firing_rates(path, name, begin, end):
         all_mean_rates.append(np.mean(rate_per_neuron))
         all_std_rates.append(np.std(rate_per_neuron))
     print('Mean rates: {} spikes/s'.format(np.around(all_mean_rates, decimals=3)))
-    print('Standard deviation of rates: {} spikes/s'.format(
-        np.around(all_std_rates, decimals=3)))
+    print('Standard deviation of rates: {} spikes/s'.format(np.around(all_std_rates, decimals=3)))
 
 
 def boxplot(path, populations, name, all_box, each_box, names):
@@ -485,7 +484,7 @@ def boxplot(path, populations, name, all_box, each_box, names):
             boxPolygon = Polygon(boxCoords, facecolor=color_list[k])
             plt.gca().add_patch(boxPolygon)
         plt.xlabel('firing rate [spikes/s]', fontsize=fs)
-        plt.xlim([-1,31])
+        plt.xlim([-1,51])
         plt.yticks(label_pos, pop_names, fontsize=fs)
         plt.xticks(fontsize=fs)
         plt.title('Firing rates', fontsize=22)
@@ -507,7 +506,7 @@ def boxplot(path, populations, name, all_box, each_box, names):
                 if cc == 8:
                     break
 
-            plt.figure(figsize=(5, 5))
+            plt.figure(figsize=(6, 5))
             bp = plt.boxplot(rates_per_neuron_rev, 0, 'rs', 0, medianprops=medianprops,
                             meanprops=meanprops, meanline=True, showmeans=True)
             plt.setp(bp['boxes'], color='black', linewidth=2)
@@ -528,7 +527,7 @@ def boxplot(path, populations, name, all_box, each_box, names):
                 boxPolygon = Polygon(boxCoords, facecolor=color_list[k])
                 plt.gca().add_patch(boxPolygon)
             plt.xlabel('firing rate [spikes/s]', fontsize=fs)
-            plt.xlim([-1,26])
+            plt.xlim([-1,31])
 
 
             elmn = np.arange(len(populations)-8-ii,len(populations)-ii)

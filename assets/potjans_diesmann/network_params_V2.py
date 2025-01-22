@@ -54,7 +54,7 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     return matrix
 
 
-net_dict = {
+net_dict_v2 = {
     # factor to scale the number of neurons
     'N_scaling': 0.5,
     # factor to scale the indegrees
@@ -66,6 +66,8 @@ net_dict = {
     # number of neurons in the different populations (same order as
     # 'populations')
     'full_num_neurons': np.array([22051,  6219, 11421, 2855, 4461, 979,  13966, 2859]),
+    'full_num_neurons_v1': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948]),
+    'full_num_neurons_v2': np.array([22051, 6219, 11421, 2855, 4461, 979,  13966, 2859]),
     # mean rates of the different populations in the non-scaled version of the
     # microcircuit (in spikes/s; same order as in 'populations');
     # necessary for the scaling of the network.
@@ -86,7 +88,7 @@ net_dict = {
             [0.0364, 0.002,  0.0044, 0.0025, 0.0377, 0.008,  0.0758, 0.1443],  # L6I
              # L23E   L23I     L4E      L4I     L5E    L5I    L6E      L6I
         ]
-    )*0.8,
+    ),
     # mean amplitude of excitatory postsynaptic potential (in mV)
     'PSP_exc_mean': 0.15,
     # relative standard deviation of the weight
@@ -107,7 +109,8 @@ net_dict = {
     'dc_compensation': False,
     # indegree of external connections to the different populations (same order
     # as in 'populations')
-    'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
+    #'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
+    'K_ext': np.array([1600, 1500, 1500, 1300, 2000, 1800, 2800, 2100]),
     # rate of the Poisson generator (in spikes/s)
     'bg_rate': 8.,
     # delay from the Poisson generator to the network (in ms)
@@ -148,10 +151,10 @@ net_dict = {
 # derive matrix of mean PSPs,
 # the mean PSP of the connection from L4E to L23E is doubled
 PSP_matrix_mean = get_exc_inh_matrix(
-    net_dict['PSP_exc_mean'],
-    net_dict['PSP_exc_mean'] * net_dict['g'],
-    len(net_dict['populations']))
-PSP_matrix_mean[0, 2] = 2. * net_dict['PSP_exc_mean']
+    net_dict_v2['PSP_exc_mean'],
+    net_dict_v2['PSP_exc_mean'] * net_dict_v2['g'],
+    len(net_dict_v2['populations']))
+PSP_matrix_mean[0, 2] = 2. * net_dict_v2['PSP_exc_mean']
 
 updated_dict = {
     # matrix of mean PSPs
@@ -159,8 +162,8 @@ updated_dict = {
 
     # matrix of mean delays
     'delay_matrix_mean': get_exc_inh_matrix(
-        net_dict['delay_exc_mean'],
-        net_dict['delay_inh_mean'],
-        len(net_dict['populations']))}
+        net_dict_v2['delay_exc_mean'],
+        net_dict_v2['delay_inh_mean'],
+        len(net_dict_v2['populations']))}
 
-net_dict.update(updated_dict)
+net_dict_v2.update(updated_dict)
