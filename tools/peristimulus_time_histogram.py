@@ -171,7 +171,7 @@ def PSTH_folders_data(path, scaling, t_sim, l_bin):
         
         if not os.path.isdir(trial_path):
             continue
-        print(trial_path)
+        #print(trial_path)
 
         if not os.path.exists(os.path.join(trial_path, 'psth_'+str(l_bin)+'.csv')):
             PSTH_data(trial_path, scaling, t_sim, l_bin)
@@ -187,6 +187,12 @@ def PSTH_folders_data(path, scaling, t_sim, l_bin):
             new_df = df
         else:
             new_df = pd.concat([new_df, df], axis=0)
+
+    if l_bin == 501:
+        groups = new_df[['type', 'layer']].drop_duplicates()
+        for j, row in enumerate(groups.itertuples()):
+            subset = new_df[(new_df['type'] == row.type) & (new_df['layer'] == row.layer)][names[4:]].values
+            print(row.layer+' '+row.type+' mean = ' +str(np.mean(subset))+' std = '+str(np.std(subset)))
 
     new_df.to_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), mode='w', index=False, header=False)
 
@@ -402,8 +408,9 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
         ax[i].fill_between(bin_centers, (y-ci), (y+ci), color=color, alpha=.1)
 
         bot, top = ax[i].get_ylim()  # return the current ylim
-        ax[i].plot([500, 500], [bot, top], 'k--')
-        ax[i].plot([1000, 1000], [bot, top], 'k--')
+        #for lp in range(1,int(t_sim/500)):
+        #    ax[i].plot([500*lp, 500*lp], [bot, top], 'k--')
+       
 
         ax[i].set_title('Layer '+row.layer[0:-1]+' '+row.type, fontsize=15)
         
@@ -419,7 +426,82 @@ def PSTH_figure(path, t_sim, l_bin, mcc):
         mean_data.loc[len(mean_data.index)] = np.concatenate((['mean', row.layer, row.type] , y), axis=None)
         mean_data.loc[len(mean_data.index)] = np.concatenate((['std', row.layer, row.type] , ci), axis=None)
     
-    #plt.suptitle('Neuronal activity of cortical microcircuit V1 (|)\nwith thalamic input at 20 Hz\n', fontsize=22)
+    plt.suptitle('Neuronal activity of a cortical microcircuit in V2\nduring the ECRF effect in a model with two V2 modules\n', fontsize=22)
+    plt.suptitle('PSTHs of the 8 Neuronal Groups in V1 Layers\n', fontsize=22)
+
+    plot_name = 'psth_'+str(mcc)+'_plot.png'
+    plt.savefig(os.path.join(path, plot_name), dpi=300)
+    plt.show()
+
+    #if not os.path.exists(os.path.join(path,'mean_'+str(l_bin)+'.csv')):
+    mean_data.to_csv(os.path.join(path, 'mean_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)
+
+
+# borrar next
+def PSTH_figure2(path, t_sim, l_bin, mcc):
+
+    # add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/l_bin))
+    names = np.concatenate((cols, params), axis=None)
+
+    hist_data = pd.read_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), header=None, names=names)
+    bin_centers = np.linspace(l_bin/2, t_sim-(l_bin/2), int(t_sim/l_bin))
+
+    # add columns names
+    mean_data = pd.DataFrame(columns=names)
+    
+    # Generate psth
+    # Crear un histograma por cada combinación de type y Layer
+    unique_combinations = hist_data[['layer', 'type']].drop_duplicates()
+
+    fig, ax = plt.subplots(2,2, layout='constrained', figsize=(10,5), sharex=True)
+    ax = ax.flatten()
+    # # Iterar sobre cada combinación única
+    nmcc = -1
+    for j, row in enumerate(unique_combinations.itertuples()):
+
+        if j%8==0:
+            nmcc = nmcc+1
+        if nmcc < mcc:
+            continue
+        if nmcc > mcc:
+            break
+        if row.type == 'exc':
+            color = '#0063B2'
+        else:
+            continue
+            color = '#b015b6'
+
+        subset = hist_data[(hist_data['type'] == row.type) & (hist_data['layer'] == row.layer)][names[3:]].values
+        subset = subset.astype(float)
+
+        i = int((j-nmcc*8)/2)
+
+        x = bin_centers
+        y = np.mean(subset,axis=0)
+
+        ci = np.std(subset,axis=0)#/np.sqrt(len(subset))
+        ax[i].plot(bin_centers, np.mean(subset,axis=0), '.-', color=color, markersize=2)
+        ax[i].fill_between(bin_centers, (y-ci), (y+ci), color=color, alpha=.1)
+
+        bot, top = ax[i].get_ylim()  # return the current ylim
+    
+        ax[i].set_title('Layer '+row.layer[0:-1]+' '+row.type, fontsize=15)
+        
+        if i%2==0:
+            ax[i].set_ylabel('firing rate\n(spikes/s)', fontsize=15)
+
+        if i>5:
+            ax[i].set_xlabel('time [ms]', fontsize=15)
+
+        ax[i].tick_params(axis='x', labelsize=15)
+        ax[i].tick_params(axis='y', labelsize=15) 
+
+        mean_data.loc[len(mean_data.index)] = np.concatenate((['mean', row.layer, row.type] , y), axis=None)
+        mean_data.loc[len(mean_data.index)] = np.concatenate((['std', row.layer, row.type] , ci), axis=None)
+    
+    plt.suptitle('PSTHs of Excitatory Groups in the Four Cortical Layers\n', fontsize=22)
     plot_name = 'psth_'+str(mcc)+'_plot.png'
     plt.savefig(os.path.join(path, plot_name), dpi=300)
     plt.show()

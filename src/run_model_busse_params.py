@@ -94,8 +94,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.2})
-    net_dict.update({'K_scaling': 0.2})
+    net_dict.update({'N_scaling': 0.4})
+    net_dict.update({'K_scaling': 0.35})
 
     net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
     net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     #FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_dutation = 1500.0 
+    sim_dutation = 1000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     # Generación de estímulos
@@ -129,8 +129,8 @@ if __name__ == '__main__':
 
 
     # Stimulation to MCC A
-    stim_star = 500.0 
-    stim_duration = 1000.0
+    stim_star = 200.0 
+    stim_duration = 500.0
 
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
@@ -138,36 +138,50 @@ if __name__ == '__main__':
     stim_dict_A.update({'th_rate': 200.0})
 
     # Stimulation to MCC B
+    stim_star = 1000.0 
+    stim_duration = 1500.0
+    
     stim_dict_B.update({'thalamic_input': True})
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
     stim_dict_B.update({'th_rate': 200.0})
 
-    stim_dict_B.update({'num_th_neurons': 200})
+    #stim_dict_B.update({'num_th_neurons': 200})
 
 
     # Stimulation to MCC C
-    stim_star = 1000.0 
+    stim_star = 2000.0 
     stim_duration = 500.0
 
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate':200.0})
+    stim_dict_C.update({'th_rate': 200.0})
 
     # Stimulation to MCC D
+    stim_star = 1500.0 
+    stim_duration = 1000.0
+
     stim_dict_D.update({'thalamic_input': True})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
     stim_dict_D.update({'th_rate': 200.0})
 
-    stim_dict_D.update({'num_th_neurons': 200})
+    #stim_dict_D.update({'num_th_neurons': 200})
 
 
     ###############################################################################
     # Model type
-    V1 = True
-    V2, V22 = True, True
+    V1 = False
+    # if args.gen == 0:
+    #     V2, V22 = False, False
+    # if args.gen == 1:
+    #     V2, V22 = True, False
+    # if args.gen == 2:
+    #     V2, V22 = True, True
+
+    V2, V22 = False, False
+
 
     Lat_conn, Strg_conn = True, False
     FF_conn, FB_conn = True, True
