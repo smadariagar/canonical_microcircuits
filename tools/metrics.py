@@ -7,9 +7,10 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as plt
 from scipy.fft import fft
+
+from assets.potjans_diesmann.sim_params import sim_dict
+
 warnings.filterwarnings("ignore")
-
-
 
 def select_spike_recorder_files(path):
     """
@@ -44,28 +45,26 @@ def extract_time_info(file_path):
     except FileNotFoundError:
         print(f"File not found at the specified path: {file_path}")
         return None, None
-    
-        
 
-def calc_lfp(cells, tau,lfp_time,delay,amp):
+def calc_lfp(cells, tau, lfp_time, delay, amp):
     """Calculate LFP using a temporal kernel."""
- 
-    lfp = np.zeros(lfp_time.shape)
     
+    #cells.to_csv('out.csv', index=False)  
+    lfp = np.zeros(lfp_time.shape)
+
     for idx in range(len(cells["cellid"])):
         # Calculate temporal kernel
-        t_diff = lfp_time - delay[cells["cellid"][idx]] - cells["time"][idx]
+        #print(cells.iat[idx, 0])
+        t_diff = lfp_time - delay[cells.iat[idx, 0]-1] - cells.iat[idx, 1]
         temporal_kernel = np.exp(-t_diff ** 2 / tau)
         
         # Accumulate LFP contributions directly
-        lfp += amp[None, cells["cellid"][idx]] * temporal_kernel
+        lfp += amp[None, cells.iat[idx, 0]] * temporal_kernel
     return lfp
 
-
-def metrics(tmin ,tmax, inh_cells,exc_cells,Ne,Ni,correc_id):
+def metrics(tmin ,tmax, exc_cells, inh_cells, Ne, Ni, correc_id):
     N = Ne+Ni  # nb of cells to consider
 
-    
     inh_cells['cellid'] = inh_cells['cellid'] - correc_id
     exc_cells['cellid'] = exc_cells['cellid'] - correc_id
 
@@ -80,7 +79,6 @@ def metrics(tmin ,tmax, inh_cells,exc_cells,Ne,Ni,correc_id):
     X = np.random.uniform(0, xmax, N)
     Y = np.random.uniform(0, ymax, N)
 
-
     # 4. calculate LFP
     #
     # Table of respective amplitudes:
@@ -89,7 +87,6 @@ def metrics(tmin ,tmax, inh_cells,exc_cells,Ne,Ni,correc_id):
     # soma    30       4.8
     # sup     -12      2.4
     # surf    3        -0.8
-    #
 
     dt = 0.01  # time resolution
     npts = int(tmax / dt)  # nb points in LFP vector
@@ -128,12 +125,11 @@ def metrics(tmin ,tmax, inh_cells,exc_cells,Ne,Ni,correc_id):
     s_i = 2 * sig_i * sig_i
     lfp_time = np.arange(npts) * dt
     lfp_inh = calc_lfp(inh_cells, s_i, lfp_time, delay, amp)
+    print/(lfp_inh)
     lfp_exc = calc_lfp(exc_cells, s_e, lfp_time, delay, amp)
     total_lfp = lfp_inh + lfp_exc
 
     return total_lfp ,inh_cells, exc_cells, lfp_time,npts
-
-
 
 def process_files_in_pairs(folder_path, spike_recorder_files):
     """
@@ -147,29 +143,49 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         print("Number of files is not even.")
         return
     
-    n = 0
-    for i in range(0, len(spike_recorder_files), 2):
-        file1 = spike_recorder_files[i]
-        file2 = spike_recorder_files[i + 1]
-        t_presim_value, t_sim_value = extract_time_info(folder_path + 'sim_params.json')
-        
-        exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
-        cellids, times = zip(*exc[2][0])
-        exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
-        Ne = (exc[1][i][1] - exc[1][i][0]) + 1
-        
-        inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
-        cellids, times = zip(*inh[2][0])
-        inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
+    with open(os.path.join(folder_path, 'sim_params.json'), 'r') as file:
+        sim_dict = json.load(file)
+    local_num_threads = sim_dict.get("local_num_threads")
+    t_sim_value = sim_dict.get("t_sim")
+    t_presim_value = 0#int(sim_dict["t_presim"])
 
-        Ni = (inh[1][i+1][1] - inh[1][i+1][0]) + 1
-        
-        
-        correc_id = exc[1][i][0]
-        lfp_capa,inh_cells, exc_cells, lfp_time,npts = metrics(t_presim_value ,t_sim_value, 
-                           inh_cells, exc_cells, Ne, Ni, correc_id)
-        
-                
+    n = 0
+    exc_cells_tot = pd.DataFrame()
+    inh_cells_tot = pd.DataFrame()
+    for n, i in enumerate(range(0, len(spike_recorder_files), local_num_threads*2)):
+        Ne, Ni = 0, 0
+
+        for j in range(local_num_threads):
+
+            file1 = spike_recorder_files[i+j]
+            file2 = spike_recorder_files[i+j+local_num_threads]
+            print(file1+' '+file2)
+
+            exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
+            cellids, times = zip(*exc[2][0])
+            exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
+            exc_cells['type'] = 'exc'
+            exc_cells['Layer'] = n
+            Ne = (exc[1][i][1] - exc[1][i][0])
+            
+            inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
+            cellids, times = zip(*inh[2][0])
+            inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
+            inh_cells['type'] = 'inh'
+            inh_cells['Layer'] = n
+            Ni = (inh[1][i+1][1] - inh[1][i+1][0]) + 1
+            
+            correc_id = exc[1][i][0]
+
+            exc_cells_tot = pd.concat([exc_cells_tot, exc_cells], axis=0)
+            inh_cells_tot = pd.concat([inh_cells_tot, inh_cells], axis=0)
+
+        print('*****')
+        print(Ne)
+        print(Ni)
+        lfp_capa, inh_cells, exc_cells, lfp_time, npts = metrics(t_presim_value ,t_sim_value, 
+                        exc_cells_tot, inh_cells_tot, Ne, Ni, correc_id)
+           
         Nstp = 5  # step cell to draw
         tick_size = 5
 
@@ -177,7 +193,6 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
 
         axes[0].plot(exc_cells[::Nstp]["time"], exc_cells[::Nstp]["cellid"], ".", ms=tick_size)
         axes[0].plot(inh_cells[::Nstp]["time"], inh_cells[::Nstp]["cellid"], ".", ms=tick_size)
-
 
         axes[1].plot(lfp_time, lfp_capa)
         axes[1].set_xlabel("time, ms")
@@ -189,12 +204,9 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         axes[1].spines["top"].set_visible(False)
         axes[1].spines["right"].set_visible(False)
         plt.savefig(folder_path+"/demo_lfp_kernel_capa"+str(n+1)+".pdf")
-        
-        
-                
+              
         # Configuración de la señal
         #fs = npts  # Frecuencia de muestreo en Hz
-
 
         # Calcular la transformada de Fourier de la señal
         #spectrum = fft(lfp_capa)
@@ -211,8 +223,6 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         #plt.xlim(0,120)
         #plt.savefig(folder_path+'Espectro'+str(n+1)+'.png')
 
-
-
         #plt.figure(figsize=(10, 6))
         #plt.semilogx(frequencies, 20 * np.log10(np.abs(spectrum)))  # Escala logarítmica en el eje x y y
         #plt.xlabel('Frecuencia (Hz)')
@@ -221,26 +231,5 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         #plt.title('Espectro de Frecuencia (Escala Logarítmica en x y y)')
         #plt.grid()
         #plt.savefig(folder_path+'Espectro_log'+str(n+1)+'.png')
-               
-        print('LFP capa '+str(n+1))            
-        n = n + 1
-        
-        
-
-# '20230901000710'
-# Son poisson 20230925000755 error
-# Con poisson 20230925001958 rate poisson 8
-# Con poisson 20230925002657 rate poisson 20
-
-id_result = '20240405045551'
-path_result = 'results/potjans_diesmann/'+id_result+'/'
-
-
-# Llama a la función para obtener los archivos que comienzan con "spike_recorder"
-archivos_spike_recorder = select_spike_recorder_files(path_result)
-process_files_in_pairs(path_result, archivos_spike_recorder)
-
-
-
-
-
+            
+        print('LFP capa '+str(n+1))

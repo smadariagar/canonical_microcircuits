@@ -71,14 +71,15 @@ def process_files_in_pairs_positions(folder_path, spike_recorder_files):
         sim_dict = json.load(file)
     t_presim_value = 0#int(sim_dict["t_presim"])
     t_sim_value = int(sim_dict["t_sim"])
+    local_num_threads = sim_dict.get("local_num_threads")
 
     info = []
     times_simulation = []
-    for n, i in enumerate(range(0, len(spike_recorder_files), 8)):
-        for j in range(4):
+    for n, i in enumerate(range(0, len(spike_recorder_files), local_num_threads*2)):
+        for j in range(local_num_threads):
             # Lectura de parámetros de simulacion
             file1 = spike_recorder_files[i+j]
-            file2 = spike_recorder_files[i+j+4]
+            file2 = spike_recorder_files[i+j+local_num_threads]
 
             times_simulation.append([t_presim_value, t_sim_value])
 

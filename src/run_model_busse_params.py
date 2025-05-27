@@ -94,32 +94,37 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    net_dict.update({'N_scaling': 0.4})
-    net_dict.update({'K_scaling': 0.35})
+    ns = 1#(args.gen+1)/10
+    ks = 1#(args.id_s+1)/10
 
-    net_dict_v2.update({'N_scaling': net_dict['N_scaling']})
-    net_dict_v2.update({'K_scaling': net_dict['K_scaling']})
+    net_dict.update({'N_scaling': ns})
+    net_dict.update({'K_scaling': ks})
+
+    net_dict_v2.update({'N_scaling': ns})
+    net_dict_v2.update({'K_scaling': ks})
 
     # Lateral and vertical N & K scaling
-    lateral_dict.update({'N_scaling': net_dict['N_scaling']})
-    lateral_dict.update({'K_scaling': net_dict['K_scaling']})
+    lateral_dict.update({'N_scaling': ns})
+    lateral_dict.update({'K_scaling': ks})
     
-    lateral_dict2.update({'N_scaling': net_dict['N_scaling']})
-    lateral_dict2.update({'K_scaling': net_dict['K_scaling']})
+    lateral_dict2.update({'N_scaling': ns})
+    lateral_dict2.update({'K_scaling': ks})
 
-    FF_dict.update({'N_scaling': net_dict['N_scaling']})
-    FF_dict.update({'K_scaling': net_dict['K_scaling']})
+    FF_dict.update({'N_scaling': ns})
+    FF_dict.update({'K_scaling': ks})
     
-    FB_dict.update({'N_scaling': net_dict['N_scaling']})
-    FB_dict.update({'K_scaling': net_dict['K_scaling']})
+    FB_dict.update({'N_scaling': ns})
+    FB_dict.update({'K_scaling': ks})
 
     # Horizontal weights update
     #new_conn_probs = pso.new_conn_probs_alternative(subject_params)
     #FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_dutation = 1000.0 
+    sim_dutation = 2000.0 
     sim_dict.update({'t_sim': sim_dutation})
+
+    #stim_dict_A.update({'num_th_neurons': 0})
 
     # Generación de estímulos
     stim_dict_B = stim_dict_A.copy() 
@@ -129,19 +134,20 @@ if __name__ == '__main__':
 
 
     # Stimulation to MCC A
-    stim_star = 200.0 
-    stim_duration = 500.0
+    stim_star = 1000.0 
+    stim_duration = 1000.0
 
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
+
     stim_dict_A.update({'th_rate': 200.0})
 
     # Stimulation to MCC B
     stim_star = 1000.0 
     stim_duration = 1500.0
     
-    stim_dict_B.update({'thalamic_input': True})
+    stim_dict_B.update({'thalamic_input': False})
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
     stim_dict_B.update({'th_rate': 200.0})
@@ -150,19 +156,27 @@ if __name__ == '__main__':
 
 
     # Stimulation to MCC C
-    stim_star = 2000.0 
+    stim_star = 1000.0 
     stim_duration = 500.0
+
+    # if args.gen == 0:
+    #     TR = 200.0
+    # elif args.gen == 1:
+    #     TR = 100.0
+    # # elif args.gen == 2:
+    # #     TR = 300.0
+
 
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': 200.0})
+    stim_dict_C.update({'th_rate': 300.0})
 
     # Stimulation to MCC D
     stim_star = 1500.0 
     stim_duration = 1000.0
 
-    stim_dict_D.update({'thalamic_input': True})
+    stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
     stim_dict_D.update({'th_rate': 200.0})
@@ -179,12 +193,10 @@ if __name__ == '__main__':
     #     V2, V22 = True, False
     # if args.gen == 2:
     #     V2, V22 = True, True
-
+    Lat_conn, Strg_conn = False, False
+    
     V2, V22 = False, False
-
-
-    Lat_conn, Strg_conn = True, False
-    FF_conn, FB_conn = True, True
+    FF_conn, FB_conn = False, False
 
 
     ###############################################################################
@@ -456,7 +468,7 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2', 'CMC V22']
+    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2']#, 'CMC V22']
 
     print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
     if False:
@@ -473,10 +485,10 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Generate metrics
-    l_bin = 50
-    data_path = sim_dict.get('data_path', None)
-    psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], l_bin)
-    psth.PSTH_plot_tog(data_path, sim_dict['t_sim'], l_bin)
+    # l_bin = 25
+    # data_path = sim_dict.get('data_path', None)
+    # psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], l_bin)
+    # psth.PSTH_plot_tog(data_path, sim_dict['t_sim'], l_bin)
 
 
     ###############################################################################
