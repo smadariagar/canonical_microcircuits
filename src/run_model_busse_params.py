@@ -141,7 +141,7 @@ if __name__ == '__main__':
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
 
-    stim_dict_A.update({'th_rate': 200.0})
+    stim_dict_A.update({'th_rate': 20.0})
 
     # Stimulation to MCC B
     stim_star = 1000.0 

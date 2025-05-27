@@ -159,11 +159,10 @@ def PSTH_maker(folder_path, k, neurons_psth_id):
     return times_spikes_psth
 
 
-def PSTH_folders_data(path, scaling, t_sim, l_bin):
+def PSTH_folders_data(path, l_bin):
     """
     Sálvenme
     """
-
     new_df = []
 
     for folder in os.listdir(path):
@@ -173,8 +172,12 @@ def PSTH_folders_data(path, scaling, t_sim, l_bin):
             continue
         #print(trial_path)
 
+        with open(os.path.join(trial_path, 'sim_params.json'), 'r') as file:
+            sim_dict = json.load(file)
+        t_sim = sim_dict.get("t_sim")
+
         if not os.path.exists(os.path.join(trial_path, 'psth_'+str(l_bin)+'.csv')):
-            PSTH_data(trial_path, scaling, t_sim, l_bin)
+            PSTH_data(trial_path, l_bin)
 
         # Add columns names
         cols = np.array(['folder', 'layer', 'type'])
@@ -367,13 +370,9 @@ def PSTH_plot_tog(path, t_sim, l_bin):
     plt.savefig(os.path.join(path, plot_name), dpi=300)
 
 
-def PSTH_figure(path, l_bin, mcc):
+def PSTH_figure(path, t_sim, l_bin, mcc):
 
     # Read JSONs
-    with open(os.path.join(path, 'sim_params.json'), 'r') as file:
-        sim_dict = json.load(file)
-    t_sim = sim_dict.get("t_sim")
-
     with open(os.path.join(path, 'net_params.json'), 'r') as file:
         net_dict = json.load(file)
     N_scaling      = net_dict.get("N_scaling")
