@@ -94,8 +94,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.3#(args.gen+1)/10
-    ks = (args.gen+1)/10
+    ns = 1#(args.gen+1)/10
+    ks = 1#(args.gen+1)/10
 
     net_dict.update({'N_scaling': ns})
     net_dict.update({'K_scaling': ks})
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     #FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_dutation = 2000.0 
+    sim_dutation = 3000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     #stim_dict_A.update({'num_th_neurons': 0})
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 
     # Stimulation to MCC A
     stim_star = 1000.0 
-    stim_duration = 1000.0
+    stim_duration = 2000.0
 
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
@@ -156,8 +156,8 @@ if __name__ == '__main__':
 
 
     # Stimulation to MCC C
-    stim_star = 1000.0 
-    stim_duration = 500.0
+    stim_star = 2000.0 
+    stim_duration = 1000.0
 
     # if args.gen == 0:
     #     TR = 200.0
