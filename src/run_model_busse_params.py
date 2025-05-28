@@ -94,7 +94,7 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.3#(args.gen+1)/10
+    ns = 0.5#(args.gen+1)/10
     ks = (args.gen+1)/10
 
     net_dict.update({'N_scaling': ns})
