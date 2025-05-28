@@ -94,8 +94,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 1#(args.gen+1)/10
-    ks = 1#(args.id_s+1)/10
+    ns = 0.3#(args.gen+1)/10
+    ks = (args.id_s+1)/10
 
     net_dict.update({'N_scaling': ns})
     net_dict.update({'K_scaling': ks})
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
 
-    stim_dict_A.update({'th_rate': 20.0})
+    stim_dict_A.update({'th_rate': 200.0})
 
     # Stimulation to MCC B
     stim_star = 1000.0 
