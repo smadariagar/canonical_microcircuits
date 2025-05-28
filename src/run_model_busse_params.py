@@ -186,14 +186,14 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Model type
-    V1 = False
+    V1 = True
     # if args.gen == 0:
     #     V2, V22 = False, False
     # if args.gen == 1:
     #     V2, V22 = True, False
     # if args.gen == 2:
     #     V2, V22 = True, True
-    Lat_conn, Strg_conn = False, False
+    Lat_conn, Strg_conn = True, False
     
     V2, V22 = False, False
     FF_conn, FB_conn = False, False
