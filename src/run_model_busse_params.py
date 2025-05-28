@@ -94,7 +94,7 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.7#(args.gen+1)/10
+    ns = 0.5#(args.gen+1)/10
     ks = 0.8#(args.gen+1)/10
 
     net_dict.update({'N_scaling': ns})
@@ -151,9 +151,7 @@ if __name__ == '__main__':
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
     stim_dict_B.update({'th_rate': 200.0})
-
-    #stim_dict_B.update({'num_th_neurons': 200})
-
+    stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
     stim_star = 2000.0 
@@ -180,7 +178,7 @@ if __name__ == '__main__':
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
     stim_dict_D.update({'th_rate': 200.0})
-
+    stim_dict_D.update({'num_th_neurons': 0})
     #stim_dict_D.update({'num_th_neurons': 200})
 
 
