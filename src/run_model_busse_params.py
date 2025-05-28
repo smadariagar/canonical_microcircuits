@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     # N & K scaling
     ns = 0.5#(args.gen+1)/10
-    ks = (args.gen+1)/10
+    ks = (args.gen+5)/10
 
     net_dict.update({'N_scaling': ns})
     net_dict.update({'K_scaling': ks})
