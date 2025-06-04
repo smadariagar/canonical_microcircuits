@@ -94,7 +94,7 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.05#(args.gen+1)/10
+    ns = 0.2#(args.gen+1)/10
     ks = 0.2#(args.gen+5)/10
 
     net_dict.update({'N_scaling': ns})
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     #FB_dict.update({'conn_probs': new_conn_probs})
     
     # Simulation params
-    sim_dutation = 4000.0 
+    sim_dutation = 3000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     #stim_dict_A.update({'num_th_neurons': 0})
@@ -136,11 +136,11 @@ if __name__ == '__main__':
     stim_star = 1000.0 
     stim_duration = 2000.0
 
-    stim_dict_A.update({'thalamic_input': False})
+    stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
     stim_dict_A.update({'th_rate': 200.0})
-    stim_dict_A.update({'num_th_neurons': 0})
+    #stim_dict_A.update({'num_th_neurons': 0})
 
     # Stimulation to MCC B
     stim_star = 1000.0 
@@ -163,11 +163,11 @@ if __name__ == '__main__':
     # # elif args.gen == 2:
     # #     TR = 300.0
 
-    stim_dict_C.update({'thalamic_input': False})
+    stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
     stim_dict_C.update({'th_rate': 300.0})
-    stim_dict_C.update({'num_th_neurons': 0})
+   # stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
     stim_star = 1500.0 
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = True, False
+    V2, V22 = True, True
     FF_conn, FB_conn = True, True
 
 
@@ -463,7 +463,7 @@ if __name__ == '__main__':
             all_pops,
             id_sim)
 
-    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2']#, 'CMC V22']
+    names = ['CMC V1 ( l )', 'CMC V1 ( \\ )', 'CMC V1 ( - )', 'CMC V1 ( / )', 'CMC V2', 'CMC V22']
 
     print('Interval to compute firing rates: {} ms'.format(firing_rates_interval))
     if True:
