@@ -115,7 +115,18 @@ if __name__ == '__main__':
     
     FB_dict.update({'N_scaling': ns})
     FB_dict.update({'K_scaling': ks})
+    
+    if args.gen == 0:
+        new_g = net_dict['g']
+    elif args.gen == 1:
+        new_g = net_dict['g']*0.9
+    elif args.gen == 2:
+        new_g = net_dict['g']*0.75
+    elif args.gen == 3:
+        new_g = net_dict['g']*0.5
 
+    net_dict.update({'g': new_g})
+    net_dict_v2.update({'g': new_g})
     # Horizontal weights update
     #new_conn_probs = pso.new_conn_probs_alternative(subject_params)
     #FB_dict.update({'conn_probs': new_conn_probs})
