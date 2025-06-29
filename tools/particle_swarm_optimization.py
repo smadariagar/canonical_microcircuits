@@ -132,17 +132,17 @@ def new_conn_probs_alternative(params):
         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
         # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
 
-    # cont = 0
-    # for j in [0]:
-    #     for i in range(2):
-    #         conn_probs[i, j] = params[cont]
-    #         cont=cont+1
-
     cont = 0
-    for j in [4,6]:
-        for i in [0,1,4,5]:
+    for j in [0]:
+        for i in range(2):
             conn_probs[i, j] = params[cont]
             cont=cont+1
+
+    # cont = 0
+    # for j in [4,6]:
+    #     for i in [0,1,4,5]:
+    #         conn_probs[i, j] = params[cont]
+    #         cont=cont+1
 
     return conn_probs
 
@@ -160,16 +160,16 @@ def get_result(folder_path, trial, id_suj):
 
     # add columns names
     cols = np.array(['trials', 'subjects'])
-    params = range(4)
+    params = range(8)
     names = np.concatenate((cols, params), axis=None)
 
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
 
     m = df.columns.to_list()
-    performance = df[(df['trials']==trial) & (df['subjects']==id_suj)][m[2:]].values
+    performance = df[(df['trials']==trial) & (df['subjects']==id_suj)][m[-1]].values
 
     try:
-        return performance[0]
+        return performance
     except Exception:
         return []
 
@@ -187,19 +187,18 @@ def sorted_result(folder_path, id_suj):
 
     # add columns names
     cols = np.array(['trials', 'subjects'])
-    params = range(4)
+    params = range(8)
     names = np.concatenate((cols, params), axis=None)
 
     df = pd.read_csv(os.path.join(folder_path, 'results.csv'), header=None, names=names)
     if id_suj == -1:
-        result = df[(df['subjects']<=100)][['trials', 'subjects', '3', '0', '1', '2']].sort_values('3').values
+        result = df[(df['subjects']<=100)].sort_values('7').values
     else:
-        result = df[(df['subjects']==id_suj)][['trials', 'subjects', '3']].sort_values('3').values
-
+        result = df[(df['subjects']==id_suj)].sort_values('7').values
     return result
 
 
-def save_result(folder_path, subject_path, trial, suj_id, n_neurons):
+def save_result(folder_path, trial, suj_id, activity):
     """_summary_
 
     Args:
@@ -209,12 +208,11 @@ def save_result(folder_path, subject_path, trial, suj_id, n_neurons):
         suj_id (_type_): _description_
     """
 
-    data = hist_spikes.apliccation_metrics(subject_path, 500)[0]
-    activity = np.array(data[1])/n_neurons
-    performance = perf_calculation(activity.tolist())
+    performance = perf_calculation(activity)
 
-    # convert array into dataframe
-    df = pd.DataFrame([[trial,suj_id]+activity.tolist()+[performance]])
+    print(np.size(activity.tolist()))
+    print(np.size(performance))
+    df = pd.DataFrame([[trial,suj_id]+activity.tolist()+performance])
 
     # save the dataframe as a csv file
     # append data frame to CSV file
@@ -252,39 +250,14 @@ def perf_calculation(activity):
     """
 
     activity = np.array(activity)
-    # print(activity)
-
-    # # Variable de actividad basal
-    # bg_val = abs(0.6-activity[0])
-    # bg_val = bg_val + abs(0.78-activity[1])
-    
-    # # Variable de supresión
-    # supp_val = 0
-    # if activity[1] < activity[2]:
-    #     supp_val = supp_val + abs(activity[2]-activity[1])
-    # if activity[2] < activity[3]:
-    #     supp_val = supp_val + abs(activity[3]-activity[2])
-    # if activity[1] < activity[3]:
-    #     supp_val = supp_val + abs(activity[3]-activity[1])
 
     # Normalización
     n = (activity[1]-activity[0])/100
     m = activity[0]
     norm_77, norm_24 = 77*n+m, 24*n+m
 
-    # # Variable supresión inicial
-    # norm_val_1 = abs(norm_77-activity[2])
+    return [activity[0], abs(norm_77-activity[2]), abs(norm_24-activity[3]), activity[0] + abs(norm_77-activity[2])+ abs(norm_24-activity[3])]
 
-    # # Variable supresión inicial
-    # norm_val_2 = abs(norm_24-activity[3])
-
-    # if activity[0]==0 and activity[1]==0 and activity[2]==0 and activity[3]==0:
-    #     return 10000000
-
-    # return bg_val + supp_val*10 + norm_val_1 + norm_val_2
-    newmax = min(activity[1],10)
-
-    return activity[0] + abs(10-newmax) + abs(norm_24-activity[2])*2
 
 def modify_performance(folder_path):
     """_summary_
@@ -325,14 +298,15 @@ def generate_next_iteration(folder_path, last_trial, n_subjects, params):
 
     # Parameters
     w = 0.2
-    c1, c2, c3 = 0.3, 0.3, 1
+    c1, c2, c3 = 0.3, 0.3, 0.5
 
     # Get best of all
     best_all_id = sorted_result(folder_path, -1)
     best_all = get_subject(folder_path, best_all_id[0][0], best_all_id[0][1], params)
+    
 
     print('***********************')
-    print(best_all_id[0])
+    print(best_all_id[0,[0, 1, 9]])
     print('***********************')
 
     for i in range(n_subjects):
@@ -341,7 +315,7 @@ def generate_next_iteration(folder_path, last_trial, n_subjects, params):
 
         best_subject_i_id = sorted_result(folder_path, i)
         best_subject_i = get_subject(folder_path, best_subject_i_id[0][0], best_subject_i_id[0][1], params)
-        print(best_subject_i_id[0])
+        print(best_subject_i_id[0,[0, 1, 9]])
         print('***************')
 
         if last_trial == 0:
@@ -355,6 +329,12 @@ def generate_next_iteration(folder_path, last_trial, n_subjects, params):
         rand3 = np.random.uniform(-0.01,0.01,(1,params))
 
         new_position = subject_i + w*vel + rand1*c1*(best_subject_i-subject_i) + rand2*c2*(best_all-subject_i) + rand3*c3
+
+        print(subject_i)
+        print(w*vel)
+        print(rand1*c1*(best_subject_i-subject_i))
+        print(rand2*c2*(best_all-subject_i))
+        print(rand3*c3)
         #+ np.random.randn()*c3*(rand_subj-subject_i)#*r_trial
 
         # check negatives
@@ -365,6 +345,8 @@ def generate_next_iteration(folder_path, last_trial, n_subjects, params):
 
         suj_id = np.array([last_trial+1, i])
         suj = np.concatenate((suj_id, new_position[0]))
-
         add_suj_to_csv(folder_path, [suj])
+
+
+
 

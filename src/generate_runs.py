@@ -12,8 +12,8 @@ warnings.filterwarnings("ignore")
 if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    n_trials, n_subjects = 1, 10
-    params = 8
+    n_trials, n_subjects = 10, 10
+    params = 2
 
     ## Inicialización
     # if not os.path.exists(os.path.join(folder_path, 'swarm.csv')):
