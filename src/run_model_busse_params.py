@@ -117,32 +117,32 @@ if __name__ == '__main__':
     FB_dict.update({'N_scaling': ns})
     FB_dict.update({'K_scaling': ks})
     
-    if args.gen == 0:
-        gan = 1
-    elif args.gen == 1:
-        gan = 0.9
-    elif args.gen == 2:
-        gan = 0.75
-    elif args.gen == 3:
-        gan = 0.5
-    elif args.gen == 4:
-        gan = 0.25
-    elif args.gen == 5:
-        gan = 0.1
-    elif args.gen == 6:
-        gan = 0
+    # if args.gen == 0:
+    #     gan = 1
+    # elif args.gen == 1:
+    #     gan = 0.9
+    # elif args.gen == 2:
+    #     gan = 0.75
+    # elif args.gen == 3:
+    #     gan = 0.5
+    # elif args.gen == 4:
+    #     gan = 0.25
+    # elif args.gen == 5:
+    #     gan = 0.1
+    # elif args.gen == 6:
+    #     gan = 0
+    # gan=1
+    # conn_probs = net_dict['conn_probs']
+    # conn_probs_2 = net_dict_v2['conn_probs']
 
-    conn_probs = net_dict['conn_probs']
-    conn_probs_2 = net_dict_v2['conn_probs']
+    # conn_probs[0,1] = conn_probs[0,1]*gan
+    # conn_probs[1,1] = conn_probs[1,1]*gan
 
-    conn_probs[0,1] = conn_probs[0,1]*gan
-    conn_probs[1,1] = conn_probs[1,1]*gan
+    # conn_probs_2[0,1] = conn_probs_2[0,1]*gan
+    # conn_probs_2[1,1] = conn_probs_2[1,1]*gan
 
-    conn_probs_2[0,1] = conn_probs_2[0,1]*gan
-    conn_probs_2[1,1] = conn_probs_2[1,1]*gan
-
-    net_dict.update({'conn_probs': conn_probs})
-    net_dict_v2.update({'conn_probs': conn_probs_2})
+    # net_dict.update({'conn_probs': conn_probs})
+    # net_dict_v2.update({'conn_probs': conn_probs_2})
     
     # Horizontal weights update
     new_conn_probs_near = pso.new_conn_probs_alternative(subject_params)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     lateral_dict2.update({'conn_probs': new_conn_probs_far})
     
     # Simulation params
-    sim_dutation = 400.0 
+    sim_dutation = 4000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     #stim_dict_A.update({'num_th_neurons': 0})
@@ -165,8 +165,8 @@ if __name__ == '__main__':
     stim_dict_V2 = stim_dict_A.copy()
 
     # Stimulation to MCC A
-    stim_star = 100.0 
-    stim_duration = 300.0
+    stim_star = 1000.0 
+    stim_duration = 3000.0
 
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
@@ -185,8 +185,8 @@ if __name__ == '__main__':
     stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
-    stim_star = 300.0 
-    stim_duration = 100.0
+    stim_star = 3000.0 
+    stim_duration = 1000.0
 
     # if args.gen == 0:
     #     TR = 200.0
@@ -202,8 +202,8 @@ if __name__ == '__main__':
    # stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
-    stim_star = 200.0 
-    stim_duration = 100.0
+    stim_star = 2000.0 
+    stim_duration = 1000.0
 
     stim_dict_D.update({'thalamic_input': True})
     stim_dict_D.update({'th_start': stim_star})
@@ -518,8 +518,8 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Histogramas de spikes and save performance
-    psth.PSTH_data(data_path, 100)
-    activity = psth.get_data(data_path, sim_dict['t_sim'], 100, '2/3a', 'exc')
+    psth.PSTH_data(data_path, 1000)
+    activity = psth.get_data(data_path, sim_dict['t_sim'], 1000, '2/3a', 'exc')
     pso.save_result(folder_path, args.gen, args.id_s, activity)
 
     ###############################################################################
