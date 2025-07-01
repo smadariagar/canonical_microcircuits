@@ -154,7 +154,7 @@ if __name__ == '__main__':
     lateral_dict2.update({'conn_probs': new_conn_probs_far})
     
     # Simulation params
-    sim_dutation = 400.0 
+    sim_dutation = 4000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     #stim_dict_A.update({'num_th_neurons': 0})
@@ -483,7 +483,7 @@ if __name__ == '__main__':
     #firing_rates_interval3 = np.array([1500, 2000])
 
     print('Interval to plot spikes: {} ms'.format(raster_plot_interval))
-    if True:
+    if False:
         id_sim = sim_dict['data_path'].split("/")[-1]
         helpers.plot_raster(
             sim_dict['data_path'],
@@ -519,8 +519,8 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Histogramas de spikes and save performance
-    psth.PSTH_data(data_path, 100)
-    activity = psth.get_data(data_path, sim_dict['t_sim'], 100, '2/3a', 'exc')
+    psth.PSTH_data(data_path, 1000)
+    activity = psth.get_data(data_path, sim_dict['t_sim'], 1000, '2/3a', 'exc')
     pso.save_result(folder_path, args.gen, args.id_s, activity)
 
     ###############################################################################
