@@ -31,6 +31,7 @@ Este script corre el modelo de corteza visual, con módulos de microcircuito tan
 # Import the necessary modules and start the time measurements.
 import time
 import os
+import shutil
 
 import json
 import argparse
@@ -556,3 +557,11 @@ if __name__ == '__main__':
             time_evaluate -
             time_simulate))
     
+    if os.path.exists(data_path):
+        try:
+            shutil.rmtree(data_path)
+            print("¡Carpeta borrada exitosamente!")
+        except OSError as e:
+            print(f"Error al borrar la carpeta: {e.strerror}")
+    else:
+        print("La carpeta no existe, no hay nada que borrar.")
