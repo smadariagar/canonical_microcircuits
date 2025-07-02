@@ -71,7 +71,8 @@ if __name__ == '__main__':
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
     subject_params = pso.get_subject(folder_path, args.gen, args.id_s, 2)
-
+    print(subject_params)
+    wait()
     time_start = time.time()
 
     nest.ResetKernel()
@@ -147,7 +148,7 @@ if __name__ == '__main__':
     
     # Horizontal weights update
     new_conn_probs_near = pso.new_conn_probs_alternative(subject_params)
-    subject_params[0] = subject_params[0]/10
+    subject_params[0] = subject_params[0]/(subject_params[2]*100)
     new_conn_probs_far = pso.new_conn_probs_alternative(subject_params)
 
     lateral_dict.update({'conn_probs': new_conn_probs_near})
@@ -293,7 +294,7 @@ if __name__ == '__main__':
         #nest.rng_seed = 56
         rng_seeds.append(nest.rng_seed)
         net_D = network.Network(sim_dict, net_dict, stim_dict_D)
-        
+
         # Create all nodes
         net_D.create()
 
@@ -301,7 +302,7 @@ if __name__ == '__main__':
         net_D.connect()
         all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict['populations']))
 
-     
+
     ###############################################################################
     # Lateral connections
     if V1:
@@ -311,7 +312,7 @@ if __name__ == '__main__':
             net_A.connect_networks(net_B, lateral_dict)
             nest.rng_seed = randint(1, 1000)
             net_B.connect_networks(net_A, lateral_dict)
-            
+
             nest.rng_seed = randint(1, 1000)
             net_C.connect_networks(net_D, lateral_dict)
             nest.rng_seed = randint(1, 1000)
@@ -322,7 +323,7 @@ if __name__ == '__main__':
             nest.rng_seed = randint(1, 1000)
             net_C.connect_networks(net_A, lateral_dict2)
             nest.rng_seed = randint(1, 1000)
-            net_B.connect_networks(net_D, lateral_dict2)                    
+            net_B.connect_networks(net_D, lateral_dict2)
             nest.rng_seed = randint(1, 1000)
             net_D.connect_networks(net_B, lateral_dict2)
 
@@ -355,7 +356,7 @@ if __name__ == '__main__':
     if V2:
         #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
         ####net_dict.update({'K_ext': np.array([1700, 1500, 1550, 1420, 1900, 1900, 2800, 2100])})
-        
+
         #net_dict.update({'full_num_neurons': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])})
         #net_dict.update({'full_num_neurons': np.array([20683, 5834, 20915, 5279, 4850, 1065, 14395, 2948])})
         ####net_dict.update({'full_num_neurons': np.array([22051,  6219, 11421, 2855, 4461, 979,  13966, 2859])})
@@ -376,7 +377,7 @@ if __name__ == '__main__':
 
         #net_V2.connect_other_input(stim_dict3_v2)
         all_pops = all_pops + list(map(lambda pop: f"{pop}", net_dict_v2['populations'])) 
-      
+
     if V22:
         nest.rng_seed = randint(1, 1000)
         #nest.rng_seed = 56
@@ -394,8 +395,8 @@ if __name__ == '__main__':
 
 
     ###############################################################################
-    # Vertica connections
-    #feedforward
+    # Vertica connections 
+    # feedforward
     if V2:
         if FF_conn:
             print("---> Connecting networks vertically...")
@@ -416,7 +417,7 @@ if __name__ == '__main__':
                 nest.rng_seed = randint(1, 1000)
                 net_D.connect_networks(net_V2, FF_dict)
 
-        #feedback
+        # feedback
         if FB_conn:
             nest.rng_seed = randint(1, 1000)
             net_V2.connect_networks(net_A, FB_dict)
@@ -435,14 +436,12 @@ if __name__ == '__main__':
                 nest.rng_seed = randint(1, 1000)
                 net_V2.connect_networks(net_D, FB_dict)
 
-
         if V22:
             nest.rng_seed = randint(1, 1000)
             net_V2.connect_networks(net_V22, lateral_dict2)
             nest.rng_seed = randint(1, 1000)
             net_V22.connect_networks(net_V2, lateral_dict2)
 
-    
     ###############################################################################
     # Simulation over MCC A
     print('---> Simulating...')
@@ -464,7 +463,6 @@ if __name__ == '__main__':
     pd.Series(lateral_dict2).to_json(os.path.join(data_path,'lat_conn_far_params.json'))
     pd.Series(FF_dict).to_json(os.path.join(data_path,'ff_conn_params.json'))
     pd.Series(FB_dict).to_json(os.path.join(data_path,'fb_conn_params.json'))
-    
 
     ###############################################################################
     # Plot a spike raster of the simulated neurons and a box plot of the firing
@@ -508,14 +506,12 @@ if __name__ == '__main__':
     #net_src.evaluate(raster_plot_interval, firing_rates_interval)
     time_evaluate = time.time()
 
-
     ###############################################################################
     # Generate metrics
     # l_bin = 25
     # data_path = sim_dict.get('data_path', None)
     # psth.PSTH_data(data_path, net_dict['N_scaling'], sim_dict['t_sim'], l_bin)
     # psth.PSTH_plot_tog(data_path, sim_dict['t_sim'], l_bin)
-
 
     ###############################################################################
     # Histogramas de spikes and save performance
@@ -527,7 +523,6 @@ if __name__ == '__main__':
     # Saving seeds
     with open(os.path.join(data_path, 'seeds.json'), 'w') as file:
         json.dump(rng_seeds, file)
-
 
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the
@@ -556,7 +551,7 @@ if __name__ == '__main__':
         '  Time to evaluate:    {:.3f} s\n'.format(
             time_evaluate -
             time_simulate))
-    
+
     if os.path.exists(data_path):
         try:
             shutil.rmtree(data_path)

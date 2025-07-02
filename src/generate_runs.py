@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
     n_trials, n_subjects = 50, 25
-    params = 2
+    params = 3
 
     ## Inicialización
     # if not os.path.exists(os.path.join(folder_path, 'swarm.csv')):
