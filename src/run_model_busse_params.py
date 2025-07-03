@@ -70,9 +70,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    subject_params = pso.get_subject(folder_path, args.gen, args.id_s, 2)
-    print(subject_params)
-    wait()
+    subject_params = pso.get_subject(folder_path, args.gen, args.id_s, 3)
     time_start = time.time()
 
     nest.ResetKernel()
@@ -148,7 +146,7 @@ if __name__ == '__main__':
     
     # Horizontal weights update
     new_conn_probs_near = pso.new_conn_probs_alternative(subject_params)
-    subject_params[0] = subject_params[0]/(subject_params[2]*100)
+    subject_params[0] = subject_params[0]/10
     new_conn_probs_far = pso.new_conn_probs_alternative(subject_params)
 
     lateral_dict.update({'conn_probs': new_conn_probs_near})
@@ -161,9 +159,9 @@ if __name__ == '__main__':
     #stim_dict_A.update({'num_th_neurons': 0})
 
     # Generación de estímulos
-    stim_dict_B = stim_dict_A.copy() 
+    stim_dict_B = stim_dict_A.copy()
     stim_dict_C = stim_dict_A.copy()
-    stim_dict_D = stim_dict_A.copy() 
+    stim_dict_D = stim_dict_A.copy()
     stim_dict_V2 = stim_dict_A.copy()
 
     # Stimulation to MCC A
@@ -223,7 +221,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = False, False
+    V2, V22 = True, True
     FF_conn, FB_conn = False, False
 
     ###############################################################################
