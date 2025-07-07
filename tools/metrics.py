@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft
 
 from assets.potjans_diesmann.sim_params import sim_dict
+import tools.histogram_single_microcircuit as hist_spikes
+
 
 warnings.filterwarnings("ignore")
 
@@ -48,18 +50,21 @@ def extract_time_info(file_path):
 
 def calc_lfp(cells, tau, lfp_time, delay, amp):
     """Calculate LFP using a temporal kernel."""
-    
+
     #cells.to_csv('out.csv', index=False)  
     lfp = np.zeros(lfp_time.shape)
-
+    print(cells)
     for idx in range(len(cells["cellid"])):
         # Calculate temporal kernel
-        #print(cells.iat[idx, 0])
+        #print(cells.iat[idx, 0]-1)
+
         t_diff = lfp_time - delay[cells.iat[idx, 0]-1] - cells.iat[idx, 1]
         temporal_kernel = np.exp(-t_diff ** 2 / tau)
+        #print(temporal_kernel)
         
         # Accumulate LFP contributions directly
-        lfp += amp[None, cells.iat[idx, 0]] * temporal_kernel
+        lfp += amp[None, cells.iat[idx, 0]-1] * temporal_kernel
+
     return lfp
 
 def metrics(tmin ,tmax, exc_cells, inh_cells, Ne, Ni, correc_id):
@@ -125,7 +130,6 @@ def metrics(tmin ,tmax, exc_cells, inh_cells, Ne, Ni, correc_id):
     s_i = 2 * sig_i * sig_i
     lfp_time = np.arange(npts) * dt
     lfp_inh = calc_lfp(inh_cells, s_i, lfp_time, delay, amp)
-    print/(lfp_inh)
     lfp_exc = calc_lfp(exc_cells, s_e, lfp_time, delay, amp)
     total_lfp = lfp_inh + lfp_exc
 
@@ -183,8 +187,11 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         print('*****')
         print(Ne)
         print(Ni)
+
         lfp_capa, inh_cells, exc_cells, lfp_time, npts = metrics(t_presim_value ,t_sim_value, 
                         exc_cells_tot, inh_cells_tot, Ne, Ni, correc_id)
+        
+        print(type(lfp_capa))
            
         Nstp = 5  # step cell to draw
         tick_size = 5
@@ -233,3 +240,35 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         #plt.savefig(folder_path+'Espectro_log'+str(n+1)+'.png')
             
         print('LFP capa '+str(n+1))
+
+
+def get_lfp(path):
+
+     # Read JSONs
+    with open(os.path.join(path, 'net_params.json'), 'r') as file:
+        net_dict = json.load(file)
+    num_neurons    = net_dict.get('full_num_neurons_v1')
+    num_neurons_v2 = net_dict.get('full_num_neurons_v2')
+    N_scaling      = net_dict.get("N_scaling")
+    K_scaling      = net_dict.get("K_scaling")
+
+    with open(os.path.join(path, 'sim_params.json'), 'r') as file:
+        sim_dict = json.load(file)
+    local_num_threads = sim_dict.get("local_num_threads")
+    t_sim = sim_dict.get("t_sim")
+
+    # Add columns names
+    cols = np.array(['folder', 'layer', 'type'])
+    params = range(int(t_sim/10))
+    names = np.concatenate((cols, params), axis=None)
+    hist_data = pd.DataFrame(columns=names)
+
+    num_neurons = num_neurons+num_neurons+num_neurons+num_neurons+num_neurons_v2+num_neurons_v2
+
+    archivos_spike_recorder = hist_spikes.select_spike_recorder_files(path)
+    print(archivos_spike_recorder)
+    info_total, times = hist_spikes.process_files_in_pairs_positions(path, archivos_spike_recorder)
+    tiempos = info_total.iloc[:,1]
+    info_total['time'] = tiempos
+
+
