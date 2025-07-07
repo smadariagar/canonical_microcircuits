@@ -53,7 +53,7 @@ def calc_lfp(cells, tau, lfp_time, delay, amp):
 
     #cells.to_csv('out.csv', index=False)  
     lfp = np.zeros(lfp_time.shape)
-    print(cells)
+
     for idx in range(len(cells["cellid"])):
         # Calculate temporal kernel
         #print(cells.iat[idx, 0]-1)
@@ -69,10 +69,12 @@ def calc_lfp(cells, tau, lfp_time, delay, amp):
 
 def metrics(tmin ,tmax, exc_cells, inh_cells, Ne, Ni, correc_id):
     N = Ne+Ni  # nb of cells to consider
+    print(N)
+    print(min(exc_cells['cellid']))
 
     inh_cells['cellid'] = inh_cells['cellid'] - correc_id
     exc_cells['cellid'] = exc_cells['cellid'] - correc_id
-
+    print(max(inh_cells['cellid']))
     # adjust time and convert to ms
     inh_cells["time"] = inh_cells["time"] - tmin
     exc_cells["time"] = exc_cells["time"] - tmin
@@ -153,64 +155,62 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
     t_sim_value = sim_dict.get("t_sim")
     t_presim_value = 0#int(sim_dict["t_presim"])
 
+    nodeid = pd.read_csv(os.path.join(folder_path, 'population_nodeids.dat'), sep=' ', header=None, names=['0','1'])
+
     n = 0
-    exc_cells_tot = pd.DataFrame()
-    inh_cells_tot = pd.DataFrame()
     for n, i in enumerate(range(0, len(spike_recorder_files), local_num_threads*2)):
-        Ne, Ni = 0, 0
+        exc_cells_tot = pd.DataFrame()
+        inh_cells_tot = pd.DataFrame()
+        Ne = nodeid.iat[(n)*2, 1] - nodeid.iat[(n)*2, 0] + 1
+        Ni = nodeid.iat[(n)*2+1, 1] - nodeid.iat[(n)*2+1, 0] + 1
 
         for j in range(local_num_threads):
 
             file1 = spike_recorder_files[i+j]
             file2 = spike_recorder_files[i+j+local_num_threads]
-            print(file1+' '+file2)
 
             exc = __load_meter_data(folder_path, file1, t_presim_value, t_sim_value + t_presim_value)
             cellids, times = zip(*exc[2][0])
             exc_cells = pd.DataFrame({'cellid': cellids, 'time': times})
             exc_cells['type'] = 'exc'
             exc_cells['Layer'] = n
-            Ne = (exc[1][i][1] - exc[1][i][0])
             
             inh = __load_meter_data(folder_path, file2, t_presim_value, t_sim_value + t_presim_value)
             cellids, times = zip(*inh[2][0])
             inh_cells = pd.DataFrame({'cellid': cellids, 'time': times})
             inh_cells['type'] = 'inh'
             inh_cells['Layer'] = n
-            Ni = (inh[1][i+1][1] - inh[1][i+1][0]) + 1
-            
-            correc_id = exc[1][i][0]
 
             exc_cells_tot = pd.concat([exc_cells_tot, exc_cells], axis=0)
             inh_cells_tot = pd.concat([inh_cells_tot, inh_cells], axis=0)
-
+            
         print('*****')
-        print(Ne)
-        print(Ni)
+        correc_id = nodeid.iat[(n)*2, 0]
+        print(Ne, Ni)
 
         lfp_capa, inh_cells, exc_cells, lfp_time, npts = metrics(t_presim_value ,t_sim_value, 
                         exc_cells_tot, inh_cells_tot, Ne, Ni, correc_id)
         
-        print(type(lfp_capa))
-           
-        Nstp = 5  # step cell to draw
-        tick_size = 5
+        np.savetxt(os.path.join(folder_path, str('lfp_l'+str(n+1)+'.csv')), lfp_capa, delimiter=',')
 
-        fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+        # Nstp = 5  # step cell to draw
+        # tick_size = 5
 
-        axes[0].plot(exc_cells[::Nstp]["time"], exc_cells[::Nstp]["cellid"], ".", ms=tick_size)
-        axes[0].plot(inh_cells[::Nstp]["time"], inh_cells[::Nstp]["cellid"], ".", ms=tick_size)
+        # fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
 
-        axes[1].plot(lfp_time, lfp_capa)
-        axes[1].set_xlabel("time, ms")
-        axes[1].set_xlim(0, t_sim_value)
+        # axes[0].plot(exc_cells[::Nstp]["time"], exc_cells[::Nstp]["cellid"], ".", ms=tick_size)
+        # axes[0].plot(inh_cells[::Nstp]["time"], inh_cells[::Nstp]["cellid"], ".", ms=tick_size)
 
-        # prettify graph
-        axes[0].spines["top"].set_visible(False)
-        axes[0].spines["right"].set_visible(False)
-        axes[1].spines["top"].set_visible(False)
-        axes[1].spines["right"].set_visible(False)
-        plt.savefig(folder_path+"/demo_lfp_kernel_capa"+str(n+1)+".pdf")
+        # axes[1].plot(lfp_time, lfp_capa)
+        # axes[1].set_xlabel("time, ms")
+        # axes[1].set_xlim(0, t_sim_value)
+
+        # # prettify graph
+        # axes[0].spines["top"].set_visible(False)
+        # axes[0].spines["right"].set_visible(False)
+        # axes[1].spines["top"].set_visible(False)
+        # axes[1].spines["right"].set_visible(False)
+        # plt.savefig(folder_path+"/demo_lfp_kernel_capa"+str(n+1)+".pdf")
               
         # Configuración de la señal
         #fs = npts  # Frecuencia de muestreo en Hz
