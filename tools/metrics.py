@@ -1,15 +1,15 @@
 import os
-from utils.helpers import __load_meter_data
-import os
 import json
 import pandas as pd
 import numpy as np
+import datetime
 import warnings
 import matplotlib.pyplot as plt
 from scipy.fft import fft
 
 from assets.potjans_diesmann.sim_params import sim_dict
 import tools.histogram_single_microcircuit as hist_spikes
+from utils.helpers import __load_meter_data
 
 
 warnings.filterwarnings("ignore")
@@ -67,14 +67,15 @@ def calc_lfp(cells, tau, lfp_time, delay, amp):
 
     return lfp
 
+
+
 def metrics(tmin ,tmax, exc_cells, inh_cells, Ne, Ni, correc_id):
     N = Ne+Ni  # nb of cells to consider
-    print(N)
-    print(min(exc_cells['cellid']))
-
+    
     inh_cells['cellid'] = inh_cells['cellid'] - correc_id
     exc_cells['cellid'] = exc_cells['cellid'] - correc_id
-    print(max(inh_cells['cellid']))
+
+    print(min(exc_cells['cellid']), max(inh_cells['cellid']))
     # adjust time and convert to ms
     inh_cells["time"] = inh_cells["time"] - tmin
     exc_cells["time"] = exc_cells["time"] - tmin
@@ -131,8 +132,13 @@ def metrics(tmin ,tmax, exc_cells, inh_cells, Ne, Ni, correc_id):
     s_e = 2 * sig_e * sig_e
     s_i = 2 * sig_i * sig_i
     lfp_time = np.arange(npts) * dt
+
+    print(datetime.datetime.now())
     lfp_inh = calc_lfp(inh_cells, s_i, lfp_time, delay, amp)
+    print(datetime.datetime.now())
     lfp_exc = calc_lfp(exc_cells, s_e, lfp_time, delay, amp)
+    print(datetime.datetime.now())
+
     total_lfp = lfp_inh + lfp_exc
 
     return total_lfp ,inh_cells, exc_cells, lfp_time,npts
@@ -157,8 +163,12 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
 
     nodeid = pd.read_csv(os.path.join(folder_path, 'population_nodeids.dat'), sep=' ', header=None, names=['0','1'])
 
-    n = 0
     for n, i in enumerate(range(0, len(spike_recorder_files), local_num_threads*2)):
+
+        print(n)
+        if n > 3:
+            continue
+
         exc_cells_tot = pd.DataFrame()
         inh_cells_tot = pd.DataFrame()
         Ne = nodeid.iat[(n)*2, 1] - nodeid.iat[(n)*2, 0] + 1
