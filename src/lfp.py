@@ -1,11 +1,10 @@
-"""Hace el histograma
-summary_
-"""
 import os
 import warnings
 import pandas as pd
 import numpy as np
 import math
+import argparse
+
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm, Normalize
@@ -17,20 +16,19 @@ import tools.particle_swarm_optimization_plot as pso_plt
 import tools.peristimulus_time_histogram as psth
 import tools.metrics as met
 
-warnings.filterwarnings("ignore")
+parser = argparse.ArgumentParser()
+parser.add_argument('dir')
 
 if __name__ == '__main__':
-
+    args = parser.parse_args()
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
 
-    # for j in range(7):
-    #     for k in range(1):
-    #         os.system("python -m src.run_model_busse_params "+str(j)+" "+str(k))
-
-
-    carpetas = [nombre for nombre in os.listdir(folder_path)
-            if os.path.isdir(os.path.join(folder_path, nombre))]
+    ruta_completa = os.path.join(folder_path, args.dir)
+        
+    print("Accediendo a:", args.dir)
     
-    for carpeta in carpetas:
-
-        os.system("python -m src.lfp "+carpeta)
+    #try:
+    archivos_spike_recorder = met.select_spike_recorder_files(ruta_completa)
+    # print(archivos_spike_recorder)
+    # archivos_spike_recorder.sort()
+    met.process_files_in_pairs(ruta_completa, archivos_spike_recorder)
