@@ -33,6 +33,8 @@ def generate_first_population(folder_path, n_pop, params):
     for i in range(n_pop):
         suj_id = np.array([[0, i]])
         r_params = np.random.random_sample((1,params))/10
+        if r_params[0,1] > r_params[0,0]:
+            r_params[0,1] = r_params[0,0]
         suj = np.concatenate((suj_id, r_params), axis=1)
 
         add_suj_to_csv(folder_path, suj)
@@ -342,6 +344,9 @@ def generate_next_iteration(folder_path, last_trial, n_subjects, params):
 
         # check big numbers
         new_position[new_position>0.1] = 0.1
+        
+        if new_position[0,1] > new_position[0,0]:
+            new_position[0,1] = new_position[0,0]
 
         suj_id = np.array([last_trial+1, i])
         suj = np.concatenate((suj_id, new_position[0]))

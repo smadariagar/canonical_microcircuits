@@ -145,14 +145,14 @@ if __name__ == '__main__':
     # net_dict_v2.update({'conn_probs': conn_probs_2})
     
     # # Horizontal weights update
-    # new_conn_probs_near = pso.new_conn_probs_alternative(subject_params)
-    # subject_params[0] = subject_params[0]/10
-    # new_conn_probs_far = pso.new_conn_probs_alternative(subject_params)
-    # lateral_dict.update({'conn_probs': new_conn_probs_near})
-    # lateral_dict2.update({'conn_probs': new_conn_probs_far})
+    new_conn_probs_near = pso.new_conn_probs_alternative(subject_params)
+    subject_params[0] = subject_params[0]/10
+    new_conn_probs_far = pso.new_conn_probs_alternative(subject_params)
+    lateral_dict.update({'conn_probs': new_conn_probs_near})
+    lateral_dict2.update({'conn_probs': new_conn_probs_far})
     
     # Simulation params
-    sim_dutation = 500.0 
+    sim_dutation = 2000.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     #stim_dict_A.update({'num_th_neurons': 0})
@@ -164,8 +164,8 @@ if __name__ == '__main__':
     stim_dict_V2 = stim_dict_A.copy()
 
     # Stimulation to MCC A
-    stim_star = 100.0 
-    stim_duration = 400.0
+    stim_star = 500.0 
+    stim_duration = 1500.0
 
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
@@ -184,8 +184,8 @@ if __name__ == '__main__':
     stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
-    stim_star = 300.0 
-    stim_duration = 200.0
+    stim_star = 1500.0 
+    stim_duration = 500.0
 
     # if args.gen == 0:
     #     TR = 200.0
@@ -201,8 +201,8 @@ if __name__ == '__main__':
    # stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
-    stim_star = 400.0 
-    stim_duration = 100.0
+    stim_star = 1000.0 
+    stim_duration = 500.0
 
     stim_dict_D.update({'thalamic_input': True})
     stim_dict_D.update({'th_start': stim_star})
@@ -512,8 +512,8 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Histogramas de spikes and save performance
-    psth.PSTH_data(data_path, 1000)
-    activity = psth.get_data(data_path, sim_dict['t_sim'], 1000, '2/3a', 'exc')
+    psth.PSTH_data(data_path, 500)
+    activity = psth.get_data(data_path, sim_dict['t_sim'], 500, '2/3a', 'exc')
     pso.save_result(folder_path, args.gen, args.id_s, activity)
 
     ###############################################################################
