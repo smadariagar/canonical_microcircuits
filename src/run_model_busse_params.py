@@ -549,11 +549,11 @@ if __name__ == '__main__':
             time_evaluate -
             time_simulate))
 
-    # if os.path.exists(data_path):
-    #     try:
-    #         shutil.rmtree(data_path)
-    #         print("¡Carpeta borrada exitosamente!")
-    #     except OSError as e:
-    #         print(f"Error al borrar la carpeta: {e.strerror}")
-    # else:
-    #     print("La carpeta no existe, no hay nada que borrar.")
+    if os.path.exists(data_path):
+        try:
+            shutil.rmtree(data_path)
+            print("¡Carpeta borrada exitosamente!")
+        except OSError as e:
+            print(f"Error al borrar la carpeta: {e.strerror}")
+    else:
+        print("La carpeta no existe, no hay nada que borrar.")
