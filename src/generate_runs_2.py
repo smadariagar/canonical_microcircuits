@@ -15,7 +15,6 @@ import seaborn as sns
 import tools.particle_swarm_optimization as pso
 import tools.particle_swarm_optimization_plot as pso_plt
 import tools.peristimulus_time_histogram as psth
-import tools.metrics as met
 
 warnings.filterwarnings("ignore")
 
@@ -30,7 +29,6 @@ if __name__ == '__main__':
 
     carpetas = [nombre for nombre in os.listdir(folder_path)
             if os.path.isdir(os.path.join(folder_path, nombre))]
-    
     for carpeta in carpetas:
-
+       
         os.system("python -m src.lfp "+carpeta)
