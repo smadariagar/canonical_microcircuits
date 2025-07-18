@@ -342,9 +342,9 @@ if __name__ == '__main__':
                 net_D.connect_networks(net_A, lateral_dict2)
 
                 nest.rng_seed = randint(1, 1000)
-                net_B.connect_networks(net_C, lateral_dict2)
+                net_B.connect_networks(net_C, lateral_dict)
                 nest.rng_seed = randint(1, 1000)
-                net_C.connect_networks(net_B, lateral_dict2)
+                net_C.connect_networks(net_B, lateral_dict)
 
 
 
