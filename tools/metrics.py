@@ -14,8 +14,8 @@ from assets.potjans_diesmann.sim_params import sim_dict
 import tools.histogram_single_microcircuit as hist_spikes
 from utils.helpers import __load_meter_data
 
-
 warnings.filterwarnings("ignore")
+
 
 def select_spike_recorder_files(path):
     """
@@ -30,6 +30,7 @@ def select_spike_recorder_files(path):
     file_names = os.listdir(path)
     spike_recorder_files = [file for file in file_names if file.startswith('spike_recorder')]
     return spike_recorder_files
+
 
 def extract_time_info(file_path):
     """
@@ -50,6 +51,7 @@ def extract_time_info(file_path):
     except FileNotFoundError:
         print(f"File not found at the specified path: {file_path}")
         return None, None
+
 
 def calc_lfp(cells_dict, tau, lfp_time, delay, amp):
     """Calculate LFP using a temporal kernel."""
@@ -271,7 +273,6 @@ def process_files_in_pairs(folder_path, spike_recorder_files):
         
         np.savetxt(os.path.join(folder_path, str('lfp_layer_sph_' + str(n+1) + '.csv')), lfp_capa, delimiter=',')
         print('LFP capa ' + str(n+1))
-
 
 
 def assign_positions_to_cells(cell_ids, height, radius):

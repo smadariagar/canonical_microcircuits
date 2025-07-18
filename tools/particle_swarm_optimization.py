@@ -345,8 +345,8 @@ def generate_next_iteration(folder_path, last_trial, n_subjects, params):
         # check big numbers
         new_position[new_position>0.1] = 0.1
         
-        if new_position[0,1] > new_position[0,0]:
-            new_position[0,1] = new_position[0,0]
+        #if new_position[0,1] > new_position[0,0]:
+        #    new_position[0,1] = new_position[0,0]
 
         suj_id = np.array([last_trial+1, i])
         suj = np.concatenate((suj_id, new_position[0]))
