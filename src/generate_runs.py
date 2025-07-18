@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
-    n_trials, n_subjects = 100, 15
+    n_trials, n_subjects = 100, 25
     params = 2
 
     ## Inicialización
