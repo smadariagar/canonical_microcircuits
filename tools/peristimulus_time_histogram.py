@@ -170,7 +170,7 @@ def PSTH_folders_data(path, l_bin):
         
         if not os.path.isdir(trial_path):
             continue
-        print(trial_path)
+        #print(trial_path)
 
         with open(os.path.join(trial_path, 'sim_params.json'), 'r') as file:
             sim_dict = json.load(file)
