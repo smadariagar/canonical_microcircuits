@@ -22,9 +22,10 @@ if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
 
-    for j in range(1):
-        for k in range(2):
-            os.system("python -m src.run_model_busse_params "+str(j)+" "+str(k))
+    for j in range(3):
+        for k in range(3):
+            for l in range(10):
+                os.system("python -m src.run_model_busse_params "+str(j)+" "+str(k))
 
 
     # carpetas = [nombre for nombre in os.listdir(folder_path)
