@@ -164,21 +164,18 @@ if __name__ == '__main__':
     stim_dict_V2 = stim_dict_A.copy()
 
     if args.gen == 0:
-        TR = 40.0
-        TD = 60.0
+        TA = 100.0
     elif args.gen == 1:
-        TR = 20.0
-        TD = 30.0
+        TA = 200.0
     elif args.gen == 2:
-        TR = 10.0
-        TD = 15.0
+        TA = 300.0
 
-    # if args.id_s == 0:
-    #     TD = 100.0
-    # elif args.id_s == 1:
-    #     TD = 200.0
-    # elif args.id_s == 2:
-    #     TD = 300.0
+    if args.id_s == 0:
+        TC = 100.0
+    elif args.id_s == 1:
+        TC = 200.0
+    elif args.id_s == 2:
+        TC = 300.0
 
     # Stimulation to MCC A
     
@@ -188,18 +185,18 @@ if __name__ == '__main__':
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
-    stim_dict_A.update({'th_rate': 200.0})
+    stim_dict_A.update({'th_rate': TA})
     #stim_dict_A.update({'num_th_neurons': 0})
 
     # Stimulation to MCC B
     stim_star = 500.0 
     stim_duration = 1000.0
     
-    stim_dict_B.update({'thalamic_input': True})
+    stim_dict_B.update({'thalamic_input': False})
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
-    stim_dict_B.update({'th_rate': TR})
-    #stim_dict_B.update({'num_th_neurons': 0})
+    stim_dict_B.update({'th_rate': TA})
+    stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
     stim_star = 1000.0 
@@ -208,18 +205,18 @@ if __name__ == '__main__':
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': 300.0})
+    stim_dict_C.update({'th_rate': TC})
     #stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
     stim_star = 1000.0
     stim_duration = 500.0
 
-    stim_dict_D.update({'thalamic_input': True})
+    stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
-    stim_dict_D.update({'th_rate': TD})
-    #stim_dict_D.update({'num_th_neurons': 0})
+    stim_dict_D.update({'th_rate': TC})
+    stim_dict_D.update({'num_th_neurons': 0})
 
     ###############################################################################
     # Model type
@@ -313,9 +310,9 @@ if __name__ == '__main__':
 
     ###############################################################################
         
-        if args.id_s == 1:
-            net_B.connect_other_input(stim_dict_D)
-            net_D.connect_other_input(stim_dict_B)
+        # if args.id_s == 1:
+        #     net_B.connect_other_input(stim_dict_D)
+        #     net_D.connect_other_input(stim_dict_B)
 
     ###############################################################################
     # Lateral connections
