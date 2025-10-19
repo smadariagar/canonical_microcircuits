@@ -163,19 +163,19 @@ if __name__ == '__main__':
     stim_dict_D = stim_dict_A.copy()
     stim_dict_V2 = stim_dict_A.copy()
 
-    if args.gen == 0:
-        TA = 100.0
-    elif args.gen == 1:
-        TA = 200.0
-    elif args.gen == 2:
-        TA = 300.0
+    # if args.gen == 0:
+    #     TA = 100.0
+    # elif args.gen == 1:
+    #     TA = 200.0
+    # elif args.gen == 2:
+    #     TA = 300.0
 
-    if args.id_s == 0:
-        TC = 100.0
-    elif args.id_s == 1:
-        TC = 200.0
-    elif args.id_s == 2:
-        TC = 300.0
+    # if args.id_s == 0:
+    #     TC = 100.0
+    # elif args.id_s == 1:
+    #     TC = 200.0
+    # elif args.id_s == 2:
+    #     TC = 300.0
 
     # Stimulation to MCC A
     
@@ -185,7 +185,7 @@ if __name__ == '__main__':
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
     stim_dict_A.update({'th_duration': stim_duration})
-    stim_dict_A.update({'th_rate': TA})
+    stim_dict_A.update({'th_rate': 200.0})
     #stim_dict_A.update({'num_th_neurons': 0})
 
     # Stimulation to MCC B
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     stim_dict_B.update({'thalamic_input': False})
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
-    stim_dict_B.update({'th_rate': TA})
+    stim_dict_B.update({'th_rate': 0.0})
     stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
@@ -205,7 +205,7 @@ if __name__ == '__main__':
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': TC})
+    stim_dict_C.update({'th_rate': 300.0})
     #stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
-    stim_dict_D.update({'th_rate': TC})
+    stim_dict_D.update({'th_rate': 0.0})
     stim_dict_D.update({'num_th_neurons': 0})
 
     ###############################################################################
