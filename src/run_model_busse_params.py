@@ -164,11 +164,11 @@ if __name__ == '__main__':
     stim_dict_V2 = stim_dict_A.copy()
 
     if args.gen == 0:
-        SC = 100.0
+        SD = 100.0
     elif args.gen == 1:
-        SC = 200.0
+        SD = 200.0
     elif args.gen == 2:
-        SC = 300.0
+        SD = 300.0
 
     # if args.id_s == 0:
     #     TC = 100.0
@@ -189,8 +189,8 @@ if __name__ == '__main__':
     #stim_dict_A.update({'num_th_neurons': 0})
 
     # Stimulation to MCC B
-    stim_star = 500.0 
-    stim_duration = 1000.0
+    stim_star = 0.0 
+    stim_duration = 10.0
     
     stim_dict_B.update({'thalamic_input': False})
     stim_dict_B.update({'th_start': stim_star})
@@ -199,14 +199,14 @@ if __name__ == '__main__':
     stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
-    stim_star = 1000.0 
-    stim_duration = 500.0
+    stim_star = 0.0 
+    stim_duration = 10.0
 
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': SC})
-    #stim_dict_C.update({'num_th_neurons': 0})
+    stim_dict_C.update({'th_rate': 30.0})
+    stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
     stim_star = 1000.0
@@ -215,8 +215,8 @@ if __name__ == '__main__':
     stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
-    stim_dict_D.update({'th_rate': 30.0})
-    stim_dict_D.update({'num_th_neurons': 0})
+    stim_dict_D.update({'th_rate': SD})
+    #stim_dict_D.update({'num_th_neurons': 0})
 
 
     ###############################################################################
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = True, False
+    V2, V22 = True, True
     FF_conn, FB_conn = True, True
 
     ###############################################################################
