@@ -163,12 +163,12 @@ if __name__ == '__main__':
     stim_dict_D = stim_dict_A.copy()
     stim_dict_V2 = stim_dict_A.copy()
 
-    # if args.gen == 0:
-    #     TA = 100.0
-    # elif args.gen == 1:
-    #     TA = 200.0
-    # elif args.gen == 2:
-    #     TA = 300.0
+    if args.gen == 0:
+        SC = 100.0
+    elif args.gen == 1:
+        SC = 200.0
+    elif args.gen == 2:
+        SC = 300.0
 
     # if args.id_s == 0:
     #     TC = 100.0
@@ -192,11 +192,11 @@ if __name__ == '__main__':
     stim_star = 500.0 
     stim_duration = 1000.0
     
-    stim_dict_B.update({'thalamic_input': True})
+    stim_dict_B.update({'thalamic_input': False})
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
     stim_dict_B.update({'th_rate': 20.0})
-    #stim_dict_B.update({'num_th_neurons': NB})
+    stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
     stim_star = 1000.0 
@@ -205,23 +205,19 @@ if __name__ == '__main__':
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': 300.0})
+    stim_dict_C.update({'th_rate': SC})
     #stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
     stim_star = 1000.0
     stim_duration = 500.0
 
-    stim_dict_D.update({'thalamic_input': True})
+    stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
     stim_dict_D.update({'th_rate': 30.0})
-    #stim_dict_D.update({'num_th_neurons': ND})
+    stim_dict_D.update({'num_th_neurons': 0})
 
-    if args.gen == 0:
-        stim_dict_B.update({'num_th_neurons': 0.0})
-        stim_dict_D.update({'num_th_neurons': 0.0})
-    #     TA = 100.0
 
     ###############################################################################
     # Model type
@@ -234,7 +230,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = True, True
+    V2, V22 = True, False
     FF_conn, FB_conn = True, True
 
     ###############################################################################
@@ -532,7 +528,8 @@ if __name__ == '__main__':
     ###############################################################################
     # Histogramas de spikes and save performance
     psth.PSTH_data(data_path, 500)
-    activity = psth.get_data(data_path, sim_dict['t_sim'], 500, '2/3a', 'exc')
+    psth.PSTH_data(data_path, 50)
+    #activity = psth.get_data(data_path, sim_dict['t_sim'], 500, '2/3a', 'exc')
     #pso.save_result(folder_path, args.gen, args.id_s, activity)
 
     ###############################################################################
