@@ -202,7 +202,7 @@ if __name__ == '__main__':
     stim_star = 0.0 
     stim_duration = 10.0
 
-    stim_dict_C.update({'thalamic_input': True})
+    stim_dict_C.update({'thalamic_input': False})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
     stim_dict_C.update({'th_rate': 30.0})
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     stim_star = 1000.0
     stim_duration = 500.0
 
-    stim_dict_D.update({'thalamic_input': False})
+    stim_dict_D.update({'thalamic_input': True})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
     stim_dict_D.update({'th_rate': SD})

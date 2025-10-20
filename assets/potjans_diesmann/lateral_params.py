@@ -78,9 +78,9 @@ lateral_dict = {
             # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
     
     # mean delay of excitatory connections (in ms)
-    'delay_exc_mean': 6.0,
+    'delay_exc_mean': 5.0,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 6.0,
+    'delay_inh_mean': 5.0,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,
