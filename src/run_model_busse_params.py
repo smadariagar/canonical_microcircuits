@@ -95,8 +95,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.2#(args.gen+1)/10
-    ks = 0.2#(args.gen+5)/10
+    ns = 0.25#(args.gen+1)/10
+    ks = 0.25#(args.gen+5)/10
 
     net_dict.update({'N_scaling': ns})
     net_dict.update({'K_scaling': ks})
@@ -199,24 +199,24 @@ if __name__ == '__main__':
     stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
-    stim_star = 0.0 
-    stim_duration = 10.0
-
-    stim_dict_C.update({'thalamic_input': False})
-    stim_dict_C.update({'th_start': stim_star})
-    stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': 30.0})
-    stim_dict_C.update({'num_th_neurons': 0})
-
-    # Stimulation to MCC D
     stim_star = 1000.0
     stim_duration = 500.0
 
-    stim_dict_D.update({'thalamic_input': True})
+    stim_dict_C.update({'thalamic_input': True})
+    stim_dict_C.update({'th_start': stim_star})
+    stim_dict_C.update({'th_duration': stim_duration})
+    stim_dict_C.update({'th_rate': SD})
+    #stim_dict_C.update({'num_th_neurons': 0})
+
+    # Stimulation to MCC D
+    stim_star = 0.0
+    stim_duration = 0.0
+
+    stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
     stim_dict_D.update({'th_rate': SD})
-    #stim_dict_D.update({'num_th_neurons': 0})
+    stim_dict_D.update({'num_th_neurons': 0})
 
 
     ###############################################################################
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = True, True
+    V2, V22 = False, False
     FF_conn, FB_conn = True, True
 
     ###############################################################################
@@ -334,6 +334,7 @@ if __name__ == '__main__':
             net_A.connect_networks(net_C, lateral_dict2)
             nest.rng_seed = randint(1, 1000)
             net_C.connect_networks(net_A, lateral_dict2)
+
             nest.rng_seed = randint(1, 1000)
             net_B.connect_networks(net_D, lateral_dict2)
             nest.rng_seed = randint(1, 1000)
