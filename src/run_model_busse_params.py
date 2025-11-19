@@ -230,7 +230,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = False, False
+    V2, V22 = True, False
     FF_conn, FB_conn = True, True
 
     ###############################################################################
