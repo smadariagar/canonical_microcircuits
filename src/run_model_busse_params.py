@@ -163,12 +163,12 @@ if __name__ == '__main__':
     stim_dict_D = stim_dict_A.copy()
     stim_dict_V2 = stim_dict_A.copy()
 
-    if args.gen == 0:
-        SD = 100.0
-    elif args.gen == 1:
-        SD = 200.0
-    elif args.gen == 2:
-        SD = 300.0
+    # if args.gen == 0:
+    #     SD = 100.0
+    # elif args.gen == 1:
+    #     SD = 200.0
+    # elif args.gen == 2:
+    #     SD = 300.0
 
     # if args.id_s == 0:
     #     TC = 100.0
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_duration': stim_duration})
     stim_dict_B.update({'th_rate': 20.0})
-    stim_dict_B.update({'num_th_neurons': 0})
+    #stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
     stim_star = 1000.0
@@ -205,18 +205,18 @@ if __name__ == '__main__':
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': SD})
+    stim_dict_C.update({'th_rate': 300.0})
     #stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
     stim_star = 0.0
-    stim_duration = 0.0
+    stim_duration = 10.0
 
     stim_dict_D.update({'thalamic_input': False})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
-    stim_dict_D.update({'th_rate': SD})
-    stim_dict_D.update({'num_th_neurons': 0})
+    stim_dict_D.update({'th_rate': 30.0})
+    #stim_dict_D.update({'num_th_neurons': 0})
 
 
     ###############################################################################
@@ -367,15 +367,9 @@ if __name__ == '__main__':
     ###############################################################################
     # Create MCC v2
     if V2:
-        #net_dict.update({'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100])})
-        ####net_dict.update({'K_ext': np.array([1700, 1500, 1550, 1420, 1900, 1900, 2800, 2100])})
+        #net_dict_v2.update({'K_ext': np.array([1500, 1400, 1500, 1300, 2000, 1800, 2800, 2100])})
 
-        #net_dict.update({'full_num_neurons': np.array([20683, 5834, 21915, 5479, 4850, 1065, 14395, 2948])})
-        #net_dict.update({'full_num_neurons': np.array([20683, 5834, 20915, 5279, 4850, 1065, 14395, 2948])})
-        ####net_dict.update({'full_num_neurons': np.array([22051,  6219, 11421, 2855, 4461, 979,  13966, 2859])})
-        #net_dict.update({'full_num_neurons': np.array([22051,  6219, 15421, 3855, 4461, 979,  13966, 2859])})
-
-        stim_dict_V2.update({'num_th_neurons': 0}) 
+        stim_dict_V2.update({'num_th_neurons': 0})
         print("---> Creating networks V2...")
         nest.rng_seed = randint(1, 1000)
         #nest.rng_seed = 56
