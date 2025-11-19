@@ -117,20 +117,6 @@ if __name__ == '__main__':
     FB_dict.update({'N_scaling': ns})
     FB_dict.update({'K_scaling': ks})
     
-    # if args.gen == 0:
-    #     gan = 1
-    # elif args.gen == 1:
-    #     gan = 0.9
-    # elif args.gen == 2:
-    #     gan = 0.75
-    # elif args.gen == 3:
-    #     gan = 0.5
-    # elif args.gen == 4:
-    #     gan = 0.25
-    # elif args.gen == 5:
-    #     gan = 0.1
-    # elif args.gen == 6:
-    #     gan = 0
     # gan=1
     # conn_probs = net_dict['conn_probs']
     # conn_probs_2 = net_dict_v2['conn_probs']
@@ -163,12 +149,12 @@ if __name__ == '__main__':
     stim_dict_D = stim_dict_A.copy()
     stim_dict_V2 = stim_dict_A.copy()
 
-    # if args.gen == 0:
-    #     SD = 100.0
-    # elif args.gen == 1:
-    #     SD = 200.0
-    # elif args.gen == 2:
-    #     SD = 300.0
+    if args.gen == 0:
+        SD = 100.0
+    elif args.gen == 1:
+        SD = 200.0
+    elif args.gen == 2:
+        SD = 300.0
 
     # if args.id_s == 0:
     #     TC = 100.0
@@ -194,7 +180,7 @@ if __name__ == '__main__':
     
     stim_dict_B.update({'thalamic_input': False})
     stim_dict_B.update({'th_start': stim_star})
-    stim_dict_B.update({'th_duration': stim_duration})
+    stim_dict_B.update({'th_durationFalse': stim_duration})
     stim_dict_B.update({'th_rate': 20.0})
     #stim_dict_B.update({'num_th_neurons': 0})
 
@@ -205,7 +191,7 @@ if __name__ == '__main__':
     stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': 300.0})
+    stim_dict_C.update({'th_rate': SD})
     #stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
@@ -230,7 +216,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = True, False
+    V2, V22 = True, True
     FF_conn, FB_conn = True, True
 
     ###############################################################################
@@ -358,9 +344,9 @@ if __name__ == '__main__':
                 net_D.connect_networks(net_A, lateral_dict2)
 
                 nest.rng_seed = randint(1, 1000)
-                net_B.connect_networks(net_C, lateral_dict)
+                net_B.connect_networks(net_C, lateral_dict2)
                 nest.rng_seed = randint(1, 1000)
-                net_C.connect_networks(net_B, lateral_dict)
+                net_C.connect_networks(net_B, lateral_dict2)
 
 
 
