@@ -95,8 +95,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.25#(args.gen+1)/10
-    ks = 0.25#(args.gen+5)/10
+    ns = 0.2#(args.gen+1)/10
+    ks = 0.2#(args.gen+5)/10
 
     net_dict.update({'N_scaling': ns})
     net_dict.update({'K_scaling': ks})
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     stim_star = 1000.0
     stim_duration = 500.0
 
-    stim_dict_C.update({'thalamic_input': True})
+    stim_dict_C.update({'thalamic_input': False})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
     stim_dict_C.update({'th_rate': SD})
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     #     V2, V22 = True, True
     Lat_conn, Strg_conn = True, False
     
-    V2, V22 = True, True
+    V2, V22 = True, False
     FF_conn, FB_conn = True, True
 
     ###############################################################################

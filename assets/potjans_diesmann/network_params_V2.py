@@ -78,7 +78,7 @@ net_dict_v2 = {
     # and the second to the sources)
     'conn_probs': np.array(
         [
-            [0.1309, 0.1789, 0.0637, 0.0918, 0.0423, 0.,     0.0096, 0.],       # L23E
+            [0.1109, 0.1889, 0.0637, 0.0918, 0.0423, 0.,     0.0096, 0.],       # L23E
             [0.1646, 0.1471, 0.0416, 0.0615, 0.0855, 0.,     0.0052, 0.],       # L23I
             [0.0087, 0.0069, 0.0597, 0.155,  0.0087, 0.0003, 0.0553, 0.],       # L4E
             [0.0691, 0.0039, 0.0854, 0.1647, 0.0043, 0.,     0.1077, 0.],       # L4I
@@ -110,7 +110,7 @@ net_dict_v2 = {
     # indegree of external connections to the different populations (same order
     # as in 'populations')
     #'K_ext': np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
-    'K_ext': np.array([1500, 1450, 1500, 1300, 2000, 1800, 2800, 2100]),
+    'K_ext': np.array([1550, 1500, 1500, 1300, 2000, 1800, 2800, 2100]),
     # rate of the Poisson generator (in spikes/s)
     'bg_rate': 8.,
     # delay from the Poisson generator to the network (in ms)

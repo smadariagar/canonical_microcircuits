@@ -106,7 +106,7 @@ feedforward_dict = {
     # mean delay of excitatory connections (in ms)
     'delay_exc_mean': 1.2,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 1.2,
+    'delay_inh_mean': 0.7,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,
