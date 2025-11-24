@@ -339,9 +339,9 @@ if __name__ == '__main__':
 
             else:
                 nest.rng_seed = randint(1, 1000)
-                net_A.connect_networks(net_D, lateral_dict2)
+                net_A.connect_networks(net_D, lateral_dict)
                 nest.rng_seed = randint(1, 1000)
-                net_D.connect_networks(net_A, lateral_dict2)
+                net_D.connect_networks(net_A, lateral_dict)
 
                 nest.rng_seed = randint(1, 1000)
                 net_B.connect_networks(net_C, lateral_dict2)
