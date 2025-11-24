@@ -318,7 +318,7 @@ def PSTH_plot(path, t_sim, l_bin):
         plt.xlabel('time [ms]')
         plt.ylabel('firing rate (spikes/s)')
 
-        plt.show()
+        #plt.show()
 
 
 def PSTH_plot_tog(path, t_sim, l_bin):
@@ -519,7 +519,7 @@ def PSTH_figure2(path, t_sim, l_bin, mcc):
     plt.suptitle('PSTHs of Excitatory Groups in the Four Cortical Layers\n', fontsize=22)
     plot_name = 'psth_'+str(mcc)+'_plot.png'
     plt.savefig(os.path.join(path, plot_name), dpi=300)
-    plt.show()
+    #plt.show()
 
     #if not os.path.exists(os.path.join(path,'mean_'+str(l_bin)+'.csv')):
     mean_data.to_csv(os.path.join(path, 'mean_'+str(l_bin)+'.csv'), mode='a', index=False, header=False)

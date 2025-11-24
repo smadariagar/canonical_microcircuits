@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     for j in range(1):
         for k in range(10):
-            os.system("python -m src.run_model_busse_params "+str(j)+" "+str(k))
+            os.system("python -m src.run_model_busse_params "+str(2)+" "+str(k))
 
 
     # carpetas = [nombre for nombre in os.listdir(folder_path)

@@ -85,15 +85,15 @@ feedback_dict = {
              [0.0, 0.0, 0.0, 0.0, 0.0,   0.0, 0.0,   0.0],     # L4E
              [0.0, 0.0, 0.0, 0.0, 0.0,   0.0, 0.0,   0.0],     # L4I
              [0.0, 0.0, 0.0, 0.0, 0.01,  0.0, 0.02,  0.0],     # L5E
-             [0.0, 0.0, 0.0, 0.0, 0.004, 0.0, 0.0055, 0.0],     # L5I
+             [0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.055, 0.0],     # L5I
              [0.0, 0.0, 0.0, 0.0, 0.0,   0.0, 0.0,   0.0],     # L6E
              [0.0, 0.0, 0.0, 0.0, 0.0,   0.0, 0.0,   0.0]]), # L6I
             # L2E  L2I  L4E  L4I  L5E    L5I  L6E    L6I
     
     # mean delay of excitatory connections (in ms)
-    'delay_exc_mean': 1.2,
+    'delay_exc_mean': 2.0,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 0.7,
+    'delay_inh_mean': 1.0,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,

@@ -303,50 +303,67 @@ if __name__ == '__main__':
 
     ###############################################################################
     # Lateral connections
+    topology_log = []
     if V1:
         print("---> Connecting networks laterally...")
         if Lat_conn:
             nest.rng_seed = randint(1, 1000)
             net_A.connect_networks(net_B, lateral_dict)
+            topology_log.append({"source": "net_A", "target": "net_B", "rule": "lateral_dict"})
             nest.rng_seed = randint(1, 1000)
             net_B.connect_networks(net_A, lateral_dict)
+            topology_log.append({"source": "net_B", "target": "net_A", "rule": "lateral_dict"})
 
             nest.rng_seed = randint(1, 1000)
             net_C.connect_networks(net_D, lateral_dict)
+            topology_log.append({"source": "net_C", "target": "net_D", "rule": "lateral_dict"})
             nest.rng_seed = randint(1, 1000)
             net_D.connect_networks(net_C, lateral_dict)
+            topology_log.append({"source": "net_D", "target": "net_C", "rule": "lateral_dict"})
 
             nest.rng_seed = randint(1, 1000)
             net_A.connect_networks(net_C, lateral_dict2)
+            topology_log.append({"source": "net_A", "target": "net_C", "rule": "lateral_dict2"})
             nest.rng_seed = randint(1, 1000)
             net_C.connect_networks(net_A, lateral_dict2)
+            topology_log.append({"source": "net_C", "target": "net_A", "rule": "lateral_dict2"})
 
             nest.rng_seed = randint(1, 1000)
             net_B.connect_networks(net_D, lateral_dict2)
+            topology_log.append({"source": "net_B", "target": "net_D", "rule": "lateral_dict2"})
             nest.rng_seed = randint(1, 1000)
             net_D.connect_networks(net_B, lateral_dict2)
+            topology_log.append({"source": "net_D", "target": "net_B", "rule": "lateral_dict2"})
 
             if Strg_conn:
                 nest.rng_seed = randint(1, 1000)
                 net_A.connect_networks(net_D, lateral_dict)
+                topology_log.append({"source": "net_A", "target": "net_D", "rule": "lateral_dict"})
                 nest.rng_seed = randint(1, 1000)
                 net_D.connect_networks(net_A, lateral_dict)
+                topology_log.append({"source": "net_D", "target": "net_A", "rule": "lateral_dict"})
 
                 nest.rng_seed = randint(1, 1000)
                 net_B.connect_networks(net_C, lateral_dict)
+                topology_log.append({"source": "net_B", "target": "net_C", "rule": "lateral_dict"})
                 nest.rng_seed = randint(1, 1000)
                 net_C.connect_networks(net_B, lateral_dict)
+                topology_log.append({"source": "net_C", "target": "net_B", "rule": "lateral_dict"})
 
             else:
                 nest.rng_seed = randint(1, 1000)
-                net_A.connect_networks(net_D, lateral_dict)
+                net_A.connect_networks(net_D, lateral_dict2)
+                topology_log.append({"source": "net_A", "target": "net_D", "rule": "lateral_dict2"})
                 nest.rng_seed = randint(1, 1000)
-                net_D.connect_networks(net_A, lateral_dict)
+                net_D.connect_networks(net_A, lateral_dict2)
+                topology_log.append({"source": "net_D", "target": "net_A", "rule": "lateral_dict2"})
 
                 nest.rng_seed = randint(1, 1000)
                 net_B.connect_networks(net_C, lateral_dict2)
+                topology_log.append({"source": "net_B", "target": "net_C", "rule": "lateral_dict2"})
                 nest.rng_seed = randint(1, 1000)
                 net_C.connect_networks(net_B, lateral_dict2)
+                topology_log.append({"source": "net_C", "target": "net_B", "rule": "lateral_dict2"})
 
 
 
@@ -395,45 +412,60 @@ if __name__ == '__main__':
             print("---> Connecting networks vertically...")
             nest.rng_seed = randint(1, 1000)
             net_A.connect_networks(net_V2, FF_dict)
+            topology_log.append({"source": "net_A", "target": "net_V2", "rule": "FF_dict"})
             nest.rng_seed = randint(1, 1000)
             net_B.connect_networks(net_V2, FF_dict)
+            topology_log.append({"source": "net_B", "target": "net_V2", "rule": "FF_dict"})
 
             if V22:
                 nest.rng_seed = randint(1, 1000)
                 net_C.connect_networks(net_V22, FF_dict)
+                topology_log.append({"source": "net_C", "target": "net_V22", "rule": "FF_dict"})
+                
                 nest.rng_seed = randint(1, 1000)
                 net_D.connect_networks(net_V22, FF_dict)
+                topology_log.append({"source": "net_D", "target": "net_V22", "rule": "FF_dict"})
 
             else:
                 nest.rng_seed = randint(1, 1000)
                 net_C.connect_networks(net_V2, FF_dict)
+                topology_log.append({"source": "net_C", "target": "net_V2", "rule": "FF_dict"})
                 nest.rng_seed = randint(1, 1000)
                 net_D.connect_networks(net_V2, FF_dict)
+                topology_log.append({"source": "net_D", "target": "net_V2", "rule": "FF_dict"})
 
         # feedback
         if FB_conn:
             nest.rng_seed = randint(1, 1000)
             net_V2.connect_networks(net_A, FB_dict)
+            topology_log.append({"source": "net_V2", "target": "net_A", "rule": "FB_dict"})
             nest.rng_seed = randint(1, 1000)
             net_V2.connect_networks(net_B, FB_dict)
+            topology_log.append({"source": "net_V2", "target": "net_B", "rule": "FB_dict"})
 
             if V22:
                 nest.rng_seed = randint(1, 1000)
                 net_V22.connect_networks(net_C, FB_dict)
+                topology_log.append({"source": "net_V22", "target": "net_C", "rule": "FB_dict"})
                 nest.rng_seed = randint(1, 1000)
                 net_V22.connect_networks(net_D, FB_dict)
+                topology_log.append({"source": "net_V22", "target": "net_D", "rule": "FB_dict"})
                 
             else:
                 nest.rng_seed = randint(1, 1000)
                 net_V2.connect_networks(net_C, FB_dict)
+                topology_log.append({"source": "net_V2", "target": "net_C", "rule": "FB_dict"})
                 nest.rng_seed = randint(1, 1000)
                 net_V2.connect_networks(net_D, FB_dict)
+                topology_log.append({"source": "net_V2", "target": "net_D", "rule": "FB_dict"})
 
         if V22:
             nest.rng_seed = randint(1, 1000)
             net_V2.connect_networks(net_V22, lateral_dict2)
+            topology_log.append({"source": "net_V2", "target": "net_V22", "rule": "lateral_dict2"})
             nest.rng_seed = randint(1, 1000)
             net_V22.connect_networks(net_V2, lateral_dict2)
+            topology_log.append({"source": "net_V22", "target": "net_V2", "rule": "lateral_dict2"})
 
     ###############################################################################
     # Simulation over MCC A
@@ -517,6 +549,9 @@ if __name__ == '__main__':
     # Saving seeds
     with open(os.path.join(data_path, 'seeds.json'), 'w') as file:
         json.dump(rng_seeds, file)
+
+    with open(os.path.join(data_path, 'topology.json'), 'w') as file:
+        json.dump(topology_log, file, indent=4)
 
     ###############################################################################
     # Summarize time measurements. Rank 0 usually takes longest because of the

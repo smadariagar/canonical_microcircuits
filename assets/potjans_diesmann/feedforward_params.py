@@ -83,12 +83,12 @@ feedforward_dict = {
         np.array(
             [[0.0,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L23E
              [0.0,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # L23I
-             [0.02,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4E
-             [0.009, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4I
+             [0.035,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4E
+             [0.01575, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L4I
              [0.0,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L5E
              [0.0,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L5I
-             [0.02,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L6E
-             [0.007, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]),   # L6I
+             [0.0,   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # L6E
+             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]),   # L6I
             # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
 
     'conn_probs2':
@@ -104,9 +104,9 @@ feedforward_dict = {
             # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
     
     # mean delay of excitatory connections (in ms)
-    'delay_exc_mean': 1.2,
+    'delay_exc_mean': 2.0,
     # mean delay of inhibitory connections (in ms)
-    'delay_inh_mean': 0.7,
+    'delay_inh_mean': 1.0,
     # relative standard deviation of the delay of excitatory and
     # inhibitory connections
     'delay_rel_std': 0.5,
