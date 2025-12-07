@@ -138,7 +138,7 @@ if __name__ == '__main__':
     #lateral_dict2.update({'conn_probs': new_conn_probs_far})
     
     # Simulation params
-    sim_dutation = 1500.0 
+    sim_dutation = 2500.0 
     sim_dict.update({'t_sim': sim_dutation})
 
     #stim_dict_A.update({'num_th_neurons': 0})
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     # Stimulation to MCC A
     
     stim_star = 500.0 
-    stim_duration = 1000.0
+    stim_duration = 2000.0
 
     stim_dict_A.update({'thalamic_input': True})
     stim_dict_A.update({'th_start': stim_star})
@@ -175,33 +175,33 @@ if __name__ == '__main__':
     #stim_dict_A.update({'num_th_neurons': 0})
 
     # Stimulation to MCC B
-    stim_star = 0.0 
-    stim_duration = 10.0
+    stim_star = 1000.0 
+    stim_duration = 1500.0
     
-    stim_dict_B.update({'thalamic_input': False})
+    stim_dict_B.update({'thalamic_input': True})
     stim_dict_B.update({'th_start': stim_star})
     stim_dict_B.update({'th_durationFalse': stim_duration})
-    stim_dict_B.update({'th_rate': 20.0})
+    stim_dict_B.update({'th_rate': 200.0})
     #stim_dict_B.update({'num_th_neurons': 0})
 
     # Stimulation to MCC C
-    stim_star = 1000.0
-    stim_duration = 500.0
+    stim_star = 1500.0
+    stim_duration = 1000.0
 
-    stim_dict_C.update({'thalamic_input': False})
+    stim_dict_C.update({'thalamic_input': True})
     stim_dict_C.update({'th_start': stim_star})
     stim_dict_C.update({'th_duration': stim_duration})
-    stim_dict_C.update({'th_rate': SD})
+    stim_dict_C.update({'th_rate': 200.0})
     #stim_dict_C.update({'num_th_neurons': 0})
 
     # Stimulation to MCC D
-    stim_star = 0.0
-    stim_duration = 10.0
+    stim_star = 2000.0
+    stim_duration = 500.0
 
-    stim_dict_D.update({'thalamic_input': False})
+    stim_dict_D.update({'thalamic_input': True})
     stim_dict_D.update({'th_start': stim_star})
     stim_dict_D.update({'th_duration': stim_duration})
-    stim_dict_D.update({'th_rate': 30.0})
+    stim_dict_D.update({'th_rate': 200.0})
     #stim_dict_D.update({'num_th_neurons': 0})
 
 
