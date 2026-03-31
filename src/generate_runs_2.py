@@ -1,20 +1,6 @@
-"""Hace el histograma
-summary_
-"""
 import os
+import subprocess
 import warnings
-import pandas as pd
-import numpy as np
-import math
-
-import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm, Normalize
-from matplotlib.ticker import MaxNLocator
-import seaborn as sns
-
-import tools.particle_swarm_optimization as pso
-import tools.particle_swarm_optimization_plot as pso_plt
-import tools.peristimulus_time_histogram as psth
 
 warnings.filterwarnings("ignore")
 
@@ -22,10 +8,11 @@ if __name__ == '__main__':
 
     folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
 
-    for j in range(4):
-        for k in range(4):
+    for j in range(1):
+        for k in range(1):
             for l in range(10):
-                os.system("python -m src.run_model_busse_params "+str(j)+" "+str(k))
+                comando = ["python", "-m", "src.run_model_busse_params", "1", "3"]
+                subprocess.run(comando)
 
 
     # carpetas = [nombre for nombre in os.listdir(folder_path)
