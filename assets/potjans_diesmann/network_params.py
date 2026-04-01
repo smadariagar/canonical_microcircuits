@@ -28,6 +28,7 @@ parameters.
 """
 
 import numpy as np
+import copy
 
 def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     """ Creates a matrix for excitatory and inhibitory values.
@@ -51,6 +52,29 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     matrix[:, 0:num_pops:2] = val_exc
     matrix[:, 1:num_pops:2] = val_inh
     return matrix
+
+
+def update_derived_matrices(d):
+    """
+    Calcula y añade las matrices derivadas (PSP y delays) a un diccionario de red.
+    """
+    # 1. Deriva la matriz de PSPs medios
+    PSP_matrix_mean = get_exc_inh_matrix(
+        d['PSP_exc_mean'],
+        d['PSP_exc_mean'] * d['g'],
+        len(d['populations'])
+    )
+    
+    # 2. Duplica el PSP medio para la conexión de L4E a L23E
+    PSP_matrix_mean[0, 2] = 2. * d['PSP_exc_mean']
+
+    # 3. Deriva la matriz de delays y actualiza el diccionario directamente
+    d['PSP_matrix_mean'] = PSP_matrix_mean
+    d['delay_matrix_mean'] = get_exc_inh_matrix(
+        d['delay_exc_mean'],
+        d['delay_inh_mean'],
+        len(d['populations'])
+    )
 
 
 net_dict = {
@@ -144,24 +168,26 @@ net_dict = {
         # time constant of postsynaptic currents (in ms)
         'tau_syn': 0.5,
         # refractory period of the neurons after a spike (in ms)
-        't_ref': 2.0}}
+        't_ref': 2.0}
+    }
 
-# derive matrix of mean PSPs,
-# the mean PSP of the connection from L4E to L23E is doubled
-PSP_matrix_mean = get_exc_inh_matrix(
-    net_dict['PSP_exc_mean'],
-    net_dict['PSP_exc_mean'] * net_dict['g'],
-    len(net_dict['populations']))
-PSP_matrix_mean[0, 2] = 2. * net_dict['PSP_exc_mean']
 
-updated_dict = {
-    # matrix of mean PSPs
-    'PSP_matrix_mean': PSP_matrix_mean,
+net_dict_v2 = copy.deepcopy(net_dict)
 
-    # matrix of mean delays
-    'delay_matrix_mean': get_exc_inh_matrix(
-        net_dict['delay_exc_mean'],
-        net_dict['delay_inh_mean'],
-        len(net_dict['populations']))}
+net_dict_v2['full_num_neurons'] = np.array([22051, 6219, 11421, 2855, 4461, 979, 13966, 2859])
 
-net_dict.update(updated_dict)
+net_dict_v2['conn_probs'] = np.array([
+    [0.1309, 0.1789, 0.0637, 0.0918, 0.0423, 0.,     0.0096, 0.],       # L23E
+    [0.1646, 0.1471, 0.0416, 0.0615, 0.0855, 0.,     0.0052, 0.],       # L23I
+    [0.0087, 0.0069, 0.0597, 0.155,  0.0087, 0.0003, 0.0553, 0.],       # L4E
+    [0.0691, 0.0039, 0.0854, 0.1647, 0.0043, 0.,     0.1077, 0.],       # L4I
+    [0.1004, 0.0722, 0.0605, 0.0077, 0.0831, 0.3726, 0.0304, 0.],       # L5E
+    [0.0548, 0.0369, 0.0457, 0.0032, 0.06,   0.3158, 0.0126, 0.],       # L5I
+    [0.0156, 0.0086, 0.0411, 0.0266, 0.0572, 0.0197, 0.0696, 0.2252],   # L6E
+    [0.0364, 0.002,  0.0044, 0.0025, 0.0377, 0.008,  0.0758, 0.1443],   # L6I
+])
+
+net_dict_v2['K_ext'] = np.array([1600, 1500, 1500, 1300, 2000, 1800, 2800, 2100])
+
+update_derived_matrices(net_dict)
+update_derived_matrices(net_dict_v2)

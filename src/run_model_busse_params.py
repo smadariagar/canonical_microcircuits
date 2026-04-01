@@ -45,16 +45,16 @@ from utils import helpers
 
 from assets.potjans_diesmann.sim_params import sim_dict # simulación
 
-from assets.potjans_diesmann.stimulus_params1 import stim_dict as stim_dict_A
+from assets.potjans_diesmann.stimulus_params import stim_dict as stim_dict_A
 
-from assets.potjans_diesmann.lateral_params import lateral_dict
-from assets.potjans_diesmann.lateral_params2 import lateral_dict as lateral_dict2
+from assets.potjans_diesmann.lateral_params import lateral_dict_near as lateral_dict
+from assets.potjans_diesmann.lateral_params import lateral_dict_far as lateral_dict2
 
 from assets.potjans_diesmann.feedforward_params import feedforward_dict as FF_dict
 from assets.potjans_diesmann.feedback_params import feedback_dict as FB_dict
 
 from assets.potjans_diesmann.network_params import net_dict #para cada microcircuito es igual
-from assets.potjans_diesmann.network_params_V2 import net_dict_v2
+from assets.potjans_diesmann.network_params import net_dict_v2
 
 import tools.particle_swarm_optimization as pso
 import tools.peristimulus_time_histogram as psth
@@ -95,8 +95,8 @@ if __name__ == '__main__':
     print('---------> Creating the model...')
 
     # N & K scaling
-    ns = 0.2#(args.gen+1)/10
-    ks = 0.2#(args.gen+5)/10
+    ns = 0.3#(args.gen+1)/10
+    ks = 0.3#(args.gen+5)/10
 
     net_dict.update({'N_scaling': ns})
     net_dict.update({'K_scaling': ks})

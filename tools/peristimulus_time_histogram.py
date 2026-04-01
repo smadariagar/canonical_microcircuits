@@ -373,10 +373,19 @@ def PSTH_plot_tog(path, t_sim, l_bin):
 def PSTH_figure(path, t_sim, l_bin, mcc):
 
     # Read JSONs
-    with open(os.path.join(path, 'net_params.json'), 'r') as file:
-        net_dict = json.load(file)
-    N_scaling      = net_dict.get("N_scaling")
-    K_scaling      = net_dict.get("K_scaling")
+
+    for folder in os.listdir(path):
+        trial_path = os.path.join(path, folder)
+        
+        if not os.path.isdir(trial_path):
+            continue
+        
+        with open(os.path.join(trial_path, 'net_params.json'), 'r') as file:
+            net_dict = json.load(file)
+        N_scaling      = net_dict.get("N_scaling")
+        K_scaling      = net_dict.get("K_scaling")
+
+        break
 
     # add columns names
     cols = np.array(['folder', 'layer', 'type'])

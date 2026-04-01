@@ -28,6 +28,7 @@ parameters.
 """
 
 import numpy as np
+import copy
 
 def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     """ Creates a matrix for excitatory and inhibitory values.
@@ -52,7 +53,9 @@ def get_exc_inh_matrix(val_exc, val_inh, num_pops):
     matrix[:, 1:num_pops:2] = val_inh
     return matrix
 
-lateral_dict = {
+
+
+lateral_dict_near = {
     # factor to scale the number of neurons
     'N_scaling': 0.1,
     # factor to scale the indegrees
@@ -86,11 +89,33 @@ lateral_dict = {
     'delay_rel_std': 1.5
 }
 
-updated_dict = {
-    # matrix of mean delays
-    'delay_matrix_mean': get_exc_inh_matrix(
-        lateral_dict['delay_exc_mean'],
-        lateral_dict['delay_inh_mean'],
-        len(lateral_dict['populations']))}
+lateral_dict_far = copy.deepcopy(lateral_dict_near)
 
-lateral_dict.update(updated_dict)
+lateral_dict_far['conn_probs'] = np.array([
+    [0.005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L23E
+    [0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L23I
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L4E
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L4I
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L5E
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L5I
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L6E
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # L6I
+])
+
+lateral_dict_far['delay_exc_mean'] = 8.0
+lateral_dict_far['delay_inh_mean'] = 5.0
+lateral_dict_far['delay_rel_std'] = 2.5
+    
+
+def update_lateral_delays(lat_dict):
+    """
+    Calcula y añade la matriz de delays a un diccionario de conexiones laterales.
+    """
+    lat_dict['delay_matrix_mean'] = get_exc_inh_matrix(
+        lat_dict['delay_exc_mean'],
+        lat_dict['delay_inh_mean'],
+        len(lat_dict['populations'])
+    )
+
+update_lateral_delays(lateral_dict_near)
+update_lateral_delays(lateral_dict_far)
