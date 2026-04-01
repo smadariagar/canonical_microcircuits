@@ -33,6 +33,7 @@ import pandas as pd
 import nest
 from utils import helpers
 import warnings
+from random import randint
 
 from . import network
 
@@ -399,6 +400,7 @@ class Network(network.Network):
 
     def __connect_lateral_neuronal_populations(self, net, lateral_dict):
         """ TODO: Creates the recurrent connections between neuronal populations. """
+        nest.rng_seed = randint(1, 1000)
         if nest.Rank() == 0:
             print('Connecting neuronal populations recurrently.')
 
