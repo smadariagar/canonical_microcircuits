@@ -6,6 +6,8 @@ Reemplaza los múltiples archivos run_model_*.py
 import argparse
 import time
 import nest
+import os
+import pandas as pd
 from random import randint
 
 # Importaciones base (asumiendo tu estructura actual en assets)
@@ -20,8 +22,6 @@ from assets.potjans_diesmann.feedforward_params import feedforward_dict
 from assets.potjans_diesmann.feedback_params import feedback_dict
 
 from src.network_potjans_diesmann import Network
-
-import tools.peristimulus_time_histogram as psth
 
 
 def connect_columns_lat(column_a, column_b, conn_dict):
@@ -89,9 +89,11 @@ def main():
         V1 = ['V1_B', 'V1_C', 'V1_D']
         for v1 in V1:
             print(f"Creando {v1}...")
+            stim_dict['thalamic_input'] = False
             nest.rng_seed = randint(1, 1000)
             if v1 == 'V1_D' and args.stim_rate_ecrf != 0.0:
-                    stim_dict['th_rate'] = args.stim_rate_ecrf
+                stim_dict['th_rate'] = args.stim_rate_ecrf
+                stim_dict['thalamic_input'] = True
             columnas[v1] = Network(sim_dict, net_dict, stim_dict)
             columnas[v1].create()
             columnas[v1].connect()
@@ -140,7 +142,7 @@ def main():
         columnas['V2_B'].connect_networks(columnas['V1_D'], feedback_dict)
 
     # Simular
-    t_sim = sim_dict.get("t_sim", 1000.0)
+    t_sim = sim_dict.get('t_sim')
     print(f"--- Iniciando Simulación ({t_sim} ms) ---")
     tic = time.time()
     
@@ -149,7 +151,15 @@ def main():
     toc = time.time()
     print(f"--- Simulación Finalizada en {toc - tic:.2f} segundos ---")
     
-    # Aquí puedes agregar el código para guardar los spikes o calcular el LFP
+    # Save dict
+    data_path = sim_dict.get('data_path', None)
+
+    pd.Series(net_dict).to_json(os.path.join(data_path,'net_params.json'))
+    pd.Series(net_dict_v2).to_json(os.path.join(data_path,'net_v2_params.json'))
+    pd.Series(lateral_dict_near).to_json(os.path.join(data_path,'lat_near_conn_params.json'))
+    pd.Series(lateral_dict_far).to_json(os.path.join(data_path,'lat_far_conn_params.json'))
+    pd.Series(feedforward_dict).to_json(os.path.join(data_path,'ff_conn_params.json'))
+    pd.Series(feedback_dict).to_json(os.path.join(data_path,'fb_conn_params.json'))
 
 if __name__ == '__main__':
     main()

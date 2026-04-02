@@ -12,8 +12,8 @@ if __name__ == '__main__':
         for k in range(1):
             for l in range(10):
                 comando = ["python", "-m", "src.run_experiment", 
-                           "--ns", str(0.3), "--ks", str(0.3), 
-                           "--stim_rate_ecrf", str(300.0),
+                           "--ns", str(0.2), "--ks", str(0.2), 
+                           "--stim_rate_ecrf", str(100.0),
                            "--v1", "--v2",
                            "--lat", "--ff", "--fb"]
                 subprocess.run(comando)
