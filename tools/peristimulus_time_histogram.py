@@ -213,6 +213,8 @@ def PSTH_data(path, l_bin):
     N_scaling      = net_dict.get("N_scaling")
     K_scaling      = net_dict.get("K_scaling")
 
+    num_talam = 902
+
     with open(os.path.join(path, 'sim_params.json'), 'r') as file:
         sim_dict = json.load(file)
     local_num_threads = sim_dict.get("local_num_threads")
@@ -233,12 +235,12 @@ def PSTH_data(path, l_bin):
 
     # Mapear las capas a los nuevos nombres
     layer_mapping = {
-        0: '2/3a', 1: '4a', 2: '5a', 3: '6a',
-        4: '2/3b', 5: '4b', 6: '5b', 7: '6b',
-        8: '2/3c', 9: '4c', 10: '5c', 11: '6c',
-        12: '2/3d', 13: '4d', 14: '5d', 15: '6d',
-        16: '2/3v2', 17: '4v2', 18: '5v2', 19: '6v2',
-        20: '2/3v22', 21: '4v22', 22: '5v22', 23: '6v22',}
+        0: '2/3v1a', 1: '4v1a', 2: '5v1a', 3: '6v1a',
+        4: '2/3v1b', 5: '4v1b', 6: '5v1b', 7: '6v1b',
+        8: '2/3v1c', 9: '4v1c', 10: '5v1c', 11: '6v1c',
+        12: '2/3v1d', 13: '4v1d', 14: '5v1d', 15: '6v1d',
+        16: '2/3v2a', 17: '4v2a', 18: '5v2a', 19: '6v2a',
+        20: '2/3v2b', 21: '4v2b', 22: '5v2b', 23: '6v2b',}
     
     info_total['Layer'] = info_total['Layer'].map(layer_mapping)
     

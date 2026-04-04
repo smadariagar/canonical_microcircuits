@@ -56,7 +56,7 @@ feedforward_dict = {
     # factor to scale the number of neurons
     'N_scaling': 0.2,
     # factor to scale the indegrees
-    'K_scaling': 0.1,
+    'K_scaling': 0.2,
     # names of the simulated neuronal populations
     'populations': ['L23E', 'L23I', 'L4E', 'L4I', 'L5E', 'L5I', 'L6E', 'L6I'],
     # connection probabilities (the first index corresponds to the targets and the second to the sources)

@@ -65,7 +65,7 @@ def main():
         net_dict_v2, 
         lateral_dict_near, 
         lateral_dict_far, 
-        feedback_dict, 
+        #feedforward_dict, 
         feedforward_dict
     )
 
@@ -73,7 +73,7 @@ def main():
         d['N_scaling'] = args.ns
         d['K_scaling'] = args.ks
 
-    stim_dict['th_rate'] = args.stim_rate
+    #stim_dict['th_rate'] = args.stim_rate
     columnas = {}
 
     # Crear el microcircuito principal (siempre se crea)
