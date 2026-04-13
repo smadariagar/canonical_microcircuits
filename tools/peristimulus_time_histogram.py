@@ -200,7 +200,6 @@ def PSTH_folders_data(path, l_bin):
     new_df.to_csv(os.path.join(path, 'psth_'+str(l_bin)+'.csv'), mode='w', index=False, header=False)
 
 
-
 def PSTH_data(path, l_bin):
     """
     Help me
@@ -212,8 +211,6 @@ def PSTH_data(path, l_bin):
     num_neurons_v2 = net_dict.get('full_num_neurons_v2')
     N_scaling      = net_dict.get("N_scaling")
     K_scaling      = net_dict.get("K_scaling")
-
-    num_talam = 902
 
     with open(os.path.join(path, 'sim_params.json'), 'r') as file:
         sim_dict = json.load(file)
