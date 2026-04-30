@@ -6,7 +6,7 @@ warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
 
-    folder_path = os.path.join(os.getcwd(), 'results/potjans_diesmann/')
+    folder_path = os.path.join(os.getcwd(), 'results/')
 
     for j in range(1):
         for k in [100.0, 200.0, 300.0]:

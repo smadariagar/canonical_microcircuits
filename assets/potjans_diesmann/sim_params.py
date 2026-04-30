@@ -43,7 +43,7 @@ sim_dict = {
     # recorded if an empty list is given.
     'rec_dev': ['spike_recorder'], #, 'voltmeter'],
     # path to save the output data
-    'data_path': os.path.join(os.getcwd(), 'results/potjans_diesmann/', datetime.now().strftime('%Y%m%d%H%M%S')),
+    'data_path': os.path.join(os.getcwd(), 'results/', datetime.now().strftime('%Y%m%d%H%M%S')),
     # Seed for NEST
     'rng_seed': 44,
     # number of threads per MPI process
