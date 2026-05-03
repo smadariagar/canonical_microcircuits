@@ -79,7 +79,16 @@ lateral_dict_near = {
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],      # L6E
              [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]),    # L6I
             # L2E  L2I  L4E  L4I  L5E  L5I  L6E  L6I
-    
+    # Parámetros de la sinapsis            
+    'synapse_params': {
+        'synapse_model': 'stdp_synapse',
+        'weight': 1.0,      # Peso inicial
+        'delay': 5.0,       # Delay (puedes usar tu delay_exc_mean aquí)
+        'alpha': 1.0,       # Factor de asimetría
+        'lambda': 0.01,     # Tasa de aprendizaje
+        'tau_plus': 20.0,   # Constante de tiempo potenciar (ms)
+        'Wmax': 100.0       # Peso máximo permitido
+    },
     # mean delay of excitatory connections (in ms)
     'delay_exc_mean': 5.0,
     # mean delay of inhibitory connections (in ms)

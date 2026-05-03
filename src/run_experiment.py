@@ -12,14 +12,14 @@ from random import randint
 
 # Importaciones base (asumiendo tu estructura actual en assets)
 # Nota: A futuro, esto es lo que reemplazarás por un lector de YAML/JSON
-from assets.potjans_diesmann.sim_params import sim_dict
-from assets.potjans_diesmann.stimulus_params import stim_dict
+from assets.stdp.sim_params import sim_dict
+from assets.stdp.stimulus_params import stim_dict
 
-from assets.potjans_diesmann.network_params import net_dict, net_dict_v2
-from assets.potjans_diesmann.lateral_params import lateral_dict_near, lateral_dict_far
+from assets.stdp.network_params import net_dict, net_dict_v2
+from assets.stdp.lateral_params import lateral_dict_near, lateral_dict_far
 
-from assets.potjans_diesmann.feedforward_params import feedforward_dict 
-from assets.potjans_diesmann.feedback_params import feedback_dict
+from assets.stdp.feedforward_params import feedforward_dict 
+from assets.stdp.feedback_params import feedback_dict
 
 from src.network_potjans_diesmann import Network
 
