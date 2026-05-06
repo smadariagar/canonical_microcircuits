@@ -41,7 +41,7 @@ def main():
     
     # Flags para activar/desactivar microcircuitos (si pones --v1_b en la terminal, es True)
     parser.add_argument('--v1', action='store_true', help="Activa la población V1")
-    parser.add_argument('--v2', action='store_true', help="Activa la población V2")
+    parser.add_argument('--v2', type=float, default=1.0, help="Activa la población V2")
     
     # Flags para conexiones
     parser.add_argument('--lat', action='store_true', help="Conecta V1_A con V1_B (Lateral)")
@@ -65,8 +65,8 @@ def main():
         net_dict_v2, 
         lateral_dict_near, 
         lateral_dict_far, 
-        #feedforward_dict, 
-        feedforward_dict
+        feedforward_dict, 
+        feedback_dict
     )
 
     for d in diccionarios:
@@ -98,10 +98,13 @@ def main():
             columnas[v1].create()
             columnas[v1].connect()
         
-    if args.v2:
+    if args.v2 > 0.0:
         stim_dict['thalamic_input'] = False
         stim_dict['num_th_neurons'] = 0.0
-        V2 = ['V2_A', 'V2_B']
+        if args.v2 == 1.0:
+            V2 = ['V2_A']
+        if args.v2 == 2.0:
+            V2 = ['V2_A', 'V2_B']
         for v2 in V2:
             print(f"Creando {v2}...")
             nest.rng_seed = randint(1, 1000)
@@ -121,25 +124,31 @@ def main():
             connect_columns_lat(columnas['V1_B'], columnas['V1_C'], lateral_dict_far)
             connect_columns_lat(columnas['V1_B'], columnas['V1_D'], lateral_dict_far)
 
-        if args.v2:
+        if args.v2 == 2.0:
             print("-> Conectando Lateral en V2")
             connect_columns_lat(columnas['V2_A'], columnas['V2_B'], lateral_dict_far)
             
-    if args.ff and args.v2:
+    if args.ff and args.v2 > 0.0:
         print("-> Conectando Feedforward")
         columnas['V1_A'].connect_networks(columnas['V2_A'], feedforward_dict)
         columnas['V1_B'].connect_networks(columnas['V2_A'], feedforward_dict)
+        if args.v2 == 1.0:
+            columnas['V1_C'].connect_networks(columnas['V2_A'], feedforward_dict)
+            columnas['V1_D'].connect_networks(columnas['V2_A'], feedforward_dict)
+        if args.v2 == 2.0:
+            columnas['V1_C'].connect_networks(columnas['V2_B'], feedforward_dict)
+            columnas['V1_D'].connect_networks(columnas['V2_B'], feedforward_dict)
 
-        columnas['V1_C'].connect_networks(columnas['V2_B'], feedforward_dict)
-        columnas['V1_D'].connect_networks(columnas['V2_B'], feedforward_dict)
-
-    if args.fb and args.v2:
+    if args.fb and args.v2 > 0.0:
         print("-> Conectando Feedback")
         columnas['V2_A'].connect_networks(columnas['V1_A'], feedback_dict)
         columnas['V2_A'].connect_networks(columnas['V1_B'], feedback_dict)
-
-        columnas['V2_B'].connect_networks(columnas['V1_C'], feedback_dict)
-        columnas['V2_B'].connect_networks(columnas['V1_D'], feedback_dict)
+        if args.v2 == 1.0:
+            columnas['V2_A'].connect_networks(columnas['V1_C'], feedback_dict)
+            columnas['V2_A'].connect_networks(columnas['V1_D'], feedback_dict)
+        if args.v2 == 2.0:
+            columnas['V2_B'].connect_networks(columnas['V1_C'], feedback_dict)
+            columnas['V2_B'].connect_networks(columnas['V1_D'], feedback_dict)
 
     # Simular
     t_sim = sim_dict.get('t_sim')

@@ -395,7 +395,7 @@ class Network(network.Network):
                     nest.Connect(
                         source_pop, target_pop,
                         conn_spec=conn_dict_rec,
-                        ssyn_spec=lateral_dict_near['synapse_params'],
+                        syn_spec=syn_dict,
                     )
 
     def __connect_lateral_neuronal_populations(self, net, lateral_dict):
