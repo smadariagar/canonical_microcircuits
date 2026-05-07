@@ -34,9 +34,9 @@ stim_dict = {
     # turn thalamic input on or off (True or False)
     'thalamic_input': True,
     # start of the thalamic input (in ms)
-    'th_start': 500.0,
+    'th_start': 200.0,
     # duration of the thalamic input (in ms)
-    'th_duration': 1000.0,
+    'th_duration': 1500.0,
     # rate of the thalamic input (in spikes/s)
     'th_rate': 200.0,#120.0,
     # number of thalamic neurons

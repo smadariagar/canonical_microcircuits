@@ -94,6 +94,7 @@ def main():
             if v1 == 'V1_D' and args.stim_rate_ecrf != 0.0:
                 stim_dict['th_rate'] = args.stim_rate_ecrf
                 stim_dict['thalamic_input'] = True
+                stim_dict['th_start'] = 600.0
             columnas[v1] = Network(sim_dict, net_dict, stim_dict)
             columnas[v1].create()
             columnas[v1].connect()
@@ -101,10 +102,7 @@ def main():
     if args.v2 > 0.0:
         stim_dict['thalamic_input'] = False
         stim_dict['num_th_neurons'] = 0.0
-        if args.v2 == 1.0:
-            V2 = ['V2_A']
-        if args.v2 == 2.0:
-            V2 = ['V2_A', 'V2_B']
+        V2 = ['V2_A', 'V2_B']
         for v2 in V2:
             print(f"Creando {v2}...")
             nest.rng_seed = randint(1, 1000)
@@ -132,23 +130,17 @@ def main():
         print("-> Conectando Feedforward")
         columnas['V1_A'].connect_networks(columnas['V2_A'], feedforward_dict)
         columnas['V1_B'].connect_networks(columnas['V2_A'], feedforward_dict)
-        if args.v2 == 1.0:
-            columnas['V1_C'].connect_networks(columnas['V2_A'], feedforward_dict)
-            columnas['V1_D'].connect_networks(columnas['V2_A'], feedforward_dict)
-        if args.v2 == 2.0:
-            columnas['V1_C'].connect_networks(columnas['V2_B'], feedforward_dict)
-            columnas['V1_D'].connect_networks(columnas['V2_B'], feedforward_dict)
+
+        columnas['V1_C'].connect_networks(columnas['V2_B'], feedforward_dict)
+        columnas['V1_D'].connect_networks(columnas['V2_B'], feedforward_dict)
 
     if args.fb and args.v2 > 0.0:
         print("-> Conectando Feedback")
         columnas['V2_A'].connect_networks(columnas['V1_A'], feedback_dict)
         columnas['V2_A'].connect_networks(columnas['V1_B'], feedback_dict)
-        if args.v2 == 1.0:
-            columnas['V2_A'].connect_networks(columnas['V1_C'], feedback_dict)
-            columnas['V2_A'].connect_networks(columnas['V1_D'], feedback_dict)
-        if args.v2 == 2.0:
-            columnas['V2_B'].connect_networks(columnas['V1_C'], feedback_dict)
-            columnas['V2_B'].connect_networks(columnas['V1_D'], feedback_dict)
+
+        columnas['V2_B'].connect_networks(columnas['V1_C'], feedback_dict)
+        columnas['V2_B'].connect_networks(columnas['V1_D'], feedback_dict)
 
     # Simular
     t_sim = sim_dict.get('t_sim')
