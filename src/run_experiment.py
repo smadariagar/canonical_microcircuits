@@ -102,7 +102,8 @@ def main():
     if args.v2 > 0.0:
         stim_dict['thalamic_input'] = False
         stim_dict['num_th_neurons'] = 0.0
-        V2 = ['V2_A', 'V2_B']
+        #V2 = ['V2_A', 'V2_B']
+        V2 = ['V2_A']
         for v2 in V2:
             print(f"Creando {v2}...")
             nest.rng_seed = randint(1, 1000)
@@ -131,16 +132,16 @@ def main():
         columnas['V1_A'].connect_networks(columnas['V2_A'], feedforward_dict)
         columnas['V1_B'].connect_networks(columnas['V2_A'], feedforward_dict)
 
-        columnas['V1_C'].connect_networks(columnas['V2_B'], feedforward_dict)
-        columnas['V1_D'].connect_networks(columnas['V2_B'], feedforward_dict)
+        columnas['V1_C'].connect_networks(columnas['V2_A'], feedforward_dict)
+        columnas['V1_D'].connect_networks(columnas['V2_A'], feedforward_dict)
 
     if args.fb and args.v2 > 0.0:
         print("-> Conectando Feedback")
         columnas['V2_A'].connect_networks(columnas['V1_A'], feedback_dict)
         columnas['V2_A'].connect_networks(columnas['V1_B'], feedback_dict)
 
-        columnas['V2_B'].connect_networks(columnas['V1_C'], feedback_dict)
-        columnas['V2_B'].connect_networks(columnas['V1_D'], feedback_dict)
+        columnas['V2_A'].connect_networks(columnas['V1_C'], feedback_dict)
+        columnas['V2_A'].connect_networks(columnas['V1_D'], feedback_dict)
 
     # Simular
     t_sim = sim_dict.get('t_sim')
