@@ -73,7 +73,7 @@ def main():
         d['N_scaling'] = args.ns
         d['K_scaling'] = args.ks
 
-    #stim_dict['th_rate'] = args.stim_rate
+    stim_dict['th_rate'] = args.stim_rate
     columnas = {}
 
     # Crear el microcircuito principal (siempre se crea)
@@ -102,8 +102,8 @@ def main():
     if args.v2 > 0.0:
         stim_dict['thalamic_input'] = False
         stim_dict['num_th_neurons'] = 0.0
-        #V2 = ['V2_A', 'V2_B']
-        V2 = ['V2_A']
+        V2 = ['V2_A', 'V2_B']
+        #V2 = ['V2_A']
         for v2 in V2:
             print(f"Creando {v2}...")
             nest.rng_seed = randint(1, 1000)
@@ -125,7 +125,7 @@ def main():
 
         if args.v2 == 2.0:
             print("-> Conectando Lateral en V2")
-            connect_columns_lat(columnas['V2_A'], columnas['V2_B'], lateral_dict_far)
+            connect_columns_lat(columnas['V2_A'], columnas['V2_B'], lateral_dict_near)
             
     if args.ff and args.v2 > 0.0:
         print("-> Conectando Feedforward")
